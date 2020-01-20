@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h1= title
+  form(method='POST' action='login')
+    label(for='email') Email
+    input#email(type='email', name='email')
+    label(for='password') Password
+    input#password(type='password', name='password')
+    button(type='submit') Login
+  a#forgot(href='/passwordreset') Forgot password?
+
+  if msgs
+    ul(class='msg')
+      for msg in msgs
+        li #{msg.msg}

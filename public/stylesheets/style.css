@@ -1,0 +1,35 @@
+body {
+  padding: 50px;
+  font: 14px monospace, Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+  text-decoration: none;
+  margin: 10px 0;
+}
+
+input {
+  display: block;
+  margin: 10px 0;
+  padding: 10px;
+  font-size: 1.2rem;
+}
+
+button {
+  margin: 10px 0;
+  font-size: 1.1rem;
+}
+
+label {
+  font-size: 1rem;
+}
+
+.pw-info {
+  font-size: .8rem;
+}
+
+#change_option {
+  display: block;
+  padding: 20px 0;
+}

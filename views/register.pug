@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  h1= title
+  form(method='POST' action='')
+    label(for='username') Username 
+    span.pw-info (At least 1 character, maximum 20 characters)
+    input#username(type='text', name='username')
+    label(for='email') Email
+    input#email(type='email', name='email')
+    label(for='password') Password 
+    span.pw-info (At least 8 characters, 1 symbol, 1 number)
+    input#password(type='password', name='password')
+    label(for='password_conf') Password Confirmation
+    input#password_conf(type='password', name='password_conf')
+    button(type='submit') Register
+
+  if msgs
+    ul(class='msg')
+      for msg in msgs
+        li #{msg.msg}
