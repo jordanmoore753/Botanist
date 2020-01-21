@@ -45,4 +45,5 @@ input[type='radio'], .radio-label {
 
 .label-heading {
   font-weight: bold;
+  margin: 15px 0;
 }

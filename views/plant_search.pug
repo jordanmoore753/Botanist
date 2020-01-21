@@ -47,6 +47,16 @@ block content
         label(for='bloom_period', class='radio-label') Fall
         input(name='bloom_period', type='radio', value='Winter')
         label(for='bloom_period', class='radio-label') Winter
+      label(for='active_growth_period', class='label-heading') Active Growth Period
+      div(class='form-radio-div')
+        input(name='active_growth_period', type='radio', value='Spring')
+        label(for='active_growth_period', class='radio-label') Spring
+        input(name='active_growth_period', type='radio', value='Summer')
+        label(for='active_growth_period', class='radio-label') Summer
+        input(name='active_growth_period', type='radio', value='Fall')
+        label(for='active_growth_period', class='radio-label') Fall
+        input(name='active_growth_period', type='radio', value='Winter')
+        label(for='active_growth_period', class='radio-label') Winter
       label(for='shade_tolerance', class='label-heading') Shade Tolerance
       div(class='form-radio-div')
         input(name='shade_tolerance', type='radio', value='Intolerant')
@@ -71,3 +81,35 @@ block content
         label(class='radio-label') Medium
         input(name='moisture_use', type='radio', value='High')
         label(class='radio-label') High
+    fieldset#products
+      label(class='label-heading') Protein Potential
+      div(class='form-radio-div')
+        input(name='protein_potential', type='radio', value='Low')
+        label(class='radio-label') Low
+        input(name='protein_potential', type='radio', value='Medium')
+        label(class='radio-label') Medium
+        input(name='protein_potential', type='radio', value='High')
+        label(class='radio-label') High  
+      label(class='label-heading') Fuelwood
+      div(class='form-radio-div')
+        input(name='fuelwood', type='radio', value='Yes')
+        label(class='radio-label') Yes
+        input(name='fuelwood', type='radio', value='No')
+        label(class='radio-label') No
+      label(class='label-heading') Human-Edible
+      div(class='form-radio-div')
+        input(name='human_edible', type='radio', value='Yes')
+        label(class='radio-label') Yes
+        input(name='human_edible', type='radio', value='No')
+        label(class='radio-label') No
+      label(class='label-heading', for='fruit_seed_color') Fruit/Seed Color
+      input(name='fruit_seed_color', type='text', maxlength='15')
+      label(class='label-heading') Fruit/Seed Abundance
+      div(class='form-radio-div')
+        input(name='fruit_seed_abundance', type='radio', value='Low')
+        label(class='radio-label') Low
+        input(name='fruit_seed_abundance', type='radio', value='Medium')
+        label(class='radio-label') Medium
+        input(name='fruit_seed_abundance', type='radio', value='High')
+        label(class='radio-label') High  
+    button#plant-form-btn(type='submit') Search
