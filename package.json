@@ -6,15 +6,14 @@
     "start": "node ./bin/www",
     "devstart": "nodemon ./bin/www",
     "serverstart": "DEBUG=sess-pg:* npm run devstart",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=1000000 ",
-    "pretest": "psql -U jordan -d plant_test -a -f clear_tables.sql"
+    "test": "cross-env NODE_ENV=test jest --testTimeout=1000000 --forceExit",
+    "pretest": "psql -U jordan -d plant_test -a -f ./db/clear_tables.sql"
   },
   "dependencies": {
     "async": "^3.1.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
-    "connect-flash": "^0.1.1",
     "connect-redis": "^4.0.3",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
@@ -27,7 +26,6 @@
     "helmet": "^3.21.2",
     "http-errors": "~1.6.3",
     "ioredis": "^4.14.1",
-    "memorystore": "^1.6.1",
     "morgan": "~1.9.1",
     "nodemailer": "^6.4.2",
     "pg": "^7.17.1",
@@ -37,14 +35,12 @@
   "devDependencies": {
     "cross-env": "^6.0.3",
     "jest": "^24.9.0",
-    "mock-local-storage": "^1.1.11",
     "nodemon": "^2.0.2",
     "supertest": "^4.0.2",
     "supertest-session": "^4.0.0"
   },
   "jest": {
     "testEnvironment": "node",
-    "setupTestFrameworkScriptFile": "mock-local-storage",
     "coveragePathIgnorePatterns": [
       "/node_modules/"
     ]
