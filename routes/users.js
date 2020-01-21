@@ -3,9 +3,9 @@ const router = express.Router();
 const { pool } = require('../config.js');
 const redirectLogin = (req, res, next) => {
   if (!req.session.userId) {
-    res.redirect('/login');
+    return res.redirect('/login');
   } else {
-    next();
+    return next();
   }
 };
 
@@ -19,7 +19,7 @@ const redirectHome = (req, res, next) => {
       return res.redirect(`/${results.rows[0].id}/profile`);
     });
   } else {
-    next();
+    return next();
   }
 };
 

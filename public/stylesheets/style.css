@@ -33,3 +33,16 @@ label {
   display: block;
   padding: 20px 0;
 }
+
+input[type='radio'], .radio-label {
+  display: inline-block;
+  margin: 10px 15px 0 0;
+}
+
+.form-radio-div {
+  margin-bottom: 15px;
+}
+
+.label-heading {
+  font-weight: bold;
+}

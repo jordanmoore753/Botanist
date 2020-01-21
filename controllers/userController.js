@@ -171,7 +171,7 @@ exports.login = [
     .then(response => {
       if (response) {
         req.session.userId = results.rows[0].id;
-        return res.status(200).redirect(`${results.rows[0].id}/profile`);
+        return res.redirect(`${results.rows[0].id}/profile`);
       } else {
         return renderHelper.renderMsgs(res, [ { msg: 'Invalid credentials.' } ], 'Login', 'login');
       }

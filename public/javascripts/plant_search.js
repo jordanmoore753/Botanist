@@ -43,6 +43,10 @@ $(function() {
       // Close options for current plant
     },
 
+    toggleFields: function() {
+      // toggle show/hide fields for form filtering
+    },
+
     reset: function() {
       // removes all results
       // resets filter form

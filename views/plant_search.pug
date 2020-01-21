@@ -2,4 +2,72 @@ extends layout
 
 block content
   h1= title
-  
+  form#filter_form(method='', action='')
+    fieldset#general_info
+      label(for='common_name', class='label-heading') Common Name
+      input#common_name(name='common_name', type='text', maxlength='20')
+      label(for='resprout', class='label-heading') Self-Resprouting 
+      div(class='form-radio-div')
+        input#yes_resprout(name='resprout', type='radio', value='Yes' checked)
+        label(for='yes_resprout', class='radio-label') Yes
+        input#no_resprout(name='resprout', type='radio', value='No')
+        label(for='yes_resprout' class='radio-label') No
+      label(for='has_fruit', class='label-heading') Fruit-Bearing
+      div(class='form-radio-div')
+        input(name='has_fruit', type='radio', value='Yes')
+        label(for='has_fruit', class='radio-label') Yes
+        input(name='has_fruit', type='radio', value='No')
+        label(for='has_fruit', class='radio-label') No
+      label(for='has_flowers', class='label-heading') Visible Flowers
+      div(class='form-radio-div')
+        input(name='has_flowers', type='radio', value='Yes')
+        label(for='has_flowers', class='radio-label') Yes
+        input(name='has_flowers', type='radio', value='No')
+        label(for='has_flowers', class='radio-label') No
+    fieldset#growing_conditions
+      label(for='precipitation_min', class='label-heading') Precipitation Minimum
+      input#precipitation_min(name='precipitation_min', type='number', max='100', min='0')
+      label(for='temperature_min', class='label-heading') Temperature Minimum
+      input#temperature_min(name='temperature_min', type='number', max='200', min='0')
+      label(for='growth_rate', class='label-heading') Growth Rate
+      div(class='form-radio-div')
+        input(name='growth_rate', type='radio', value='Rapid' checked)
+        label(for='growth_rate', class='radio-label') Rapid
+        input(name='growth_rate', type='radio', value='Moderate')
+        label(for='growth_rate' class='radio-label') Moderate
+        input(name='growth_rate', type='radio', value='Slow')
+        label(for='growth_rate' class='radio-label') Slow
+      label(for='bloom_period', class='label-heading') Bloom Period
+      div(class='form-radio-div')
+        input(name='bloom_period', type='radio', value='Spring')
+        label(for='bloom_period', class='radio-label') Spring
+        input(name='bloom_period', type='radio', value='Summer')
+        label(for='bloom_period', class='radio-label') Summer
+        input(name='bloom_period', type='radio', value='Fall')
+        label(for='bloom_period', class='radio-label') Fall
+        input(name='bloom_period', type='radio', value='Winter')
+        label(for='bloom_period', class='radio-label') Winter
+      label(for='shade_tolerance', class='label-heading') Shade Tolerance
+      div(class='form-radio-div')
+        input(name='shade_tolerance', type='radio', value='Intolerant')
+        label(class='radio-label') Intolerant
+        input(name='shade_tolerance', type='radio', value='Intermediate')
+        label(class='radio-label') Intermediate
+        input(name='shade_tolerance', type='radio', value='Tolerant')
+        label(class='radio-label') Tolerant  
+      label(for='drought_tolerance', class='label-heading') Drought Tolerance
+      div(class='form-radio-div')
+        input(name='drought_tolerance', type='radio', value='Low')
+        label(class='radio-label') Low
+        input(name='drought_tolerance', type='radio', value='Medium')
+        label(class='radio-label') Medium
+        input(name='drought_tolerance', type='radio', value='High')
+        label(class='radio-label') High
+      label(for='moisture_use', class='label-heading') Moisture Use
+      div(class='form-radio-div')
+        input(name='moisture_use', type='radio', value='Low')
+        label(class='radio-label') Low
+        input(name='moisture_use', type='radio', value='Medium')
+        label(class='radio-label') Medium
+        input(name='moisture_use', type='radio', value='High')
+        label(class='radio-label') High

@@ -12,11 +12,9 @@
 10. Fruit seed period beginning
 11. Seeds per pound
 12. Growth rate
-13. Propagated by seed
 14. Fruit color
 15. Graze for animal
 16. Bloom period
-17. Active growth period
 18. Flower color
 19. Palatable for human consumption
 20. Lumber product

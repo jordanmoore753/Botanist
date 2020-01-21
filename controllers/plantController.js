@@ -1,8 +1,8 @@
-const OAuth2 = google.auth.OAuth2;
 const { body, validationResult } = require('express-validator');
 const { sanitizeBody } = require('express-validator');
 const nodeMailer = require('nodemailer');
 const { google } = require('googleapis');
+const OAuth2 = google.auth.OAuth2;
 const async = require('async');
 const { pool } = require('../config.js');
 const renderHelper = require('./helpers.js');
@@ -32,6 +32,7 @@ exports.index = function(req, res, next) {
 
 // GET Plant Search
 exports.getSearch = function(req, res, next) {
+  res.render('plant_search', { title: 'Plant Search' });
   // render plant search page
   // provide all filters for form
 };
