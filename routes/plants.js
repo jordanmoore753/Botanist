@@ -19,7 +19,10 @@ router.get('/', plantController.index);
 router.get('/search', plantController.getSearch);
 
 // GET plant search results
-router.get('/search_form', plantController.searchResults);
+router.post('/search_results', plantController.searchResults);
+
+// GET plant information for one
+router.post('/search_single_plant', plantController.singlePlantResults);
 
 // POST plant to user collection
 router.post('/search', plantController.addPlant);

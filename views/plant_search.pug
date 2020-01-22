@@ -4,28 +4,33 @@ block content
   script(src='/javascripts/plant_search.js')
   h1= title
   form#filter_form(method='', action='')
+    p#form_info No fields are mandatory.
     fieldset#general_info
+      a(class='toggle-info-btn', href='#') Show General Info
       label(for='common_name', class='label-heading') Common Name
       input#common_name(name='common_name', type='text', maxlength='20')
+      label(for='scientific_name', class='label-heading') Scientific Name
+      input#scientific_name(name='scientific_name', type='text', maxlength='25')
       label(for='resprout_ability', class='label-heading') Self-Resprouting
       div(class='form-radio-div')
-        input#yes_resprout_ability(name='resprout_ability', type='radio', value='Yes')
-        label(for='yes_resprout_ability', class='radio-label') Yes
-        input#no_resprout_ability(name='resprout_ability', type='radio', value='No')
-        label(for='yes_resprout_ability' class='radio-label') No
+        input#resprout_ability(name='resprout_ability', type='radio', value='true')
+        label(for='resprout_ability', class='radio-label') Yes
+        input#no_resprout_ability(name='resprout_ability', type='radio', value='false')
+        label(for='resprout_ability' class='radio-label') No
       label(for='fruit_conspicuous', class='label-heading') Fruit-Bearing
       div(class='form-radio-div')
-        input(name='fruit_conspicuous', type='radio', value='Yes')
+        input(name='fruit_conspicuous', type='radio', value='true')
         label(for='fruit_conspicuous', class='radio-label') Yes
-        input(name='fruit_conspicuous', type='radio', value='No')
+        input(name='fruit_conspicuous', type='radio', value='false')
         label(for='fruit_conspicuous', class='radio-label') No
       label(for='flower_conspicuous', class='label-heading') Visible Flowers
       div(class='form-radio-div')
-        input(name='flower_conspicuous', type='radio', value='Yes')
+        input(name='flower_conspicuous', type='radio', value='true')
         label(for='flower_conspicuous', class='radio-label') Yes
-        input(name='flower_conspicuous', type='radio', value='No')
+        input(name='flower_conspicuous', type='radio', value='false')
         label(for='flower_conspicuous', class='radio-label') No
     fieldset#growing_conditions
+      a(class='toggle-info-btn', href='#') Show Growing Info
       label(for='precipitation_minimum', class='label-heading') Precipitation Minimum
       input#precipitation_minimum(name='precipitation_minimum', type='number', max='100', min='0')
       label(for='temperature_minimum', class='label-heading') Temperature Minimum
@@ -83,6 +88,7 @@ block content
         input(name='moisture_use', type='radio', value='High')
         label(class='radio-label') High
     fieldset#products
+      a(class='toggle-info-btn', href='#') Show Product Info
       label(class='label-heading') Protein Potential
       div(class='form-radio-div')
         input(name='protein_potential', type='radio', value='Low')
@@ -91,17 +97,11 @@ block content
         label(class='radio-label') Medium
         input(name='protein_potential', type='radio', value='High')
         label(class='radio-label') High  
-      label(class='label-heading') Fuelwood
-      div(class='form-radio-div')
-        input(name='fuelwood_product', type='radio', value='Yes')
-        label(class='radio-label') Yes
-        input(name='fuelwood_product', type='radio', value='No')
-        label(class='radio-label') No
       label(class='label-heading') Human-Edible
       div(class='form-radio-div')
-        input(name='palatable_human', type='radio', value='Yes')
+        input(name='palatable_human', type='radio', value='true')
         label(class='radio-label') Yes
-        input(name='palatable_human', type='radio', value='No')
+        input(name='palatable_human', type='radio', value='false')
         label(class='radio-label') No
       label(class='label-heading', for='fruit_seed_color') Fruit/Seed Color
       input(name='fruit_seed_color', type='text', maxlength='15')
@@ -114,3 +114,9 @@ block content
         input(name='fruit_seed_abundance', type='radio', value='High')
         label(class='radio-label') High  
     button#plant-form-btn(type='submit') Search
+  section#all_results
+  div#error_central
+    if errors
+      ul
+        for error in errors
+          li(class='err-msg') #{error.msg}

@@ -19,6 +19,7 @@ input {
 button {
   margin: 10px 0;
   font-size: 1.1rem;
+  display: block;
 }
 
 label {
@@ -46,4 +47,16 @@ input[type='radio'], .radio-label {
 .label-heading {
   font-weight: bold;
   margin: 15px 0;
+}
+
+.toggle-info-btn {
+  display: block;
+}
+
+.plant-list-element {
+  margin: 10px;
+}
+
+.more-info-btn {
+  cursor: pointer;
 }

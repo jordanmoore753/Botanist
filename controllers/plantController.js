@@ -7,6 +7,8 @@ const async = require('async');
 const { pool } = require('../config.js');
 const renderHelper = require('./helpers.js');
 const oauth2Client = new OAuth2(process.env.C_ID, process.env.C_SEC, "https://developers.google.com/oauthplayground");
+const https = require('https');
+const request = require('request');
 
 oauth2Client.setCredentials({
   refresh_token: process.env.R_TOK
@@ -33,16 +35,107 @@ exports.index = function(req, res, next) {
 // GET Plant Search
 exports.getSearch = function(req, res, next) {
   res.render('plant_search', { title: 'Plant Search' });
-  // render plant search page
-  // provide all filters for form
 };
 
-// GET Plant Search
+// POST Plant Search
 exports.searchResults = [
-  // sanitize all string inputs
+  body('common_name', 'Length can be less than 20 characters.').optional().isLength({ min: 2, max: 20 }).trim().escape(),
+  body('scientific_name', 'Length can be less than 25 characters.').optional().isLength({ min: 2, max: 25 }).trim().escape(),
+  body('resprout_ability', 'Must be one of valid options.').optional().isIn(['true', 'false']).trim().escape(),
+  body('fruit_conspicuous', 'Must be one of valid options.').optional().isIn(['true', 'false']).trim().escape(),
+  body('flower_conspicuous', 'Must be one of valid options.').optional().isIn(['true', 'false']).trim().escape(),
+  body('precipitation_minimum', 'Precipitation must be realistic number.').optional().isNumeric({ min: 0, max: 200 }).escape(),
+  body('temperature_minimum', 'Temperature is in Farenheit.').optional().isNumeric({ min: 0, max: 200 }).escape(),
+  body('growth_rate', 'Must be one of valid options.').optional().isIn(['Rapid', 'Slow', 'Moderate']).trim().escape(),
+  body('bloom_period', 'Must be one of valid options.').optional().isIn(['Spring', 'Summer', 'Winter', 'Fall']).trim().escape(),
+  body('active_growth_period', 'Must be one of valid options.').optional().isIn(['Spring', 'Summer', 'Winter', 'Fall']).trim().escape(),
+  body('shade_tolerance', 'Must be one of valid options.').optional().isIn(['Tolerant', 'Intolerant', 'Intermediate']).trim().escape(),
+  body('drought_tolerance', 'Must be one of valid options.').optional().isIn(['Low', 'Medium', 'High']).trim().escape(),
+  body('moisture_use', 'Must be one of valid options.').optional().isIn(['Low', 'Medium', 'High']).trim().escape(),
+  body('protein_potential', 'Must be one of valid options.').optional().isIn(['Low', 'Medium', 'High']).trim().escape(),
+  body('fruit_seed_abundance', 'Must be one of valid options.').optional().isIn(['Low', 'Medium', 'High']).trim().escape(),
+  body('palatable_human', 'Must be one of valid options.').optional().isIn(['true', 'false']).trim().escape(),
+  body('fruit_seed_color', 'Choose a real, valid color.').optional().isLength({ min: 3, max: 15 }).trim().escape(),
+
 (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    console.log('yes');
+    return res.send(errors);
+    // return errors to populate on screen
+  }
+
+  let params = Object.keys(req.body);
+  let queryString = 'https://trefle.io/api/plants?complete_data=true';
+  let queries = [];
+
+  params.forEach(function(param) {
+    queries.push(param + '=' + req.body[param]);
+  });
+
+  queries = queries.join('&');
+
+  if (queries.length > 0) {
+    queryString += '&';
+  }
+
+  request({
+    method: 'GET',
+    auth: {
+      'user': null,
+      'pass': null,
+      'sendImmediately': true,
+      'bearer': process.env.TREFLE_ID
+    },
+    url: queryString + queries
+  }, function(error, response, body) {
+    if (error) {
+      return res.send(error.msg);
+    }
+
+    return res.send({
+      response: response,
+      body: body
+    });
+  });
   // query the trefle API
   // return trefle results as Promise to be rendered by client side
+}];
+
+// POST info to GET plant data for a single plant
+exports.singlePlantResults = [
+  body('id', 'Must be 6-digit number').isLength({ min: 6, max: 6 }).isNumeric().trim().escape(),
+(req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.send({
+      errors: errors.errors
+    });
+  }
+
+  let url = 'https://trefle.io/api/plants/' + req.body.id;
+
+  request({
+    method: 'GET',
+    auth: {
+      'user': null,
+      'pass': null,
+      'sendImmediately': true,
+      'bearer': process.env.TREFLE_ID
+    },
+    url: url
+  }, function(error, response, body) {
+    if (error) {
+      return res.send(error.msg);
+    }
+
+    return res.send({
+      response: response,
+      body: body
+    });
+  });
 }];
 
 // POST Plant to User Collection
