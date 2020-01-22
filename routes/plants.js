@@ -18,6 +18,9 @@ router.get('/', plantController.index);
 // GET plant search
 router.get('/search', plantController.getSearch);
 
+// GET plant search results
+router.get('/search_form', plantController.searchResults);
+
 // POST plant to user collection
 router.post('/search', plantController.addPlant);
 

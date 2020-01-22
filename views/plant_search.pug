@@ -1,37 +1,38 @@
 extends layout
 
 block content
+  script(src='/javascripts/plant_search.js')
   h1= title
   form#filter_form(method='', action='')
     fieldset#general_info
       label(for='common_name', class='label-heading') Common Name
       input#common_name(name='common_name', type='text', maxlength='20')
-      label(for='resprout', class='label-heading') Self-Resprouting 
+      label(for='resprout_ability', class='label-heading') Self-Resprouting
       div(class='form-radio-div')
-        input#yes_resprout(name='resprout', type='radio', value='Yes' checked)
-        label(for='yes_resprout', class='radio-label') Yes
-        input#no_resprout(name='resprout', type='radio', value='No')
-        label(for='yes_resprout' class='radio-label') No
-      label(for='has_fruit', class='label-heading') Fruit-Bearing
+        input#yes_resprout_ability(name='resprout_ability', type='radio', value='Yes')
+        label(for='yes_resprout_ability', class='radio-label') Yes
+        input#no_resprout_ability(name='resprout_ability', type='radio', value='No')
+        label(for='yes_resprout_ability' class='radio-label') No
+      label(for='fruit_conspicuous', class='label-heading') Fruit-Bearing
       div(class='form-radio-div')
-        input(name='has_fruit', type='radio', value='Yes')
-        label(for='has_fruit', class='radio-label') Yes
-        input(name='has_fruit', type='radio', value='No')
-        label(for='has_fruit', class='radio-label') No
-      label(for='has_flowers', class='label-heading') Visible Flowers
+        input(name='fruit_conspicuous', type='radio', value='Yes')
+        label(for='fruit_conspicuous', class='radio-label') Yes
+        input(name='fruit_conspicuous', type='radio', value='No')
+        label(for='fruit_conspicuous', class='radio-label') No
+      label(for='flower_conspicuous', class='label-heading') Visible Flowers
       div(class='form-radio-div')
-        input(name='has_flowers', type='radio', value='Yes')
-        label(for='has_flowers', class='radio-label') Yes
-        input(name='has_flowers', type='radio', value='No')
-        label(for='has_flowers', class='radio-label') No
+        input(name='flower_conspicuous', type='radio', value='Yes')
+        label(for='flower_conspicuous', class='radio-label') Yes
+        input(name='flower_conspicuous', type='radio', value='No')
+        label(for='flower_conspicuous', class='radio-label') No
     fieldset#growing_conditions
-      label(for='precipitation_min', class='label-heading') Precipitation Minimum
-      input#precipitation_min(name='precipitation_min', type='number', max='100', min='0')
-      label(for='temperature_min', class='label-heading') Temperature Minimum
-      input#temperature_min(name='temperature_min', type='number', max='200', min='0')
+      label(for='precipitation_minimum', class='label-heading') Precipitation Minimum
+      input#precipitation_minimum(name='precipitation_minimum', type='number', max='100', min='0')
+      label(for='temperature_minimum', class='label-heading') Temperature Minimum
+      input#temperature_minimum(name='temperature_minimum', type='number', max='200', min='0')
       label(for='growth_rate', class='label-heading') Growth Rate
       div(class='form-radio-div')
-        input(name='growth_rate', type='radio', value='Rapid' checked)
+        input(name='growth_rate', type='radio', value='Rapid')
         label(for='growth_rate', class='radio-label') Rapid
         input(name='growth_rate', type='radio', value='Moderate')
         label(for='growth_rate' class='radio-label') Moderate
@@ -92,15 +93,15 @@ block content
         label(class='radio-label') High  
       label(class='label-heading') Fuelwood
       div(class='form-radio-div')
-        input(name='fuelwood', type='radio', value='Yes')
+        input(name='fuelwood_product', type='radio', value='Yes')
         label(class='radio-label') Yes
-        input(name='fuelwood', type='radio', value='No')
+        input(name='fuelwood_product', type='radio', value='No')
         label(class='radio-label') No
       label(class='label-heading') Human-Edible
       div(class='form-radio-div')
-        input(name='human_edible', type='radio', value='Yes')
+        input(name='palatable_human', type='radio', value='Yes')
         label(class='radio-label') Yes
-        input(name='human_edible', type='radio', value='No')
+        input(name='palatable_human', type='radio', value='No')
         label(class='radio-label') No
       label(class='label-heading', for='fruit_seed_color') Fruit/Seed Color
       input(name='fruit_seed_color', type='text', maxlength='15')

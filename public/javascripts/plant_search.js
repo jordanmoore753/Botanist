@@ -5,10 +5,30 @@ $(function() {
     },
 
     bindEvents: function() {
+      $('#filter_form').on('submit', $.proxy(this.search, this));
       // bind buttons
     },
 
-    search: function() {
+    search: function(e) {
+      e.preventDefault();
+
+      let allData = this.formatFormData();
+
+      // fetch('/search_results', {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   },
+
+      //   body: JSON.stringify(allData)
+      // })
+      // .then(function(response) {
+      //   this.appendResults(response);
+      // })
+      // .catch(function(err) {
+      //   throw err;
+      // });
+
       // async GET results from query search
       // controller handles this GET request and returns API data
       // include form data as body
@@ -20,6 +40,10 @@ $(function() {
       // allow asynchronously add planting crops for each plant in results
     },
 
+    appendResults: function(plantList) {
+
+    },
+
     paginate: function() {
       // bind page number buttons to this function
       // loads page of trefle's GET request with current params in form
@@ -29,6 +53,39 @@ $(function() {
     },
 
     formatFormData: function() {
+      let $textInputs = $('#filter_form').find('input[type="text"]');
+      let $numberInputs = $('#filter_form').find('input[type="number"]');
+      let $checkedInputs = $('#filter_form').find('input[type="radio"]:checked');
+
+      let validNumInputs = [];
+      let validStringInputs = [];
+      let data = {};
+
+      $textInputs.each(function (i, element) {
+        if (element.value !== '') {
+          validStringInputs.push(element);
+        }
+      });
+
+      $numberInputs.each(function (i, element) {
+        if (element.value !== '') {
+          validNumInputs.push(element);
+        }
+      });
+
+      validNumInputs.forEach(function(e) {
+        data[e.name] = Number(e.value);
+      });
+
+      validStringInputs.forEach(function(e) {
+        data[e.name] = e.value;
+      });
+
+      $checkedInputs.each(function(i, e) {
+        data[e.name] = e.value;
+      });
+
+      return data;
       // format any input with a value
       // for the Trefle API GET request in controller
       // return as Object

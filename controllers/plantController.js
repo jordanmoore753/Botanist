@@ -42,6 +42,7 @@ exports.searchResults = [
   // sanitize all string inputs
 (req, res, next) => {
   // query the trefle API
+  // return trefle results as Promise to be rendered by client side
 }];
 
 // POST Plant to User Collection
