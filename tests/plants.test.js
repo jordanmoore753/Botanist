@@ -3,7 +3,7 @@ const session = require('supertest-session');
 const { pool } = require('../config.js');
 const app = require('../app.js');
 
-let testSession = null;
+let testSession;
 
 function removeUsers() {
   return pool.query('DELETE FROM users WHERE id = $1 OR 1=1', [1])
@@ -13,31 +13,20 @@ function removeUsers() {
   });
 }
 
-async function register() {
-  return await request(app).post('/register')
-    .send({
-      username: 'suckboot',
-      email: 'suckboot32@gmail.com',
-      password: 'abcdefgh1!',
-      password_conf: 'abcdefgh1!'
-    });
-}
-
 async function login() {
   return await testSession.post('/login')
     .send({
-      email: 'suckboot32@gmail.com',
-      password: 'abcdefgh1!'
+      email: 'plantdaddymail@gmail.com',
+      password: '1234567891!d'
     });
 }
 
 beforeEach(function() {
   testSession = session(app);
-  // return register();
 });
 
 afterEach(function() {
-  return removeUsers();
+  testSession = null;
 });
 
 describe('Open up plant search route', () => {
@@ -86,39 +75,105 @@ describe('POST to retrieve plant details for single plant from Trefle API', () =
 
 describe('POST to insert plant into DB for given user', () => {
   it('should insert Ogeechee Tupelo, 34 quantity, for suckboot32', async () => {
-    const register = await register();
-    const login = await login();
+    const l = await login();
 
-    const res = await testSession.post('/search/add_plant')
+    const res = await testSession.post('/plants/search/add_plant')
       .send({
         id: '159446',
         name: 'Ogeechee Tupelo',
         quantity: 34,
-        date_planted: undefined
+        date_planted: '2020-01-01'
       });
 
     expect(res.statusCode).toEqual(200);
     expect(res.redirect).toEqual(false);
-    expect(res.res.text.includes("<p>Ogeechee Tupelo added to user's plants.</p>"));
+    expect(res.res.text.includes("<p class='success'>Ogeechee Tupelo added to user's plants.</p>"));
     // login data saved to session
   });
 });
 
 describe('No POST to insert plant into DB for given user', () => {
   it('should not insert since no one is logged in', async () => {
-    const register = await register();
+    const res = await testSession.post('/plants/search/add_plant')
+      .send({
+        id: '159446',
+        name: 'Ogeechee Tupelo',
+        quantity: 34,
+        date_planted: '2020-01-01'
+      });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.redirect).toEqual(false);
+    expect(res.res.text.includes("<p class='error'>You are not logged in.</p>"));
+    // no login data in session
+  });
+});
+
+describe('No POST to insert plant into DB with incorrect date', () => {
+  it('should not insert since date is invalid', async () => {
+    const l = await login();
 
     const res = await testSession.post('/search/add_plant')
       .send({
         id: '159446',
         name: 'Ogeechee Tupelo',
-        quantity: 34
+        quantity: 34,
+        date_planted: '<script>console.log("I am in!");</script>'
       });
 
-    expect(res.statusCode).toEqual(200);
+    expect(res.statusCode).toEqual(404);
     expect(res.redirect).toEqual(false);
-    expect(res.res.text.includes("<p>Login to add this plant to your collection.</p>"));
-    // no login data in session
+  });
+});
+
+describe('No POST to insert plant into DB with incorrect quantity', () => {
+  it('should not insert since quantity is invalid', async () => {
+    const l = await login();
+
+    const res = await testSession.post('/search/add_plant')
+      .send({
+        id: '159446',
+        name: 'Ogeechee Tupelo',
+        quantity:'<script>console.log("I am in!");</script>',
+        date_planted: '2020-01-01'
+      });
+
+    expect(res.statusCode).toEqual(404);
+    expect(res.redirect).toEqual(false);
+  });
+});
+
+describe('No POST to insert plant into DB with incorrect id', () => {
+  it('should not insert since id is invalid', async () => {
+    const l = await login();
+
+    const res = await testSession.post('/search/add_plant')
+      .send({
+        id: '<script>console.log("I am in!");</script>',
+        name: 'Ogeechee Tupelo',
+        quantity: 34,
+        date_planted: '2020-01-01'
+      });
+
+    expect(res.statusCode).toEqual(404);
+    expect(res.redirect).toEqual(false);
+  });
+});
+
+describe('No POST to insert plant into DB with escaped/long name', () => {
+  it('should not insert since name is too long and escaped', async () => {
+    const l = await login();
+
+    const res = await testSession.post('/search/add_plant')
+      .send({
+        id: '159446',
+        name: '<script>true;</script>',
+        quantity: 34,
+        date_planted: '2020-01-01'
+      });
+
+    expect(res.statusCode).toEqual(404);
+    expect(res.redirect).toEqual(false);
   });
 });
 // user tests

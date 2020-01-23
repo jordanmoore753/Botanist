@@ -141,7 +141,7 @@ exports.singlePlantResults = [
 // POST Plant to User Collection
 exports.addPlant = [
   body('id', 'Must be 6-digit number').isLength({ min: 6, max: 6 }).isNumeric().trim().escape(),
-  body('name').isLength({ min: 2, max: 30 }).trim().escape(),
+  body('name').isLength({ min: 2, max: 45 }).trim().escape(),
   body('quantity').isInt({ min: 1, max: 1000 }).escape(),
   body('date_planted').isISO8601().toDate().escape(),
   // sanitize date and quantity inputs
@@ -158,7 +158,6 @@ exports.addPlant = [
     });    
   }
 
-  console.log(req.body.date_planted);
   let userId;
 
   async.waterfall([

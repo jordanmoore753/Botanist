@@ -68,9 +68,7 @@ $(function() {
     },
 
     appendPageResults: function(plantList) {
-      if ($('#list_of_results')) {
-        $('#list_of_results').remove();
-      }
+      this.reset();
 
       let list = document.createElement('ul');
       let listItem;
@@ -265,7 +263,7 @@ $(function() {
       });
 
       validStringInputs.forEach(function(e) {
-        data[e.name] = e.value.toLowerCase();
+        data[e.name] = e.value;
       });
 
       $checkedInputs.each(function(i, e) {
@@ -281,9 +279,23 @@ $(function() {
     addPlantForUser: function(e) {
       e.preventDefault();
 
+      if ($('.success').length > 0) {
+        $('.success').remove();
+      } else if ($('.failure').length > 0) {
+        $('.failure').remove();
+      }
+
       let $inputs = $(e.target).find('input');
       let $button = $(e.target).find('button');
-      let name = $(e.target).parent().find('li')[1].textContent.replace('Common Name : ', '');
+      let name = $(e.target).parent().find('li')[1];
+
+      if (name.textContent === 'Common Name : Not Available ') {
+        name = $(e.target).parent().find('li')[2].textContent.replace('Scientific Name : ', '');
+      } else {
+        name = name.textContent.replace('Common Name : ', '');
+      }
+
+      name = name.trim();
 
       let data = {
         id: $button[0].value,
@@ -301,12 +313,21 @@ $(function() {
       })
       .then(res => res.json())
       .then(function(json) {
-        console.log(json);
+        let message = document.createElement('p');
+        message.textContent = json.msg;
+
+        if (json.success === true) {
+          message.classList.add('success');
+        } else {
+          message.classList.add('failure');
+        }
+
+        $(e.target).parent().parent()[0].append(message);
+        return;
         // body
       })
       .catch(err => console.error(err));
 
-      console.log(data);
       return;
       // form includes date planted and quantity
       // POST to /search
@@ -332,6 +353,9 @@ $(function() {
     },
 
     reset: function() {
+      if ($('#list_of_results')) {
+        $('#list_of_results').remove();
+      }
       // removes all results
       // resets filter form
     }
