@@ -9,6 +9,7 @@ const renderHelper = require('./helpers.js');
 const oauth2Client = new OAuth2(process.env.C_ID, process.env.C_SEC, "https://developers.google.com/oauthplayground");
 const https = require('https');
 const request = require('request');
+const moment = require('moment');
 
 oauth2Client.setCredentials({
   refresh_token: process.env.R_TOK
@@ -61,7 +62,6 @@ exports.searchResults = [
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    console.log('yes');
     return res.send(errors);
     // return errors to populate on screen
   }
@@ -140,9 +140,64 @@ exports.singlePlantResults = [
 
 // POST Plant to User Collection
 exports.addPlant = [
+  body('id', 'Must be 6-digit number').isLength({ min: 6, max: 6 }).isNumeric().trim().escape(),
+  body('name').isLength({ min: 2, max: 30 }).trim().escape(),
+  body('quantity').isInt({ min: 1, max: 1000 }).escape(),
+  body('date_planted').isISO8601().toDate().escape(),
   // sanitize date and quantity inputs
 (req, res, next) => {
-  // 
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.send({
+      msg: 'Inputs were improperly formatted.'
+    });
+  } else if (!req.session.userId) {
+    return res.send({
+      msg: 'You are not logged in.'
+    });    
+  }
+
+  console.log(req.body.date_planted);
+  let userId;
+
+  async.waterfall([
+    function getUserId(callback) {
+      pool.query('SELECT * FROM users WHERE id = $1', [req.session.userId], (err, results) => {
+        if (err) {
+          return res.send({
+            msg: 'User does not exist; could not add plant.'
+          });
+        }
+
+        callback(null, results.rows[0].id);
+      });   
+    },
+
+    function addPlant(userId, callback) {
+      pool.query('INSERT INTO plants(user_id, plant_id, name, quantity, planted_date) VALUES($1, $2, $3, $4, $5)', [userId, req.body.id, req.body.name, req.body.quantity, req.body.date_planted], (err, results) => {
+        if (err) {
+          return res.send({
+            msg: 'Plant could not be added.'
+          });
+        }
+
+        callback(null);    
+      });
+    }
+  ], function(err, results) {
+    if (err) {
+      return res.send({
+        msg: err
+      });
+    }
+
+    return res.send({
+      msg: 'Successfully added plant to your collection.'
+    });
+  });
+
+
   // insert row into crops or houseplants relation
   // return a promise to be handled by Fetch on client side
 }];

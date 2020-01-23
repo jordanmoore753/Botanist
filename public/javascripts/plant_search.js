@@ -7,7 +7,9 @@ $(function() {
     bindEvents: function() {
       $('#filter_form').on('submit', $.proxy(this.search, this));
       $('.toggle-info-btn').on('click', $.proxy(this.toggleField, this));
-      $('#all_results').on('click', 'a', $.proxy(this.searchSinglePlant, this));
+      $('#all_results').on('click', 'a.more-info-btn', $.proxy(this.searchSinglePlant, this));
+      // $('#fullscreen_container').on('submit', '#close_details', $.proxy(this.closeDetails, this));
+      // $('#fullscreen_container').on('submit', '.single-plant-add-form', $.proxy(this.addPlantForUser, this));
       // bind buttons
     },
 
@@ -58,7 +60,6 @@ $(function() {
       .then(res => res.json())
       .then(function(json) {
         let plantData = JSON.parse(json.body);
-        console.log(plantData);
         self.appendSinglePlantDetails($(e.target), plantData);
       })
       .catch(function(err) {
@@ -105,7 +106,23 @@ $(function() {
       return;
     },
 
-    appendSinglePlantDetails: function(element, plantDetails) {
+    appendSinglePlantDetails: function($element, plantDetails) {
+      function titleize(string) {
+        let array = string.split('_');
+        let newString = '';
+
+        array.forEach(function(word) {
+          newString += word[0].toUpperCase() + word.slice(1) + ' ';
+        });
+
+        return newString;
+      }
+
+      if ($element.children().length > 0) {
+        $element.children().remove();
+        return;
+      }
+
       let section = document.createElement('section');
       section.classList.add('single-plant-details');
 
@@ -114,10 +131,11 @@ $(function() {
 
       let listItem;
       let details = {
-        image: plantDetails.main_species.images[0].url || 'Not Available',
-        scientific_name: plantDetails.scientific_name || 'Not Available',
-        temperature_minimum: plantDetails.main_species.growth.temperature_minimum.deg_f || 'Not Available',
-        precipitation_minimum: plantDetails.main_species.growth.precipitation_minimum.inches || 'Not Available',
+        image: 'Not Available',
+        common_name: plantDetails.main_species.common_name || 'Not Available',
+        scientific_name: plantDetails.main_species.scientific_name || 'Not Available',
+        temperature_minimum: plantDetails.main_species.growth.temperature_minimum.deg_f + 'F' || 'Not Available',
+        precipitation_minimum: plantDetails.main_species.growth.precipitation_minimum.inches + ' inches' || 'Not Available',
         shade_tolerance: plantDetails.main_species.growth.shade_tolerance || 'Not Available',
         drought_tolerance: plantDetails.main_species.growth.drought_tolerance || 'Not Available',
         moisture_use: plantDetails.main_species.growth.moisture_use || 'Not Available',
@@ -126,13 +144,90 @@ $(function() {
         seed_period_begin: plantDetails.main_species.fruit_or_seed.seed_period_begin || 'Not Available',
         seed_period_end: plantDetails.main_species.fruit_or_seed.seed_period_end || 'Not Available',
         seed_abundance: plantDetails.main_species.fruit_or_seed.seed_abundance || 'Not Available',
-        seeds_per_pound: plantDetails.main_species.seed.seeds_per_pound || 'Not Available',
+        seeds_per_pound: String(plantDetails.main_species.seed.seeds_per_pound) || 'Not Available',
         bloom_period: plantDetails.main_species.seed.bloom_period || 'Not Available',
         vegetative_spread_rate: plantDetails.main_species.seed.vegetative_spread_rate || 'Not Available',
         growth_rate: plantDetails.main_species.specifications.growth_rate || 'Not Available',
       };
 
+      if (plantDetails.images.length > 0) {
+        details['image'] = plantDetails.images[0].url;
+      } 
 
+      let keys = Object.keys(details);
+      let image;
+      let span;
+
+      keys.forEach(function(attribute) {
+        listItem = document.createElement('li');
+        listItem.classList.add('single-plant-list-item');
+
+        if (attribute === 'image' && details[attribute] !== 'Not Available') {
+          image = document.createElement('img');
+          image.src = details[attribute];
+          image.classList.add('single-plant-image');
+          listItem.append(image);
+        } else {
+          listItem.textContent = titleize(attribute) + ': ' + titleize(details[attribute]);
+        }
+
+        uList.append(listItem);
+      });
+
+      let addPlantLink = document.createElement('a');
+      addPlantLink.classList.add('add-btn-plant');
+      addPlantLink.textContent = 'Add Plant';
+
+      let addPlantForm = document.createElement('form');
+      addPlantForm.classList.add('single-plant-add-form');
+
+      let quantityInput = document.createElement('input');
+      quantityInput.type = 'number';
+      quantityInput.name = 'quantity';
+      quantityInput.max = '1000';
+      quantityInput.min = '1';
+      quantityInput.required = 'true';
+
+      let quantityLabel = document.createElement('label');
+      quantityLabel.for = 'quantity';
+      quantityLabel.textContent = 'Quantity';
+
+      let dateInput = document.createElement('input');
+      dateInput.type = 'date';
+      dateInput.name = 'date_planted';
+      dateInput.required = 'true';
+
+      let dateLabel = document.createElement('label');
+      dateLabel.for = 'date_planted';
+      dateLabel.textContent = 'Date Planted';
+
+      let submitBtn = document.createElement('button');
+      submitBtn.type = 'submit';
+      submitBtn.value = $element.parent().attr('id');
+      submitBtn.textContent = 'Add Plant';
+
+      let closeBtn = document.createElement('button');
+      closeBtn.type = 'submit';
+      closeBtn.textContent = 'Close Details';
+      closeBtn.id = 'close_details';
+
+      [quantityLabel, quantityInput, dateInput, submitBtn].forEach(e => addPlantForm.append(e));
+
+      uList.append(addPlantForm);
+      uList.append(closeBtn);
+      section.append(uList);
+      $('#fullscreen_container').fadeIn(100);
+      $('#fullscreen_container').append(section);
+      $('#close_details').on('click', $.proxy(this.closeDetails, this));
+      $('.single-plant-add-form').on('submit', $.proxy(this.addPlantForUser, this));
+      return;
+    },
+
+    closeDetails: function(e) {
+      e.preventDefault();
+
+      $('.single-plant-details').remove();
+      $('#fullscreen_container').fadeOut(100);
       return;
     },
 
@@ -183,7 +278,36 @@ $(function() {
       // return as Object
     },
 
-    addPlantForUser: function() {
+    addPlantForUser: function(e) {
+      e.preventDefault();
+
+      let $inputs = $(e.target).find('input');
+      let $button = $(e.target).find('button');
+      let name = $(e.target).parent().find('li')[1].textContent.replace('Common Name : ', '');
+
+      let data = {
+        id: $button[0].value,
+        name: name,
+        quantity: $inputs[0].value,
+        date_planted: $inputs[1].value
+      };
+
+      fetch('/plants/search/add_plant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(function(json) {
+        console.log(json);
+        // body
+      })
+      .catch(err => console.error(err));
+
+      console.log(data);
+      return;
       // form includes date planted and quantity
       // POST to /search
       // must be logged in! Will be redirected to login page if not.

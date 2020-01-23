@@ -25,7 +25,7 @@ router.post('/search_results', plantController.searchResults);
 router.post('/search_single_plant', plantController.singlePlantResults);
 
 // POST plant to user collection
-router.post('/search', plantController.addPlant);
+router.post('/search/add_plant', plantController.addPlant);
 
 // GET plant tracker
 router.get('/tracker', plantController.getTracker);

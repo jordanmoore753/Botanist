@@ -3,6 +3,8 @@ body {
   font: 14px monospace, Helvetica, Arial, sans-serif;
 }
 
+/* login, reigster, profile style */
+
 a {
   color: #00B7FF;
   text-decoration: none;
@@ -35,6 +37,29 @@ label {
   padding: 20px 0;
 }
 
+/* plant search form style */
+
+#fullscreen_container {
+  display: none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(90, 90, 90, 0.5);
+  z-index: 9999;
+}
+
+.single-plant-details {
+  width: 400px;
+  height: auto;
+  background-color: cyan;
+  box-shadow: 1px 2px black;
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto;
+}
+
 input[type='radio'], .radio-label {
   display: inline-block;
   margin: 10px 15px 0 0;
@@ -53,10 +78,19 @@ input[type='radio'], .radio-label {
   display: block;
 }
 
+/* single plant details style */
+
 .plant-list-element {
   margin: 10px;
 }
 
 .more-info-btn {
   cursor: pointer;
+}
+
+.single-plant-image {
+  width: 200px;
+  height: 200px;
+  border: 1px solid black;
+  box-shadow: 1px 2px black;
 }
