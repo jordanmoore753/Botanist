@@ -15,7 +15,5 @@ block content
     input#password_conf(type='password', name='password_conf')
     button(type='submit') Register
 
-  if msgs
-    ul(class='msg')
-      for msg in msgs
-        li #{msg.msg}
+  if alert
+    p(class='alert') #{alert}

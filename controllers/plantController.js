@@ -142,8 +142,6 @@ exports.singlePlantResults = [
 exports.addPlant = [
   body('id', 'Must be 6-digit number').isLength({ min: 6, max: 6 }).isNumeric().trim().escape(),
   body('name').isLength({ min: 2, max: 45 }).trim().escape(),
-  body('quantity').isInt({ min: 1, max: 1000 }).escape(),
-  body('date_planted').isISO8601().toDate().escape(),
   // sanitize date and quantity inputs
 (req, res, next) => {
   const errors = validationResult(req);
@@ -173,10 +171,22 @@ exports.addPlant = [
       });   
     },
 
-    function addPlant(userId, callback) {
-      pool.query('INSERT INTO plants(user_id, plant_id, name, quantity, planted_date) VALUES($1, $2, $3, $4, $5)', [userId, req.body.id, req.body.name, req.body.quantity, req.body.date_planted], (err, results) => {
-        if (err) {
+    function checkPlantExists(userId, callback) {
+      pool.query('SELECT * FROM plants WHERE user_id = $1 AND plant_id = $2', [userId, req.body.id], (err, results) => {
+        if (err || results.rows.length > 0) {
           return res.send({
+            msg: 'Plant already added to your collection.'
+          });
+        }
+
+        callback(null, userId);
+      });
+    },
+
+    function addPlant(userId, callback) {
+      pool.query('INSERT INTO plants(user_id, plant_id, name) VALUES($1, $2, $3)', [userId, req.body.id, req.body.name], (err, results) => {
+        if (err) {
+          return res.status(404).send({
             msg: 'Plant could not be added.'
           });
         }
@@ -201,37 +211,97 @@ exports.addPlant = [
   // return a promise to be handled by Fetch on client side
 }];
 
-// GET Plant Tracker
-exports.getTracker = function(req, res, next) {
-  // query the database for all sightings, extract common names
-  // common names enter a select dropdown list to choose from
-  // no need to sanitize data
+// GET Plant Sighting Add Page
+exports.getAddSighting = function(req, res, next) {
+  return res.render('add_sighting', { 
+    title: 'Report Sighting',
+    plant_id: req.params.id
+  });
+  // render
 };
 
-// GET Plant Tracker Results
-exports.trackerResults = function(req, res, next) {
-  // return json formatted data to asynchronously update
-  // return list of all sightings for certain plant
-  // include location and data for each result
-};
-
-// GET Tracked Sighting Details
-exports.getSightingDetails = function(req, res, next) {
-  // populate all data from row for this sighting
-  // show coordinates on geolocation map
-};
-
-// GET Report Tracking
-exports.getReporter = function(req, res, next) {
-  // render page and form for reporting individual sighting
-};
-
-// POST Report Tracking
-exports.reportSighting = [
-  // ensure date is date
-  // check coordinates are valid
-  // sanitize all inputs
+// POST Plant Sighting
+exports.addSighting = [
+  body('description').isLength({ min: 10, max: 400 }).trim().escape(),
+  body('plant_id').isNumeric().escape(),
+  body('lat').isNumeric().escape(),
+  body('lng').isNumeric().escape(),
 (req, res, next) => {
-  // insert into sightings relation
-  // redirect to tracking home
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.render('add_sighting', {
+      title: 'Report Sighting',
+      msg: 'Data was incorrect. Try again.'
+    });
+  }
+
+  async.waterfall([
+    function plantExists(callback) {
+      let url = 'https://trefle.io/api/plants/' + req.body.plant_id;
+
+      request({
+        method: 'GET',
+        auth: {
+          'user': null,
+          'pass': null,
+          'sendImmediately': true,
+          'bearer': process.env.TREFLE_ID
+        },
+        url: url
+      }, function(error, response, body) {
+        if (error) {
+          return res.render('add_sighting', {
+            title: 'Report Sighting',
+            msg: 'Data was incorrect. Try again.'
+          });
+        }
+
+        callback(null);
+      });      
+    },
+
+    function sessionDataExists(callback) {
+      pool.query('SELECT * FROM users WHERE id = $1', [req.session.userId], (err, results) => {
+        if (err || results.rows.length === 0) {
+          return res.redirect('/login');
+        }
+
+        callback(null, results.rows[0].id);
+      });
+    },
+
+    function postSighting(userId, callback) {
+      pool.query('INSERT INTO sightings (user_id, plant_id, lat, long, description) VALUES ($1, $2, $3, $4, $5)', [req.session.userId, req.body.plant_id, req.body.lat, req.body.lng, req.body.description], (err, results) => {
+        if (err) {
+          return res.render('add_sighting', {
+            title: 'Report Sighting',
+            msg: 'Some data was invalid or missing. Try again.'
+          });
+        }
+
+        callback(null);        
+      });
+    }
+  ], function(err, results) {
+    if (err) {
+      return res.render('add_sighting', {
+        title: 'Report Sighting',
+        msg: err
+      });
+    }
+
+    // session data to verify
+    req.session.success = 'Successfully reported sighting.';
+    return res.redirect(`/${req.session.userId}/profile`);
+  });
 }];
+
+// GET Sightings for Certain Plant
+exports.getViewSighting = function(req, res, next) {
+  // render
+};
+
+// refactor DB to hold only plants with no date or quantity
+// allow favoriting (a boolean)
+// refactor form to not take quantity or date planted, only id and name

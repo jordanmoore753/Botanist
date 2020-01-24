@@ -124,6 +124,13 @@ $(function() {
       let section = document.createElement('section');
       section.classList.add('single-plant-details');
 
+      let closeBtn = document.createElement('button');
+      closeBtn.type = 'submit';
+      closeBtn.textContent = 'Close Details';
+      closeBtn.id = 'close_details';
+
+      section.append(closeBtn);
+
       let uList = document.createElement('ul');
       uList.classList.add('plant-detail-list');
 
@@ -179,41 +186,15 @@ $(function() {
       let addPlantForm = document.createElement('form');
       addPlantForm.classList.add('single-plant-add-form');
 
-      let quantityInput = document.createElement('input');
-      quantityInput.type = 'number';
-      quantityInput.name = 'quantity';
-      quantityInput.max = '1000';
-      quantityInput.min = '1';
-      quantityInput.required = 'true';
-
-      let quantityLabel = document.createElement('label');
-      quantityLabel.for = 'quantity';
-      quantityLabel.textContent = 'Quantity';
-
-      let dateInput = document.createElement('input');
-      dateInput.type = 'date';
-      dateInput.name = 'date_planted';
-      dateInput.required = 'true';
-
-      let dateLabel = document.createElement('label');
-      dateLabel.for = 'date_planted';
-      dateLabel.textContent = 'Date Planted';
-
       let submitBtn = document.createElement('button');
       submitBtn.type = 'submit';
       submitBtn.value = $element.parent().attr('id');
       submitBtn.textContent = 'Add Plant';
 
-      let closeBtn = document.createElement('button');
-      closeBtn.type = 'submit';
-      closeBtn.textContent = 'Close Details';
-      closeBtn.id = 'close_details';
-
-      [quantityLabel, quantityInput, dateInput, submitBtn].forEach(e => addPlantForm.append(e));
-
+      addPlantForm.append(submitBtn);
       uList.append(addPlantForm);
-      uList.append(closeBtn);
       section.append(uList);
+
       $('#fullscreen_container').fadeIn(100);
       $('#fullscreen_container').append(section);
       $('#close_details').on('click', $.proxy(this.closeDetails, this));
@@ -285,7 +266,6 @@ $(function() {
         $('.failure').remove();
       }
 
-      let $inputs = $(e.target).find('input');
       let $button = $(e.target).find('button');
       let name = $(e.target).parent().find('li')[1];
 
@@ -299,9 +279,7 @@ $(function() {
 
       let data = {
         id: $button[0].value,
-        name: name,
-        quantity: $inputs[0].value,
-        date_planted: $inputs[1].value
+        name: name
       };
 
       fetch('/plants/search/add_plant', {

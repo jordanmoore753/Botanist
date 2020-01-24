@@ -10,7 +10,5 @@ block content
     button(type='submit') Login
   a#forgot(href='/passwordreset') Forgot password?
 
-  if msgs
-    ul(class='msg')
-      for msg in msgs
-        li #{msg.msg}
+  if alert
+    p(class='alert') #{alert}

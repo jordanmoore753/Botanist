@@ -47,10 +47,10 @@ router.post('/logout', redirectLogin, userController.logout);
 router.get('/passwordreset', redirectHome, userController.getPasswordReset);
 
 // POST password key form to get key
-router.post('/passwordreset', redirectHome, userController.sendKey);
+router.post('/passwordreset/send_key', redirectHome, userController.sendKey);
 
 // PATCH password key form to update password
-router.patch('/passwordreset', redirectHome, userController.updatePassword);
+router.post('/passwordreset/update_pw', redirectHome, userController.updatePassword);
 
 // GET user profile
 router.get('/:id/profile', redirectLogin, userController.profile);

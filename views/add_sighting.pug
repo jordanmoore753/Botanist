@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  script(src='/javascripts/add_sighting.js')
+  - let link = '/plants/sightings/add/' + plant_id;
+  h1= title
+  section#map
+  section#form-container
+    form#sighting-form(method='POST', action=link)
+      label(for='description') Description
+      textarea(maxlength='400', minlength='10', form='sighting-form', name='description', spellcheck='true', cols='60', rows='8', required) Give a description of the plant, or maybe more specific directions on how to reach it.
+      input(class="hidden-input-sighting", type="number", value=plant_id, name="plant_id")
+      input(type="number", step='any', name="lat")
+      input(type="number", step='any', name="lng")
+      button(type="submit") Submit

@@ -6,7 +6,6 @@ $(function() {
 
     bindEvents: function() {
       $('a#change_option').on('click', $.proxy(this.toggleDivs, this));
-      $('#reset_form').on('submit', $.proxy(this.resetPassword, this));
     },
 
     toggleDivs: function(e) {
@@ -28,40 +27,6 @@ $(function() {
       $('.async-msg').hide();
       $('.msg').hide();
       return;
-    },
-
-    resetPassword: function(e) {
-      e.preventDefault();
-
-      $('.async-msg').text('');
-      $('.async-msg').hide();
-
-      let body = {
-        email_two: $('#email_two').val(),
-        key: $('#key').val(),
-        password: $('#password').val(),
-        password_conf: $('#password_conf').val()
-      };
-
-      fetch('/passwordreset', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      })
-      .then(response => response.json())
-      .then(function(json) {
-        if (json.status === 404 || json.status === 500) {
-          $('.async-msg').text(json.error);
-          $('.async-msg').show();
-        } else if (json.status === 302) {
-          return window.location.replace('/login');
-        }
-      })
-      .catch(function(err) {
-        throw new Error(err.msg);
-      });
     } 
   };
 

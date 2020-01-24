@@ -83,8 +83,8 @@ describe('/register creates a new user', () => {
         password_conf: 'abcdefgh1!'
       });  
 
-    expect(registerRes.statusCode).toEqual(200);
-    expect(registerRes.res.text.includes('<title>Login</title>')).toEqual(true);
+    expect(registerRes.statusCode).toEqual(302);
+    expect(registerRes.text.includes('Redirecting to /login')).toEqual(true);
 
     const res = await login();
 
@@ -110,8 +110,8 @@ describe('/register invalid data does not create new user', () => {
         password: 'abcdefgh1!'
       });
 
-    expect(res.statusCode).toEqual(200);
-    expect(res.redirect).toEqual(false);
+    expect(res.statusCode).toEqual(302);
+    expect(res.redirect).toEqual(true);
     expect(res.req.finished).toEqual(true);
     expect(res.res.url).toEqual('');
   });
@@ -136,23 +136,22 @@ describe('/logout redirects and destroys session', () => {
 
 describe('reset password requires a personal key', () => {
   it('should redirect to login after getting key, only one key made', async () => {
-    const res = await testSession.post('/passwordreset')
+    const res = await testSession.post('/passwordreset/send_key')
       .send({
         email: 'suckboot32@gmail.com'
       });
 
-    expect(res.statusCode).toEqual(200);
-    expect(res.redirect).toEqual(false);
+    expect(res.statusCode).toEqual(302);
+    expect(res.redirect).toEqual(true);
     expect(res.res.text.includes('<title>Reset Password</title>'));
 
-    const resDuplicate = await testSession.post('/passwordreset')
+    const resDuplicate = await testSession.post('/passwordreset/send_key')
       .send({
         email: 'suckboot32@gmail.com'
       });
 
-    expect(resDuplicate.statusCode).toEqual(200);
-    expect(resDuplicate.redirect).toEqual(false);
+    expect(resDuplicate.statusCode).toEqual(302);
+    expect(resDuplicate.redirect).toEqual(true);
     expect(resDuplicate.req.finished).toEqual(true);
-    expect(resDuplicate.res.text.includes('<li>You already have a reset key: check your email inbox/spam folder.</li>')).toEqual(true);
   });
 });

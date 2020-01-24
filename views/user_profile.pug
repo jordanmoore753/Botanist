@@ -1,16 +1,12 @@
 extends layout
 
 block content
-  script(src='/javascripts/profile_actions.js')
+  if alert
+    p(class='alert') #{alert}
   h1= title
   h2 User Information
   ul
     li= userInfo.name
     li= userInfo.email
-  h2 Posts By #{userInfo.name}
-  ul
-    each post in postList
-      li
-        a(href='#') #{post.title}
-
-  button#logout(type='submit') Logout
+  form#logout(method='POST', action='/logout')
+    button#logout(type='submit') Logout

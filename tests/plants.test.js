@@ -74,15 +74,13 @@ describe('POST to retrieve plant details for single plant from Trefle API', () =
 });
 
 describe('POST to insert plant into DB for given user', () => {
-  it('should insert Ogeechee Tupelo, 34 quantity, for suckboot32', async () => {
+  it('should insert Ogeechee Tupelo for user', async () => {
     const l = await login();
 
     const res = await testSession.post('/plants/search/add_plant')
       .send({
         id: '159446',
-        name: 'Ogeechee Tupelo',
-        quantity: 34,
-        date_planted: '2020-01-01'
+        name: 'Ogeechee Tupelo'
       });
 
     expect(res.statusCode).toEqual(200);
@@ -92,54 +90,46 @@ describe('POST to insert plant into DB for given user', () => {
   });
 });
 
+describe('No POST to insert duplicate plant for given user', () => {
+  it('should not insert Ogeechee Tupelo for user', async () => {
+    const l = await login();
+
+    const res = await testSession.post('/plants/search/add_plant')
+      .send({
+        id: '159446',
+        name: 'Ogeechee Tupelo'
+      });
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.redirect).toEqual(false);
+    expect(res.res.text.includes("<p class='success'>Ogeechee Tupelo added to user's plants.</p>"));
+
+    const resSecond = await testSession.post('/plants/search/add_plant')
+      .send({
+        id: '159446',
+        name: 'Ogeechee Tupelo'
+      });
+
+    expect(resSecond.statusCode).toEqual(200);
+    expect(resSecond.redirect).toEqual(false); 
+    expect(res.res.text.includes("<p class='failure'>Plant already added to your collection.</p>"));
+
+    // login data saved to session
+  });
+});
+
 describe('No POST to insert plant into DB for given user', () => {
   it('should not insert since no one is logged in', async () => {
     const res = await testSession.post('/plants/search/add_plant')
       .send({
         id: '159446',
-        name: 'Ogeechee Tupelo',
-        quantity: 34,
-        date_planted: '2020-01-01'
+        name: 'Ogeechee Tupelo'
       });
 
     expect(res.statusCode).toEqual(200);
     expect(res.redirect).toEqual(false);
     expect(res.res.text.includes("<p class='error'>You are not logged in.</p>"));
     // no login data in session
-  });
-});
-
-describe('No POST to insert plant into DB with incorrect date', () => {
-  it('should not insert since date is invalid', async () => {
-    const l = await login();
-
-    const res = await testSession.post('/search/add_plant')
-      .send({
-        id: '159446',
-        name: 'Ogeechee Tupelo',
-        quantity: 34,
-        date_planted: '<script>console.log("I am in!");</script>'
-      });
-
-    expect(res.statusCode).toEqual(404);
-    expect(res.redirect).toEqual(false);
-  });
-});
-
-describe('No POST to insert plant into DB with incorrect quantity', () => {
-  it('should not insert since quantity is invalid', async () => {
-    const l = await login();
-
-    const res = await testSession.post('/search/add_plant')
-      .send({
-        id: '159446',
-        name: 'Ogeechee Tupelo',
-        quantity:'<script>console.log("I am in!");</script>',
-        date_planted: '2020-01-01'
-      });
-
-    expect(res.statusCode).toEqual(404);
-    expect(res.redirect).toEqual(false);
   });
 });
 
@@ -150,9 +140,7 @@ describe('No POST to insert plant into DB with incorrect id', () => {
     const res = await testSession.post('/search/add_plant')
       .send({
         id: '<script>console.log("I am in!");</script>',
-        name: 'Ogeechee Tupelo',
-        quantity: 34,
-        date_planted: '2020-01-01'
+        name: 'Ogeechee Tupelo'
       });
 
     expect(res.statusCode).toEqual(404);
@@ -167,130 +155,42 @@ describe('No POST to insert plant into DB with escaped/long name', () => {
     const res = await testSession.post('/search/add_plant')
       .send({
         id: '159446',
-        name: '<script>true;</script>',
-        quantity: 34,
-        date_planted: '2020-01-01'
+        name: '<script>true;</script>'
       });
 
     expect(res.statusCode).toEqual(404);
     expect(res.redirect).toEqual(false);
   });
 });
-// user tests
 
-// describe('Redirect when profile accessed but no session data', () => {
-//   it('should redirect to login when not logged in', async () => {
-//     const res = await request(app).get('/1/profile');
-//     expect(res.statusCode).toEqual(302);
-//     expect(res.redirect).toEqual(true);
-//     expect(res.headers.location).toEqual('/login');
-//   });
-// });
+// tracker tests
 
-// describe('/login redirect to profile with session data', () => {
-//   it('should redirect to profile when logged in', async () => {
-//     await register();
-//     await login();
+describe('GET to view_sightings', () => {
+  it('should return a page with title Reported Sightings and loaded sightings from DB', async () => {
 
-//     const res = await testSession.get('/login');
-//     expect(res.statusCode).toEqual(302);
-//     expect(res.redirect).toEqual(true);
-//     expect(res.headers.location.endsWith('/profile')).toEqual(true);
-//   });
-// });
+  });
+});
 
-// describe('/register redirect to profile with session data', () => {
-//   it('should redirect to profile when logged in', async () => {
-//     await register();
-//     await login();
+describe('GET to submit_sighting', () => {
+  it('should return a page with title: Add Sighting and load available plants to report from DB', async () => {
 
-//     const res = await testSession.get('/register');
-//     expect(res.statusCode).toEqual(302);
-//     expect(res.redirect).toEqual(true);
-//     expect(res.headers.location.endsWith('/profile')).toEqual(true);
-//   });
-// });
+  });
+});
 
-// describe('/register creates a new user', () => {
-//   it('should create a user successfully, login, redirect to profile', async () => {
-//     const registerRes = await request(app).post('/register')
-//       .send({
-//         username: 'bootsuck',
-//         email: 'suckboot32333@gmail.com',
-//         password: 'abcdefgh1!',
-//         password_conf: 'abcdefgh1!'
-//       });  
+describe('POST to submit_sighting', () => {
+  it('should INSERT sighting into DB and redirect to plant index', async () => {
 
-//     expect(registerRes.statusCode).toEqual(200);
-//     expect(registerRes.res.text.includes('<title>Login</title>')).toEqual(true);
+  });
+});
 
-//     const res = await login();
+describe('No POST to submit_sighting due to invalid input values', () => {
+  it('should Not INSERT sighting into DB, render add sighting page again', async () => {
 
-//     expect(res.statusCode).toEqual(302);
-//     expect(res.redirect).toEqual(true);
-//     expect(res.headers.location.endsWith('/profile')).toEqual(true);
-//   });
-// });
+  });
+});
 
-// describe('/register invalid data does not create new user', () => {
-//   it('should not create a user successfully, no login', async () => {
-//     await request(app).post('/register')
-//       .send({
-//         username: 'suckboot2',
-//         email: 'suckboot323@gmail.com',
-//         password: 'abcdefgh1!',
-//         password_conf: 'abcdefgh1ddd!'
-//       });
+describe('No POST to submit_sighting due to no session data', () => {
+  it('should Not INSERT sighting into DB, render add sighting page again', async () => {
 
-//     const res = await testSession.post('/login')
-//       .send({
-//         email: 'suckboot323@gmail.com',
-//         password: 'abcdefgh1!'
-//       });
-
-//     expect(res.statusCode).toEqual(200);
-//     expect(res.redirect).toEqual(false);
-//     expect(res.req.finished).toEqual(true);
-//     expect(res.res.url).toEqual('');
-//   });
-// });
-
-// describe('/logout redirects and destroys session', () => {
-//   it('should redirect to index and destroy session', async () => {
-//     const loginRes = await login();
-//     const profileUrl = loginRes.header.location;
-//     const logoutResponse = await testSession.post('/logout');
-
-//     expect(logoutResponse.statusCode).toEqual(302);
-//     expect(logoutResponse.redirect).toEqual(true);
-//     expect(logoutResponse.headers.location).toEqual('/login');
-
-//     const res = await testSession.get('/register');
-//     expect(res.statusCode).toEqual(200);
-//     expect(res.redirect).toEqual(false);
-//     expect(res.res.text.includes('<title>Registration</title>')).toEqual(true);
-//   });
-// });
-
-// describe('reset password requires a personal key', () => {
-//   it('should redirect to login after getting key, only one key made', async () => {
-//     const res = await testSession.post('/passwordreset')
-//       .send({
-//         email: 'suckboot32@gmail.com'
-//       });
-
-//     expect(res.statusCode).toEqual(200);
-//     expect(res.redirect).toEqual(false);
-//     expect(res.res.text.includes('<title>Reset Password</title>'));
-
-//     const resDuplicate = await testSession.post('/passwordreset')
-//       .send({
-//         email: 'suckboot32@gmail.com'
-//       });
-
-//     expect(resDuplicate.statusCode).toEqual(200);
-//     expect(resDuplicate.redirect).toEqual(false);
-//     expect(resDuplicate.req.finished).toEqual(true);
-//     expect(resDuplicate.res.text.includes('<li>You already have a reset key: check your email inbox/spam folder.</li>')).toEqual(true);
-//   });
-// });
+  });
+});

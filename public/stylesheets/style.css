@@ -3,6 +3,15 @@ body {
   font: 14px monospace, Helvetica, Arial, sans-serif;
 }
 
+/* overall */
+
+.alert {
+  padding: 10px;
+  background-color: #aaf0d1;
+  box-shadow: 1px 2px black;
+  border-radius: 2px;
+}
+
 /* login, reigster, profile style */
 
 a {
@@ -93,4 +102,21 @@ input[type='radio'], .radio-label {
   height: 200px;
   border: 1px solid black;
   box-shadow: 1px 2px black;
+}
+
+/* view plant sighting */
+
+#map {
+  width: 1000px;
+  height: 800px;
+  box-shadow: 1px 2px black;
+  border-radius: 10px;
+}
+
+textarea[name="description"] {
+  resize: none;
+}
+
+.hidden-input-sighting {
+  display: none;
 }

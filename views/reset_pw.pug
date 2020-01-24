@@ -5,12 +5,12 @@ block content
   h1= title
 
   div#request_key_form_container
-    form#request_form(method='POST' action='/passwordreset')
+    form#request_form(method='POST' action='/passwordreset/send_key')
       label(for='email') Email
       input#email(type='email', name='email', required)
       button(type='submit') Get Password Reset Key
   div#reset_form_container(hidden)
-    form#reset_form(method='' action='')
+    form#reset_form(method='POST' action='/passwordreset/update_pw')
       p If your request is successful, you will be redirected to the login page.
       label(for='email_two') Email
       input#email_two(type='email', name='email_two')
@@ -24,8 +24,5 @@ block content
       button(type='submit') Reset Password
   a#change_option(href='') Already have key?
   
-  p(hidden, class='async-msg')
-  if msgs
-    ul(class='msg')
-      for msg in msgs
-        li #{msg.msg}
+  if alert
+    p(class='alert') #{alert}

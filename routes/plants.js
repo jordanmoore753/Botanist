@@ -18,28 +18,22 @@ router.get('/', plantController.index);
 // GET plant search
 router.get('/search', plantController.getSearch);
 
-// GET plant search results
+// POST plant search results ASYNC
 router.post('/search_results', plantController.searchResults);
 
-// GET plant information for one
+// POST plant information for one ASYNC
 router.post('/search_single_plant', plantController.singlePlantResults);
 
-// POST plant to user collection
+// POST plant to user collection ASYNC
 router.post('/search/add_plant', plantController.addPlant);
 
-// GET plant tracker
-router.get('/tracker', plantController.getTracker);
+// GET plant add sighting
+router.get('/sightings/add/:id', redirectLogin, plantController.getAddSighting);
 
-// GET plant tracker results
-router.get('/tracker/:name/results', plantController.trackerResults);
+// POST plant add sighting
+router.post('/sightings/add/:id', redirectLogin, plantController.addSighting);
 
-// GET plant sighting details
-router.get('/tracker/:name/results/:id', plantController.getSightingDetails);
-
-// GET plant reporting 
-router.get('/tracker/:name/report', plantController.getReporter);
-
-// POST plant reporting
-router.post('/tracker/:name/report', plantController.reportSighting);
+// GET plant view sighting
+router.get('/sightings/view/:id', plantController.getViewSighting);
 
 module.exports = router;
