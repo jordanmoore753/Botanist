@@ -130,14 +130,14 @@ exports.register = [
   (req, res, next) => {
     const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-      return renderHelper.redirectTo(req, res, '/register', { error: 'One or some inputs were incorrectly written. Try again.' }, 404);
+    if (!errors.isEmpty() || Object.keys(req.body).length !== 4) {
+      return renderHelper.renderAlert(req, res, 'One or more inputs were incorrectly written. Try again.', 'Register', 'register', 404);
     }
 
     bcrypt.hash(req.body.password, 10).then((hash) => {
       pool.query('INSERT INTO users(name, email, password) VALUES($1, $2, $3)', [req.body.username, req.body.email, hash], (err, results) => {
         if (err) {
-          return renderHelper.redirectTo(req, res, '/register', { error: 'There was an error while creating user. Contact an administrator.' }, 500);
+          return renderHelper.renderAlert(req, res, 'There was an error while creating user. Contact an administrator.', 'Register', 'register', 500);
         }
 
         return renderHelper.redirectTo(req, res, '/login', { success: 'Successfully created user.' }, 200);
@@ -162,7 +162,7 @@ exports.login = [
 
   pool.query('SELECT * FROM users WHERE email = $1', [req.body.email], (err, results) => {
     if (err || results.rows.length < 1) {
-      return renderHelper.redirectTo(req, res, '/login', { error: 'No users with that email exist.' }, 404);
+      return renderHelper.renderAlert(req, res, 'No users with that email exist.', 'Login', 'login', 404);
     } 
 
     bcrypt.compare(req.body.password, results.rows[0].password)
@@ -171,11 +171,11 @@ exports.login = [
         req.session.userId = results.rows[0].id;
         return renderHelper.redirectTo(req, res, `/${results.rows[0].id}/profile`, { success: 'Successfully logged in.' }, 200);
       } else {
-        return renderHelper.redirectTo(req, res, '/login', { error: 'Invalid credentials.' }, 404);
+        return renderHelper.renderAlert(req, res, 'Invalid credentials.', 'Login', 'login', 404);
       }
     })
     .catch(err => {
-      return renderHelper.redirectTo(req, res, '/login', { error: 'A severe error occurred. Contact an administrator.' }, 500);
+      return renderHelper.renderAlert(req, res, 'A severe error occurred. Contact an administrator.', 'Login', 'login', 500);
     });
   });
 }];
@@ -241,14 +241,14 @@ exports.updatePassword = [
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'Incorrect data provided. Check password, key, and email.' }, 404);
+    return renderHelper.renderAlert(req, res, 'Incorrect data provided. Check password, key, and email.', 'Password Reset', 'reset_pw', 404);
   }
 
   async.waterfall([
     function getUserId(callback) {
       pool.query('SELECT * FROM users WHERE email = $1', [req.body.email_two], (err, results) => {
         if (err || results.rows.length < 1) {
-          return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'No user with that email exists.' }, 404);
+          return renderHelper.renderAlert(req, res, 'No user with that email exists.', 'Password Reset', 'reset_pw', 404);
         }
 
         callback(null, results.rows[0].id);     
@@ -258,7 +258,7 @@ exports.updatePassword = [
     function checkKey(userId, callback) {
       pool.query('SELECT * FROM keys WHERE user_id = $1 AND name = $2 AND used = $3', [userId, req.body.key, false], (err, results) => {
         if (err || results.rows.length < 1) {
-          return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'No key exists for that user, or the key has already been used.' }, 404);
+          return renderHelper.renderAlert(req, res, 'No usable key with that name exists for that user.', 'Password Reset', 'reset_pw', 404);
         }
 
         callback(null, userId, results.rows[0].id);         
@@ -268,7 +268,7 @@ exports.updatePassword = [
     function setUsed(userId, keyId, callback) {
       pool.query('UPDATE keys SET used = $1 WHERE id = $2 AND user_id = $3', [true, keyId, userId], (err, results) => {
         if (err) {
-          return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'Could not update the given user key to used. Try again.' }, 500);
+          return renderHelper.renderAlert(req, res, 'Could not update the given user key to used status.', 'Password Reset', 'reset_pw', 500);
         }
 
         callback(null, userId);       
@@ -279,7 +279,7 @@ exports.updatePassword = [
       bcrypt.hash(req.body.password, 10).then((hash) => {
         pool.query('UPDATE users SET password = $1 WHERE id = $2', [hash, userId], (err, results) => {
           if (err) {
-            return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'Could not update the password. Try again.' }, 500);
+            return renderHelper.renderAlert(req, res, 'Could not update the password.', 'Password Reset', 'reset_pw', 500);
           }
 
           callback(null);
@@ -289,7 +289,7 @@ exports.updatePassword = [
 
   ], function(err, results) {
     if (err) {
-      return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'Something (big) went horribly wrong. Sorry! Contact an administrator.' }, 500);
+      return renderHelper.renderAlert(req, res, 'Something (big) went horribly wrong. Sorry! Contact an administrator.', 'Password Reset', 'reset_pw', 500);
     }
 
     return renderHelper.redirectTo(req, res, '/login', { success: 'Successfully updated password.' }, 200);
@@ -315,7 +315,7 @@ exports.sendKey = [
     function getUserId(callback) {
       pool.query('SELECT * FROM users WHERE email = $1', [req.body.email], (err, results) => {
         if (err || results.rows.length < 1) {
-          return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'No user with that email exists.' }, 404);
+          return renderHelper.renderAlert(req, res, 'No user with that email exists.', 'Password Reset', 'reset_pw', 404);
         } 
 
         callback(null, results.rows[0].id);
@@ -325,12 +325,12 @@ exports.sendKey = [
     function insertKey(id, callback) {
       pool.query('SELECT * FROM keys WHERE user_id = $1 AND used = $2', [id, false], (err, results) => {
         if (err || results.rows.length > 0) {
-          return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'You already have a reset key: check your email inbox/spam folder.' }, 404);
+          return renderHelper.renderAlert(req, res, 'You already have a reset key: check your spam/inbox folders.', 'Password Reset', 'reset_pw', 404);
         } 
 
         pool.query('INSERT INTO keys (user_id, name) VALUES ($1, $2)', [id, key], (err, results) => {
           if (err) {
-            return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'Some error occurred while creating a key. Contact an administrator.' }, 500);
+            return renderHelper.renderAlert(req, res, 'Some error occured while creating a key. Contact an administrator.', 'Password Reset', 'reset_pw', 500);
           }
 
           callback(null, key);
@@ -349,7 +349,7 @@ exports.sendKey = [
 
       smtpTransport.sendMail(mailOptions, (error, response) => {
         if (error) {
-          return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'Unable to send email with key. Contact an administrator.' }, 500);
+          return renderHelper.renderAlert(req, res, 'Unable to send email with key. Contact administrator.', 'Password Reset', 'reset_pw', 500);
         }
         
         callback(null, smtpTransport.close());
@@ -357,7 +357,7 @@ exports.sendKey = [
     }
   ], function(err, result) {
     if (err) {
-      return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'Something (big) went horribly wrong. Sorry! Contact an administrator.' }, 500);
+      return renderHelper.renderAlert(req, res, 'Something (big) went horribly wrong. Sorry! Contact an administrator.', 'Password Reset', 'reset_pw', 500);
     }
 
     return renderHelper.redirectTo(req, res, '/passwordreset', { success: 'Key was created and sent to the specified email address.' }, 200);

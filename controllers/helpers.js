@@ -40,3 +40,10 @@ exports.reassignSessionData = function(req, res) {
 
   return throwaway;
 };
+
+exports.renderAlert = function(req, res, msg, title, view, status) {
+  return res.status(status).render(view, { 
+    title: title, 
+    alert: msg
+  });
+};
