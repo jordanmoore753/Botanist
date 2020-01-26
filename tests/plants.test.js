@@ -212,13 +212,32 @@ describe('GET to view_sightings', () => {
   });
 });
 
-describe('GET to submit_sighting', () => {
-  it('should return a page with title: Add Sighting and load available plants to report from DB', async () => {
+describe('GET to /sightings/add/:id', () => {
+  it('should return a page with title: Report Sighting and load available plants to report from DB', async () => {
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suckboot32@gmail.com',
+        password: 'abcdefgh1!'
+      });
 
+    const res = await testSession.get('/plants/sightings/add/159446');
+    expect(res.statusCode).toEqual(200);
+    expect(res.redirect).toEqual(false);
+    expect(res.text.includes('<form id="sighting-form" method="POST" action="/plants/sightings/add/159446">')).toEqual(true);
   });
 
   it('should redirect to login with no user session data', async () => {
+    const res = await testSession.get('/plants/sightings/add/159446');
+    expect(res.statusCode).toEqual(302);
+    expect(res.redirect).toEqual(true);
+    expect(res.text).toEqual('Found. Redirecting to /login');
+  });
 
+  it('should redirect to login with invalid plant id', async () => {
+    const res = await testSession.get('/plants/sightings/add/15944656789');
+    expect(res.statusCode).toEqual(302);
+    expect(res.redirect).toEqual(true);
+    expect(res.text).toEqual('Found. Redirecting to /login');
   });
 });
 
