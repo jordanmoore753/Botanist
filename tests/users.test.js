@@ -6,8 +6,10 @@ const app = require('../app.js');
 let testSession = null;
 
 function removeUsers() {
-  return pool.query('DELETE FROM users WHERE id = $1 OR 1=1', [1])
-  .then(res => res)
+  return pool.query('DELETE FROM users WHERE email = $1', ['suckboot32@gmail.com'])
+  .then(function(res) {
+    return res;
+  })
   .catch(function(err) {
     throw err;
   });

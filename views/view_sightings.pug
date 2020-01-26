@@ -2,4 +2,12 @@ extends layout
 
 block content
   h1= title
-  
+  div#sightings
+    if sightings
+      ul
+        each sighting in sightings
+          li= sighting.plantName
+    else
+      ul
+        li No reported sightings for this plant.
+  div#map

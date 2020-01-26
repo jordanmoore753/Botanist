@@ -6,7 +6,7 @@ const app = require('../app.js');
 let testSession;
 
 function removeUsers() {
-  return pool.query('DELETE FROM users WHERE id = $1 OR 1=1', [1])
+  return pool.query('DELETE FROM users WHERE email = $1', ['plantdaddymail@gmail.com'])
   .then(res => res)
   .catch(function(err) {
     throw err;
@@ -169,11 +169,46 @@ describe('No POST to insert plant into DB with escaped/long name', () => {
 
 describe('GET to view_sightings', () => {
   it('should return a page with title Reported Sightings and loaded sightings from DB', async () => {
+    const r = await testSession.post('/register')
+      .send({
+        username: 'suck',
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!',
+        password_conf: 'abcdefgh1!'
+      });
+
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!'
+      });
+
+    const postPlant = await testSession.post('/plants/sightings/add/159446')
+      .send({
+        description: 'This is the first plant I ever saw. I love it! Great location.',
+        lat: '23.111',
+        lng: '-73.222',
+        plant_id: '159446'
+      });
+
+    expect(postPlant.text.includes('Found. Redirecting to')).toEqual(true);
+    expect(postPlant.redirect).toEqual(true);
+    expect(postPlant.statusCode).toEqual(302);
+
+    const res = await testSession.get('/plants/sightings/view/159446');
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.redirect).toEqual(false);
+    expect(res.text.includes('<ul><li>Ogeechee tupelo</li></ul>')).toEqual(true);
 
   });
 
   it('should redirect to login if plant does not exist', async () => {
+    const res = await request(app).get('/plants/sightings/view/79379707979879');
 
+    expect(res.statusCode).toEqual(302);
+    expect(res.redirect).toEqual(true);
+    expect(res.text).toEqual('Found. Redirecting to /login');
   });
 });
 
