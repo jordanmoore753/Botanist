@@ -29,6 +29,8 @@ afterEach(function() {
   testSession = null;
 });
 
+// plant search tests
+
 describe('Open up plant search route', () => {
   it('should be GET and route: /plants/search', async () => {
     const res = await request(app).get('/plants/search');
@@ -163,10 +165,14 @@ describe('No POST to insert plant into DB with escaped/long name', () => {
   });
 });
 
-// tracker tests
+// sighting tests
 
 describe('GET to view_sightings', () => {
   it('should return a page with title Reported Sightings and loaded sightings from DB', async () => {
+
+  });
+
+  it('should redirect to login if plant does not exist', async () => {
 
   });
 });
@@ -175,21 +181,25 @@ describe('GET to submit_sighting', () => {
   it('should return a page with title: Add Sighting and load available plants to report from DB', async () => {
 
   });
+
+  it('should redirect to login with no user session data', async () => {
+
+  });
 });
 
-describe('POST to submit_sighting', () => {
+describe('POST to /sightings/add/:id', () => {
   it('should INSERT sighting into DB and redirect to plant index', async () => {
 
   });
 });
 
-describe('No POST to submit_sighting due to invalid input values', () => {
+describe('No POST to /sightings/add/:id due to invalid input values', () => {
   it('should Not INSERT sighting into DB, render add sighting page again', async () => {
 
   });
 });
 
-describe('No POST to submit_sighting due to no session data', () => {
+describe('No POST to /sightings/add/:id due to no session data', () => {
   it('should Not INSERT sighting into DB, render add sighting page again', async () => {
 
   });

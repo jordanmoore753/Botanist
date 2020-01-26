@@ -13,3 +13,5 @@ block content
       input(type="number", step='any', name="lat")
       input(type="number", step='any', name="lng")
       button(type="submit") Submit
+  if msg
+    p(class='alert') #{msg}

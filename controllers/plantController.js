@@ -213,11 +213,27 @@ exports.addPlant = [
 
 // GET Plant Sighting Add Page
 exports.getAddSighting = function(req, res, next) {
-  return res.render('add_sighting', { 
-    title: 'Report Sighting',
-    plant_id: req.params.id
+  let url = 'https://trefle.io/api/plants/' + req.params.id;
+
+  request({
+    method: 'GET',
+    auth: {
+      'user': null,
+      'pass': null,
+      'sendImmediately': true,
+      'bearer': process.env.TREFLE_ID
+    },
+    url: url
+  }, function(error, response, body) {
+    if (error || response.body === '"Internal server error"') {
+      return res.redirect('/login');
+    } 
+
+    return res.render('add_sighting', { 
+      title: 'Report Sighting',
+      plant_id: req.params.id
+    });   
   });
-  // render
 };
 
 // POST Plant Sighting
@@ -230,7 +246,7 @@ exports.addSighting = [
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.render('add_sighting', {
+    return res.status(404).render('add_sighting', {
       title: 'Report Sighting',
       msg: 'Data was incorrect. Try again.'
     });
@@ -251,30 +267,40 @@ exports.addSighting = [
         url: url
       }, function(error, response, body) {
         if (error) {
-          return res.render('add_sighting', {
+
+          return res.status(404).render('add_sighting', {
             title: 'Report Sighting',
             msg: 'Data was incorrect. Try again.'
           });
         }
 
-        callback(null);
+        let formattedPlantData = JSON.parse(response.body);
+        let name;
+
+        if (formattedPlantData['common_name'] === null) {
+          name = formattedPlantData['scientific_name'];
+        } else {
+          name = formattedPlantData['common_name'];
+        }
+
+        callback(null, name);
       });      
     },
 
-    function sessionDataExists(callback) {
+    function sessionDataExists(plantName, callback) {
       pool.query('SELECT * FROM users WHERE id = $1', [req.session.userId], (err, results) => {
         if (err || results.rows.length === 0) {
           return res.redirect('/login');
         }
 
-        callback(null, results.rows[0].id);
+        callback(null, plantName, results.rows[0].id, results.rows[0].name);
       });
     },
 
-    function postSighting(userId, callback) {
-      pool.query('INSERT INTO sightings (user_id, plant_id, lat, long, description) VALUES ($1, $2, $3, $4, $5)', [req.session.userId, req.body.plant_id, req.body.lat, req.body.lng, req.body.description], (err, results) => {
+    function postSighting(plantName, userId, userName, callback) {
+      pool.query('INSERT INTO sightings (user_id, plant_id, user_name, plant_name, lat, long, description) VALUES ($1, $2, $3, $4, $5, $6, $7)', [req.session.userId, req.body.plant_id, userName, plantName, req.body.lat, req.body.lng, req.body.description], (err, results) => {
         if (err) {
-          return res.render('add_sighting', {
+          return res.status(404).render('add_sighting', {
             title: 'Report Sighting',
             msg: 'Some data was invalid or missing. Try again.'
           });
@@ -285,7 +311,7 @@ exports.addSighting = [
     }
   ], function(err, results) {
     if (err) {
-      return res.render('add_sighting', {
+      return res.status(500).render('add_sighting', {
         title: 'Report Sighting',
         msg: err
       });
@@ -294,14 +320,34 @@ exports.addSighting = [
     // session data to verify
     req.session.success = 'Successfully reported sighting.';
     return res.redirect(`/${req.session.userId}/profile`);
+
+    // REDIRECT TO VIEW SIGHTINGS FOR THAT SPECIFIC PLANT INSTEAD
   });
 }];
 
 // GET Sightings for Certain Plant
 exports.getViewSighting = function(req, res, next) {
-  // render
-};
+  pool.query('SELECT * FROM sightings WHERE plant_id = $1 ', [req.params.id], (err, results) => {
+    if (err) {
+      return res.redirect('/login');
+    } else if (results.rows.length < 1) {
+      return res.status(200).render('view_sightings', { title: 'Reported Sightings' });
+    }
 
-// refactor DB to hold only plants with no date or quantity
-// allow favoriting (a boolean)
-// refactor form to not take quantity or date planted, only id and name
+    let formattedData = [];
+
+    results.rows.forEach(function(sighting) {
+      formattedData.push({
+        lat: sighting['lat'],
+        lng: sighting['long'],
+        userName: sighting['user_name'],
+        plantName: sighting['plant_name'],
+        date: moment(sighting['submit_date']).format("dddd, MMMM Do YYYY, h:mm:ss a"),
+        description: sighting['description']
+      })
+    });
+
+    // for each object, create a DOM element to represent it in view
+    return res.status(200).render('view_sightings', { title: 'Reported Sightings', sightings: formattedData });
+  });
+};
