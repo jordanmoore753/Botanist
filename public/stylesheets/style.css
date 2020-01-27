@@ -120,3 +120,8 @@ textarea[name="description"] {
 .hidden-input-sighting {
   display: none;
 }
+
+.sub-details {
+  background-color: lightblue;
+  border: 1px solid black;
+}

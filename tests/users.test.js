@@ -173,7 +173,7 @@ describe('/register too many params does not create new user', () => {
 
 describe('/register too few params does not create new user', () => {
   it('should not create a user successfully, return 404', async () => {
-    const res = await request(app).post('/register')
+    const res = await testSession.post('/register')
       .send({
         username: 'suck',
         email: 'suckboot323@gmail.com',
@@ -201,6 +201,16 @@ describe('/logout redirects and destroys session', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.redirect).toEqual(false);
     expect(res.res.text.includes('<title>Registration</title>')).toEqual(true);
+  });
+});
+
+describe('/logout redirects and destroys session', () => {
+  it('should redirect to login if there is an error', async () => {
+    const logoutResponse = await testSession.post('/logout');
+
+    expect(logoutResponse.statusCode).toEqual(302);
+    expect(logoutResponse.redirect).toEqual(true);
+    expect(logoutResponse.headers.location).toEqual('/login');
   });
 });
 

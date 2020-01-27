@@ -1,13 +1,33 @@
 extends layout
 
 block content
-  h1= title
+  script(src='/javascripts/view_sightings.js')
+  h1 #{title}
   div#sightings
     if sightings
-      ul
+      ul#list_of_sightings
         each sighting in sightings
-          li= sighting.plantName
+          li(class='title-sighting') #{sighting.date}
+            div(hidden, class="sub-details")
+              p(class='detail') #[span User]: #{sighting.userName}
+              p(class='detail') #[span Plant]: #{sighting.plantName}
+              p#lat(class='detail') #[span Latitude]: #{sighting.lat}
+              p#lng(class='detail') #[span Longitude]: #{sighting.lng}
+              p(class='detail') #[span Description]: #{sighting.description}
     else
       ul
         li No reported sightings for this plant.
+  div#directions_form
+  form(method='', action='')
+    label(for='street') Street Address
+    input(type='text', name='street', required)
+    label(for='city') City
+    input(type='text', name='city', required)
+    label(for='state') State
+    select(name='state', required)
+      each state in states
+        option #{state}
+    button(type='submit') Get Directions
   div#map
+  div#directions
+

@@ -29,6 +29,10 @@ afterEach(function() {
   testSession = null;
 });
 
+afterAll(function() {
+  pool.query('DELETE FROM plants');
+  pool.query('DELETE FROM sightings');
+})
 // plant search tests
 
 describe('Open up plant search route', () => {
@@ -77,7 +81,19 @@ describe('POST to retrieve plant details for single plant from Trefle API', () =
 
 describe('POST to insert plant into DB for given user', () => {
   it('should insert Ogeechee Tupelo for user', async () => {
-    const l = await login();
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
+
+    const l = await testSession.post('/login')
+    .send({
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!'
+    });
 
     const res = await testSession.post('/plants/search/add_plant')
       .send({
@@ -85,16 +101,30 @@ describe('POST to insert plant into DB for given user', () => {
         name: 'Ogeechee Tupelo'
       });
 
+    const dbRes = await pool.query('SELECT * FROM plants');
+
+    expect(dbRes.rows.length).toBe(1)
     expect(res.statusCode).toEqual(200);
     expect(res.redirect).toEqual(false);
     expect(res.res.text.includes("<p class='success'>Ogeechee Tupelo added to user's plants.</p>"));
-    // login data saved to session
   });
 });
 
 describe('No POST to insert duplicate plant for given user', () => {
   it('should not insert Ogeechee Tupelo for user', async () => {
-    const l = await login();
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
+
+    const l = await testSession.post('/login')
+    .send({
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!'
+    });
 
     const res = await testSession.post('/plants/search/add_plant')
       .send({
@@ -199,8 +229,9 @@ describe('GET to view_sightings', () => {
 
     expect(res.statusCode).toEqual(200);
     expect(res.redirect).toEqual(false);
-    expect(res.text.includes('<ul><li>Ogeechee tupelo</li></ul>')).toEqual(true);
+    expect(res.text.includes('<p class="detail"><span>Description</span>: This is the first plant I ever saw. I love it! Great location.</p>')).toEqual(true);
 
+    const remove = await pool.query('DELETE FROM users WHERE email = $1', ['suck@gmail.com']);
   });
 
   it('should redirect to login if plant does not exist', async () => {
@@ -214,11 +245,19 @@ describe('GET to view_sightings', () => {
 
 describe('GET to /sightings/add/:id', () => {
   it('should return a page with title: Report Sighting and load available plants to report from DB', async () => {
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
+
     const l = await testSession.post('/login')
-      .send({
-        email: 'suckboot32@gmail.com',
-        password: 'abcdefgh1!'
-      });
+    .send({
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!'
+    });
 
     const res = await testSession.get('/plants/sightings/add/159446');
     expect(res.statusCode).toEqual(200);
@@ -244,9 +283,16 @@ describe('GET to /sightings/add/:id', () => {
 describe('POST to /sightings/add/:id', () => {
   it('should INSERT sighting into DB and redirect to plant index', async () => {
     const removeSightings = await pool.query('DELETE FROM sightings');
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
     const l = await testSession.post('/login')
       .send({
-        email: 'suckboot32@gmail.com',
+        email: 'suck@gmail.com',
         password: 'abcdefgh1!'
       });
 
@@ -289,11 +335,19 @@ describe('No POST to /sightings/add/:id', () => {
 
   it('should Not INSERT sighting into DB since invalid data', async () => {
     const removeSightings = await pool.query('DELETE FROM sightings');
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
     const l = await testSession.post('/login')
       .send({
-        email: 'suckboot32@gmail.com',
+        email: 'suck@gmail.com',
         password: 'abcdefgh1!'
       });
+
     const postPlant = await testSession.post('/plants/sightings/add/159446')
       .send({
         description: 'This is the first plant I ever saw. I love it! Great location.',
@@ -312,11 +366,20 @@ describe('No POST to /sightings/add/:id', () => {
 
   it('should Not INSERT sighting into DB since missing body attributes', async () => {
     const removeSightings = await pool.query('DELETE FROM sightings');
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
+
     const l = await testSession.post('/login')
       .send({
-        email: 'suckboot32@gmail.com',
+        email: 'suck@gmail.com',
         password: 'abcdefgh1!'
       });
+
     const postPlant = await testSession.post('/plants/sightings/add/159446')
       .send({
         description: 'This is the first plant I ever saw. I love it! Great location.',
@@ -334,11 +397,19 @@ describe('No POST to /sightings/add/:id', () => {
 
   it('should Not INSERT sighting into DB since additional body attributes', async () => {
     const removeSightings = await pool.query('DELETE FROM sightings');
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
     const l = await testSession.post('/login')
       .send({
-        email: 'suckboot32@gmail.com',
+        email: 'suck@gmail.com',
         password: 'abcdefgh1!'
       });
+
     const postPlant = await testSession.post('/plants/sightings/add/159446')
       .send({
         description: 'This is the first plant I ever saw. I love it! Great location.',
