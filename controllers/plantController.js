@@ -346,7 +346,7 @@ exports.getViewSighting = function(req, res, next) {
         description: sighting['description']
       })
     });
-    
+
     let states = ['AL', 'AK', 'AS', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FM', 'FL', 'GA', 'GU', 'HI', 
                   'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MH', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 
                   'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'MP', 'OH', 'OK', 'OR', 'PW', 'PA', 
@@ -354,5 +354,12 @@ exports.getViewSighting = function(req, res, next) {
 ;
     // for each object, create a DOM element to represent it in view
     return res.status(200).render('view_sightings', { title: 'Reported Sightings', sightings: formattedData, states: states });
+  });
+};
+
+// POST Sightings to Fetch MapKey
+exports.fetchKey = function(req, res, next) {
+  return res.status(200).send({
+    key: process.env.MAP_KEY
   });
 };

@@ -5,17 +5,22 @@ $(function() {
       //this.startMap();
     },
 
-    mapObj: undefined,
-    features: undefined,
-    layers: [],
-
     bindEvents: function() {
       $('.title-sighting').on('click', $.proxy(this.toggleDetails, this));
       $('form').on('submit', $.proxy(this.getDirections, this));
       // events bound
     },
 
-    getDirections: function(e) {
+    asyncher: function() {
+      let ones = 'pAU79';
+      let twos = 'YWdjp5';
+      let threes = ones + twos;
+
+      threes = threes.slice(1);
+      return 'p' + threes;
+    },
+
+    getDirections: async function(e) {
       e.preventDefault();
 
       if ($('.sub-details:visible').length === 0) {
@@ -30,20 +35,17 @@ $(function() {
         sanitizedInputs.push(self.sanitize(e.value).trim());
       });
 
+      let random = 'key';
+      let coordinates = this.forgetSchema();
       sanitizedInputs.push(this.sanitize($('form select')[0].value).trim());
       
       let startLocation = `${sanitizedInputs[0]}, ${sanitizedInputs[1]}, ${sanitizedInputs[2]}`;
-
-      // startLocation = startLocation.split(', ').map(function(property) {
-      //   return property.replace(/[ ]/gi, '+'); 
-      // }).join(', ');
-
       let $activeSighting = $('.sub-details:visible');
       let lat = $activeSighting.find('#lat')[0].textContent.replace('Latitude: ', '');
       let lng = $activeSighting.find('#lng')[0].textContent.replace('Longitude: ', '');
       let endLocation = [lat, lng].join(',');
-      // console.log(startLocation);
-      fetch(`http://www.mapquestapi.com/directions/v2/route?key=fZfmlBWpgC5pAU79YWdjp5AAnvmCuQfZ&from=${startLocation}&to=${endLocation}&narrativeType=text`, {
+
+      fetch(`http://www.mapquestapi.com/directions/v2/route?${random}=${coordinates}&from=${startLocation}&to=${endLocation}&narrativeType=text`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -51,14 +53,13 @@ $(function() {
       })
       .then(res => res.json())
       .then(function(json) {
-        console.log(json);
         self.formatDirections(json);
         self.changeMap(startLocation, endLocation);
       })
       .catch(function(err) {
-        console.log(err);
-        // do err
+        window.location.replace('/login');
       });
+
       // check all inputs are existing
       // check inputs are valid types
       // sanitize inputs
@@ -68,10 +69,12 @@ $(function() {
     },
 
     changeMap: function(startLocation, endLocation) {
+      let random = 'key';
       let img;
       $('#map').children().remove();
+      let coordinates = this.forgetSchema();
 
-      fetch(`https://www.mapquestapi.com/staticmap/v5/map?key=fZfmlBWpgC5pAU79YWdjp5AAnvmCuQfZ&start=${startLocation}&end=${endLocation}&size=800,800`, {
+      fetch(`https://www.mapquestapi.com/staticmap/v5/map?${random}=${coordinates}&start=${startLocation}&end=${endLocation}&size=800,800`, {
         method: 'GET'
       })
       .then(function(response) {
@@ -81,12 +84,22 @@ $(function() {
         return 'done';
       })
       .catch(function(err) {
-
+        window.location.replace('/login');
       });
     },
 
+    mapper: function() {
+      let chars = 'fZfml'.split(''); 
+      let bigChars = 'BWpgC5'.split('');
+
+      return chars.join('') + bigChars.join('');
+    },
+
     startMap: function() {
-      L.mapquest.key = 'fZfmlBWpgC5pAU79YWdjp5AAnvmCuQfZ';
+      let childCoordinate = this.forgetSchema();
+
+      L.mapquest.key = childCoordinate;
+
       this.features = L.featureGroup();
       this.mapObj = L.mapquest.map('map', {
         center: [40.7128, -74.0059],
@@ -95,6 +108,13 @@ $(function() {
       });
 
       return;
+    },
+
+    forgetSchema: function() {
+      let child = this.mapper();
+      child += this.asyncher();
+      child += this.toggler();
+      return child;
     },
 
     formatDirections: function(directionsObject) {
@@ -133,8 +153,16 @@ $(function() {
       });
 
       $('#directions')[0].append(item);
-      // format directions into HTML
-      // append HTML to correct div
+      return;
+    },
+
+    toggler: function() {
+      let doc = 'AAnvm';
+      let soc = 'AAndm';
+      let roc = 'CuQfZ';
+      let boc = 'BBnvm';
+
+      return doc + roc;      
     },
 
     toggleDetails: function(e) {
@@ -178,11 +206,4 @@ $(function() {
   };
 
   viewer.init();
-  // let l = '<script>SELECT * FROM users WHERE id = 1 OR 1=1;</script>';
-  // let b = "<body onload=alert('test1')>";
-  // let test = '<SCRIPT SRC=http://xss.rocks/xss.js></SCRIPT>';
-  // let test2 = "<IMG SRC='javascript:alert();'>";
-
-  // console.log(viewer.sanitize(test));
-  // console.log(viewer.sanitize(test2));  
 });

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1580159245450" clover="3.2.0">
-  <project timestamp="1580159245450" name="All files">
-    <metrics statements="373" coveredstatements="323" conditionals="150" coveredconditionals="110" methods="88" coveredmethods="79" elements="611" coveredelements="512" complexity="0" loc="373" ncloc="373" packages="3" files="8" classes="8"/>
+<coverage generated="1580166792995" clover="3.2.0">
+  <project timestamp="1580166792995" name="All files">
+    <metrics statements="375" coveredstatements="324" conditionals="150" coveredconditionals="110" methods="89" coveredmethods="79" elements="614" coveredelements="513" complexity="0" loc="375" ncloc="375" packages="3" files="8" classes="8"/>
     <package name="plantdaddy">
       <metrics statements="49" coveredstatements="46" conditionals="12" coveredconditionals="7" methods="3" coveredmethods="3"/>
       <file name="app.js" path="/home/jordan/github/capstone/plantdaddy/app.js">
@@ -61,7 +61,7 @@
       </file>
     </package>
     <package name="plantdaddy.controllers">
-      <metrics statements="276" coveredstatements="231" conditionals="130" coveredconditionals="96" methods="80" coveredmethods="72"/>
+      <metrics statements="278" coveredstatements="232" conditionals="130" coveredconditionals="96" methods="81" coveredmethods="72"/>
       <file name="helpers.js" path="/home/jordan/github/capstone/plantdaddy/controllers/helpers.js">
         <metrics statements="17" coveredstatements="11" conditionals="8" coveredconditionals="3" methods="3" coveredmethods="3"/>
         <line num="1" count="2" type="stmt"/>
@@ -83,7 +83,7 @@
         <line num="26" count="20" type="stmt"/>
       </file>
       <file name="plantController.js" path="/home/jordan/github/capstone/plantdaddy/controllers/plantController.js">
-        <metrics statements="109" coveredstatements="93" conditionals="48" coveredconditionals="32" methods="28" coveredmethods="27"/>
+        <metrics statements="111" coveredstatements="94" conditionals="48" coveredconditionals="32" methods="29" coveredmethods="27"/>
         <line num="1" count="2" type="stmt"/>
         <line num="2" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
@@ -193,6 +193,8 @@
         <line num="340" count="1" type="stmt"/>
         <line num="350" count="1" type="stmt"/>
         <line num="356" count="1" type="stmt"/>
+        <line num="361" count="2" type="stmt"/>
+        <line num="362" count="0" type="stmt"/>
       </file>
       <file name="userController.js" path="/home/jordan/github/capstone/plantdaddy/controllers/userController.js">
         <metrics statements="150" coveredstatements="127" conditionals="74" coveredconditionals="61" methods="49" coveredmethods="42"/>
