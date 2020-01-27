@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1580149122890" clover="3.2.0">
-  <project timestamp="1580149122891" name="All files">
+<coverage generated="1580159245450" clover="3.2.0">
+  <project timestamp="1580159245450" name="All files">
     <metrics statements="373" coveredstatements="323" conditionals="150" coveredconditionals="110" methods="88" coveredmethods="79" elements="611" coveredelements="512" complexity="0" loc="373" ncloc="373" packages="3" files="8" classes="8"/>
     <package name="plantdaddy">
       <metrics statements="49" coveredstatements="46" conditionals="12" coveredconditionals="7" methods="3" coveredmethods="3"/>
