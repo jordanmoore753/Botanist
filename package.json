@@ -6,7 +6,7 @@
     "start": "node ./bin/www",
     "devstart": "nodemon ./bin/www",
     "serverstart": "DEBUG=sess-pg:* npm run devstart",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=1000000 --coverage",
+    "test": "cross-env NODE_ENV=test jest --testTimeout=1000000",
     "pretest": "psql -U jordan -d plant_test -a -f ./db/clear_tables.sql"
   },
   "dependencies": {
