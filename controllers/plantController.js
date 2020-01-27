@@ -245,7 +245,7 @@ exports.addSighting = [
 (req, res, next) => {
   const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
+  if (!errors.isEmpty() || Object.keys(req.body).length > 4) {
     return res.status(404).render('add_sighting', {
       title: 'Report Sighting',
       msg: 'Data was incorrect. Try again.'

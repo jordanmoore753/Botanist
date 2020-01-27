@@ -243,18 +243,114 @@ describe('GET to /sightings/add/:id', () => {
 
 describe('POST to /sightings/add/:id', () => {
   it('should INSERT sighting into DB and redirect to plant index', async () => {
+    const removeSightings = await pool.query('DELETE FROM sightings');
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suckboot32@gmail.com',
+        password: 'abcdefgh1!'
+      });
 
+    const postPlant = await testSession.post('/plants/sightings/add/159446')
+      .send({
+        description: 'This is the first plant I ever saw. I love it! Great location.',
+        lat: '23.111',
+        lng: '-73.222',
+        plant_id: '159446'
+      });
+
+    const query = await pool.query('SELECT * FROM sightings;');
+
+    expect(query.rows.length).toBe(1);
+    expect(query.rows[0].plant_id).toBe(159446);
+    expect(postPlant.statusCode).toEqual(302);
+    expect(postPlant.redirect).toEqual(true);
+    expect(postPlant.text.includes('Found. Redirecting to')).toEqual(true);
   });
 });
 
-describe('No POST to /sightings/add/:id due to invalid input values', () => {
-  it('should Not INSERT sighting into DB, render add sighting page again', async () => {
+describe('No POST to /sightings/add/:id', () => {
+  it('should Not INSERT sighting into DB since no session data', async () => {
+    const removeSightings = await pool.query('DELETE FROM sightings');
+    const postPlant = await testSession.post('/plants/sightings/add/159446')
+      .send({
+        description: 'This is the first plant I ever saw. I love it! Great location.',
+        lat: '23.111',
+        lng: '-73.222',
+        plant_id: '159446'
+      });
 
+    const query = await pool.query('SELECT * FROM sightings;');
+
+    expect(query.rows.length).toBe(0);
+    expect(postPlant.statusCode).toEqual(302);
+    expect(postPlant.redirect).toEqual(true);
+    expect(postPlant.text).toBe('Found. Redirecting to /login');
   });
-});
 
-describe('No POST to /sightings/add/:id due to no session data', () => {
-  it('should Not INSERT sighting into DB, render add sighting page again', async () => {
+  it('should Not INSERT sighting into DB since invalid data', async () => {
+    const removeSightings = await pool.query('DELETE FROM sightings');
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suckboot32@gmail.com',
+        password: 'abcdefgh1!'
+      });
+    const postPlant = await testSession.post('/plants/sightings/add/159446')
+      .send({
+        description: 'This is the first plant I ever saw. I love it! Great location.',
+        lat: '<script>console.log(true);</script>',
+        lng: 'dfjafjdaj',
+        plant_id: '159446'
+      });
 
+    const query = await pool.query('SELECT * FROM sightings;');
+
+    expect(query.rows.length).toBe(0);
+    expect(postPlant.statusCode).toEqual(404);
+    expect(postPlant.redirect).toEqual(false);
+    expect(postPlant.text.includes('<p class="alert">Data was incorrect. Try again.</p>')).toBe(true);
+  });
+
+  it('should Not INSERT sighting into DB since missing body attributes', async () => {
+    const removeSightings = await pool.query('DELETE FROM sightings');
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suckboot32@gmail.com',
+        password: 'abcdefgh1!'
+      });
+    const postPlant = await testSession.post('/plants/sightings/add/159446')
+      .send({
+        description: 'This is the first plant I ever saw. I love it! Great location.',
+        lat: '23.1234543',
+        plant_id: '159446'
+      });
+
+    const query = await pool.query('SELECT * FROM sightings;');
+
+    expect(query.rows.length).toBe(0);
+    expect(postPlant.statusCode).toEqual(404);
+    expect(postPlant.redirect).toEqual(false);
+    expect(postPlant.text.includes('<p class="alert">Data was incorrect. Try again.</p>')).toBe(true);
+  });
+
+  it('should Not INSERT sighting into DB since additional body attributes', async () => {
+    const removeSightings = await pool.query('DELETE FROM sightings');
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suckboot32@gmail.com',
+        password: 'abcdefgh1!'
+      });
+    const postPlant = await testSession.post('/plants/sightings/add/159446')
+      .send({
+        description: 'This is the first plant I ever saw. I love it! Great location.',
+        lat: '23.1234543',
+        plant_id: '159446'
+      });
+
+    const query = await pool.query('SELECT * FROM sightings;');
+
+    expect(query.rows.length).toBe(0);
+    expect(postPlant.statusCode).toEqual(404);
+    expect(postPlant.redirect).toEqual(false);
+    expect(postPlant.text.includes('<p class="alert">Data was incorrect. Try again.</p>')).toBe(true);
   });
 });
