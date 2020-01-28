@@ -52,7 +52,7 @@ afterEach(function() {
 
 describe('Redirect when profile accessed but no session data', () => {
   it('should redirect to login when not logged in', async () => {
-    const res = await request(app).get('/1/profile');
+    const res = await request(app).get('/profile');
     expect(res.statusCode).toEqual(302);
     expect(res.redirect).toEqual(true);
     expect(res.headers.location).toEqual('/login');

@@ -16,7 +16,7 @@ const redirectHome = (req, res, next) => {
         throw err;
       }
 
-      return res.redirect(`/${results.rows[0].id}/profile`);
+      return res.redirect(`/profile`);
     });
   } else {
     return next();
@@ -43,6 +43,9 @@ router.post('/register', redirectHome, userController.register);
 // POST user logout
 router.post('/logout', redirectLogin, userController.logout);
 
+// GET user profile
+router.get('/profile', redirectLogin, userController.profile);
+
 // GET password key form to reset password
 router.get('/passwordreset', redirectHome, userController.getPasswordReset);
 
@@ -52,7 +55,6 @@ router.post('/passwordreset/send_key', redirectHome, userController.sendKey);
 // PATCH password key form to update password
 router.post('/passwordreset/update_pw', redirectHome, userController.updatePassword);
 
-// GET user profile
-router.get('/:id/profile', redirectLogin, userController.profile);
+
 
 module.exports = router;

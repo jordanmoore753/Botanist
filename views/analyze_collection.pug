@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  script(src='/javascripts/analysis.js')
+  h1= title
+  section#collection
+    if plants != 0
+      select#collection_selector(name='plant-for-analysis')
+        each plant in plants
+          option(class='plant-list-item', value=plant.plant_id) #{plant.name}
+    else
+      p(class='no-plants-msg') There are no plants in your collection.
+  section#analysis

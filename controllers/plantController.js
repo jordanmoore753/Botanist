@@ -28,6 +28,10 @@ let smtpTransport = nodeMailer.createTransport({
   }
 });
 
+function unescaper(str) {
+  return str.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#x2F;/g, '/').replace(/&#x5C;/g, '\\').replace(/&#96;/g, '`');
+}
+
 // GET Plant Index
 exports.index = function(req, res, next) {
   res.render('plant_index', { title: 'Plant Options' });
@@ -323,7 +327,7 @@ exports.addSighting = [
 
     // session data to verify
     req.session.success = 'Successfully reported sighting.';
-    return res.redirect(`/${req.session.userId}/profile`);
+    return res.redirect(`/profile`);
 
     // REDIRECT TO VIEW SIGHTINGS FOR THAT SPECIFIC PLANT INSTEAD
   });
@@ -370,5 +374,27 @@ exports.fetchKey = function(req, res, next) {
 
 // GET collection
 exports.getCollection = function(req, res, next) {
+  pool.query('SELECT * FROM plants WHERE user_id = $1', [req.session.userId], (err, results) => {
+    if (err) {
+      return res.redirect('/login');
+    }
 
+    let data = [];
+
+    if (results.rows.length === 0) {
+      data = 0;
+    } else {
+      results.rows.forEach(function(plant) {
+        data.push({
+          name: unescaper(plant['name']),
+          plant_id: plant['plant_id']
+        })
+      });    
+    }
+
+    return res.status(200).render('analyze_collection', {
+      title: 'Plant Analysis',
+      plants: data
+    });
+  });
 };

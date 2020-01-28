@@ -45,20 +45,19 @@ exports.index = function(req, res, next) {
 };
 
 exports.profile = function(req, res, next) {
-  async.parallel({
-    users: function(callback) {
-      pool.query('SELECT * FROM users WHERE id = $1', [req.params.id], callback);
-    }
-  }, function(err, results) {
-    if (err) {
-      return renderHelper.redirectTo(req, res, '/login', { error: 'A problem occurred while loading the user.' }, 500);
+  pool.query('SELECT * FROM users WHERE id = $1', [req.session.userId], (err, results) => {
+    if (err || results.rows.length === 0) {
+      return res.redirect('/login');
     }
 
     let msg = renderHelper.reassignSessionData(req, res);
 
     return res.render('user_profile', { 
       title: 'User Profile', 
-      userInfo: results.users.rows[0],
+      userInfo: {
+        name: results.rows[0].name,
+        email: results.rows[0].email
+      },
       alert: msg.info
     });
   });
@@ -169,7 +168,7 @@ exports.login = [
     .then(response => {
       if (response) {
         req.session.userId = results.rows[0].id;
-        return renderHelper.redirectTo(req, res, `/${results.rows[0].id}/profile`, { success: 'Successfully logged in.' }, 200);
+        return renderHelper.redirectTo(req, res, `/profile`, { success: 'Successfully logged in.' }, 200);
       } else {
         return renderHelper.renderAlert(req, res, 'Invalid credentials.', 'Login', 'login', 404);
       }
