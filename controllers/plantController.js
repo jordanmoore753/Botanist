@@ -57,7 +57,7 @@ exports.searchResults = [
   body('fruit_seed_abundance', 'Must be one of valid options.').optional().isIn(['Low', 'Medium', 'High']).trim().escape(),
   body('palatable_human', 'Must be one of valid options.').optional().isIn(['true', 'false']).trim().escape(),
   body('fruit_seed_color', 'Choose a real, valid color.').optional().isLength({ min: 3, max: 15 }).trim().escape(),
-
+  body('page').optional().isNumeric().escape(),
 (req, res, next) => {
   const errors = validationResult(req);
 
@@ -79,6 +79,10 @@ exports.searchResults = [
   if (queries.length > 0) {
     queryString += '&';
   }
+
+  if (req.body['page']) {
+    queries += `&${req.body['page']}`;
+  } 
 
   request({
     method: 'GET',
@@ -362,4 +366,9 @@ exports.fetchKey = function(req, res, next) {
   return res.status(200).send({
     key: process.env.MAP_KEY
   });
+};
+
+// GET collection
+exports.getCollection = function(req, res, next) {
+
 };

@@ -36,4 +36,7 @@ router.post('/sightings/add/:id', redirectLogin, plantController.addSighting);
 // GET plant view sighting
 router.get('/sightings/view/:id', plantController.getViewSighting);
 
+// GET plant analysis
+router.get('/analysis/collection', redirectLogin, plantController.getCollection);
+
 module.exports = router;

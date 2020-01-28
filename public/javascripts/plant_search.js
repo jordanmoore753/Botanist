@@ -31,7 +31,7 @@ $(function() {
       })
       .then(res => res.json())
       .then(function(json) {
-        self.appendPageResults(JSON.parse(json.body));
+        self.appendPageResults(JSON.parse(json.body), json['response']['headers']);
       })
       .catch(function(err) {
         throw err;
@@ -67,7 +67,7 @@ $(function() {
       });
     },
 
-    appendPageResults: function(plantList) {
+    appendPageResults: function(plantList, headers) {
       this.reset();
 
       let list = document.createElement('ul');
@@ -98,9 +98,57 @@ $(function() {
 
       list.id = 'list_of_results';
       $('#all_results').append(list);
-      // make list item for each plant, make id the id of plant
-      // more info button, common and scientific name
-      // more info invokes async
+
+      if (headers['total-pages'] < 1 && plantList.length < 1) {
+        return;
+      }
+
+      let pages = document.createElement('select');
+      pages.classList.add('all-pages');
+
+      let lastPage = Number(headers['total-pages']);
+      let option;
+
+      for (let i = 1; i <= lastPage; i += 1) {
+        option = document.createElement('option');
+        option.classList.add('page-number');
+        option.value = i;
+        option.textContent = i;
+        pages.append(option);
+      }
+
+      let self = this;
+
+      pages.addEventListener('change', (function(e) {
+        e.preventDefault();
+        let pageNumber = $('.all-pages option:selected')[0].value;
+        let data = self.formatFormData();
+        data.page = pageNumber;
+
+
+        fetch(window.location.pathname + '_results', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+
+          body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(function(json) {
+          self.appendPageResults(JSON.parse(json.body), json['response']['headers']);
+        })
+        .catch(function(err) {
+          throw err;
+        });
+      }));
+
+      $('#all_results').append(pages);
+
+      if (Number(headers['page-number']) > 1) {
+        $(`.all-pages`).val(Number(headers['page-number']));
+      }
+
       return;
     },
 
@@ -334,6 +382,8 @@ $(function() {
       if ($('#list_of_results')) {
         $('#list_of_results').remove();
       }
+
+      $('.all-pages').remove();
       // removes all results
       // resets filter form
     }
