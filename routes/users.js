@@ -9,7 +9,7 @@ const redirectLogin = (req, res, next) => {
   }
 };
 
-const redirectHome = (req, res, next) => {
+const redirectProfile = (req, res, next) => {
   if (req.session.userId) {
     pool.query('SELECT * FROM users WHERE id = $1', [req.session.userId], (err, results) => {
       if (err) {
@@ -29,16 +29,16 @@ const userController = require('../controllers/userController.js');
 router.get('/', userController.index);
 
 // GET user login
-router.get('/login', redirectHome, userController.getLogin);
+router.get('/login', redirectProfile, userController.getLogin);
 
 // POST user login
-router.post('/login', redirectHome, userController.login);
+router.post('/login', redirectProfile, userController.login);
 
 // GET user registration
-router.get('/register', redirectHome, userController.getRegister);
+router.get('/register', redirectProfile, userController.getRegister);
 
 // POST user registration
-router.post('/register', redirectHome, userController.register);
+router.post('/register', redirectProfile, userController.register);
 
 // POST user logout
 router.post('/logout', redirectLogin, userController.logout);
@@ -47,14 +47,12 @@ router.post('/logout', redirectLogin, userController.logout);
 router.get('/profile', redirectLogin, userController.profile);
 
 // GET password key form to reset password
-router.get('/passwordreset', redirectHome, userController.getPasswordReset);
+router.get('/passwordreset', redirectProfile, userController.getPasswordReset);
 
 // POST password key form to get key
-router.post('/passwordreset/send_key', redirectHome, userController.sendKey);
+router.post('/passwordreset/send_key', redirectProfile, userController.sendKey);
 
 // PATCH password key form to update password
-router.post('/passwordreset/update_pw', redirectHome, userController.updatePassword);
-
-
+router.post('/passwordreset/update_pw', redirectProfile, userController.updatePassword);
 
 module.exports = router;

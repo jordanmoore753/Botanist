@@ -4,8 +4,24 @@ html
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
     script(src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js")
+    link(rel='stylesheet', href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.0/css/bulma.css")
+    script(defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js")
     script(src='https://code.jquery.com/jquery-3.4.1.min.js')
     script(src="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.js")
     link(type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.css")
-  body
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+  body(class='is-family-code')
+    script(src='/javascripts/menu.js')
+    nav(class="navbar has-background-light" role='navigation' aria-label='main navigation')
+      div(class='navbar-brand is-size-4')
+        a(class="navbar-item has-text-success has-text-weight-medium" href="/") 
+          img(src='/images/fern1.png' width='32' height='32', style='margin-left: 5px;')
+        a(role='button', class='navbar-burger burger', aria-label='menu' aria-expanded='false' data-target='navbarBaby')
+          span(aria-hidden='true')
+          span(aria-hidden='true')
+          span(aria-hidden='true')
+      div#navbarBaby(class='navbar-menu')
+        div(class='navbar-start')
+          a(class='navbar-item', href='/profile') Profile
+          a(class='navbar-item', href='/plants/search') Search
     block content

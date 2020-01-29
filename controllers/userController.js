@@ -41,7 +41,7 @@ let keyCreate = function() {
 };
 
 exports.index = function(req, res, next) {
-  res.render('index', { title: 'User Index' });
+  res.render('index', { title: 'Botanist' });
 };
 
 exports.profile = function(req, res, next) {

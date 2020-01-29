@@ -462,4 +462,35 @@ describe('POST to DELETE plant', () => {
     expect(res.statusCode).toBe(404);
     expect(res.body.msg).toBe('The wrong plant identification number was sent.');
   });
+
+  it('should work if user is logged in and passes correct id', async () => {
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
+
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!'
+      });
+
+    const res = await testSession.post('/plants/search/add_plant')
+      .send({
+        id: '159446',
+        name: 'Ogeechee Tupelo'
+      });
+
+    const deleteRes = await testSession.post('/plants/analysis/collection')
+      .send({
+        id: 159446
+      });
+
+    expect(deleteRes.redirect).toBe(false);
+    expect(deleteRes.statusCode).toBe(200);
+    expect(deleteRes.body.msg).toBe('Plant successfully deleted from your collection.');    
+  });
 });

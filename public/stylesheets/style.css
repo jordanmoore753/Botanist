@@ -1,8 +1,13 @@
 body {
-  padding: 50px;
-  font: 14px monospace, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
 }
 
+.has-wood-image {
+  width: 100%;
+  background-image: url('../images/woodlandtrees.jpg');
+  background-size: cover;
+}
 /* overall */
 
 .alert {
@@ -12,8 +17,14 @@ body {
   border-radius: 2px;
 }
 
+/* Landing Page */
+
+
+
+
 /* login, reigster, profile style */
 
+/*
 a {
   color: #00B7FF;
   text-decoration: none;
@@ -46,6 +57,7 @@ label {
   padding: 20px 0;
 }
 
+*/
 /* plant search form style */
 
 #fullscreen_container {

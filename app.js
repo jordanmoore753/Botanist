@@ -2,6 +2,7 @@ const createError = require('http-errors');
 const express = require('express');
 const session = require('express-session');
 const Redis = require('ioredis');
+const favicon = require('serve-favicon');
 
 const RedisStore = require('connect-redis')(session);
 const helmet = require('helmet');
@@ -27,6 +28,7 @@ let store = new RedisStore({ client });
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(
   session({
     name: process.env.SESS_NAME,
