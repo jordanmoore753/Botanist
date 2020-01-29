@@ -1,6 +1,7 @@
 $(function() {
   let viewer = {
     init: function() {
+      this.populatePage();
       this.bindEvents();
       //this.startMap();
     },
@@ -202,8 +203,40 @@ $(function() {
       });
 
       return sanitizedString;
+    },
+
+    populatePage: function() {
+      let id = window.location.href.split('/')[window.location.href.split('/').length - 1];
+      // fetch(`/plants/sightings/view/${id}`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   }
+      // })
+      // .then(res => res.json())
+      // .then(function(json) {
+      //   console.log(json);
+      // })
+      // .catch(function(error) {
+
+      // });
     }
   };
 
   viewer.init();
 });
+
+    // if sightings
+    //   ul#list_of_sightings
+    //     each sighting in sightings
+    //       li(class='title-sighting') #{sighting.date}
+    //         div(hidden, class="sub-details")
+    //           p(class='detail') #[span User]: #{sighting.userName}
+    //           p(class='detail') #[span Plant]: #{sighting.plantName}
+    //           p#lat(class='detail') #[span Latitude]: #{sighting.lat}
+    //           p#lng(class='detail') #[span Longitude]: #{sighting.lng}
+    //           p(class='detail') #[span Description]: #{sighting.description}
+      //     select(name='state', required)
+      //   each state in states
+      //     option #{state}
+      // button(type='submit') Get Directions

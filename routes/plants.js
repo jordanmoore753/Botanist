@@ -34,9 +34,12 @@ router.get('/sightings/add/:id', redirectLogin, plantController.getAddSighting);
 router.post('/sightings/add/:id', redirectLogin, plantController.addSighting);
 
 // GET plant view sighting
-router.get('/sightings/view/:id', plantController.getViewSighting);
+router.get('/sightings/view/:id', redirectLogin, plantController.getViewSighting);
 
 // GET plant analysis
 router.get('/analysis/collection', redirectLogin, plantController.getCollection);
+
+// POST plant delete from collection
+router.post('/analysis/collection', redirectLogin, plantController.deletePlant);
 
 module.exports = router;

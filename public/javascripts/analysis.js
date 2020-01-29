@@ -5,12 +5,50 @@ $(function() {
     },
 
     bindEvents: function() {
-      $('#collection_selector').on('change', $.proxy(this.analyzePlant, this));
+      $('#collection_selector').on('click', 'a', $.proxy(this.analyzePlant, this));
+      $('#collection_selector').on('click', '.delete-icon', $.proxy(this.deletePlant, this));
+    },
+
+    deletePlant: function(e) {
+      e.preventDefault();
+      let id = $(e.target).parent()[0].value;
+      let self = this;
+      let data = { id: id };
+
+      fetch('/plants/analysis/collection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(function(json) {
+        $(`.plant-list-item[value="${id}"`).remove();
+        self.newMsg(json.msg);
+      })
+      .catch(function(err) {
+        //
+      });
+    },
+
+    newMsg: function(msg) {
+      $('.analysis-notification').remove();
+
+      let words = document.createElement('p');
+      words.classList.add('analysis-notification');
+      words.textContent = msg;
+
+      $('#notifications-analysis').append(words);
+
+      setTimeout(function() {
+        $('.analysis-notification').fadeOut(1000);
+      }, 5000);
     },
 
     analyzePlant: function(e) {
       e.preventDefault();
-      let id = Number($('#collection_selector').val());
+      let id = $(e.target).parent()[0].value;
       let self = this;
       let data = { id: id };
 
@@ -39,11 +77,13 @@ $(function() {
 
       const goodValues = ['Low', 'Medium', 'High', 'None', 'Slow', 'Moderate', 'Rapid', 'Tolerant', 'Intolerant', 'Intermediate'];
       const keys = ['specifications', 'seed', 'products', 'growth', 'fruit_or_seed' ];
+
       let data = [];
       let allProps;
       let field;
       let value;
       let self = this;
+      let id = plantData['id'];
 
       keys.forEach(function(property) {
         allProps = Object.keys(plantData[property]);
@@ -65,6 +105,29 @@ $(function() {
       let values = data.map(function(obj) {
         return obj['value'];
       });
+
+      // add sighting and view sight buttons
+
+      $('#sighting_buttons');
+
+      if ($('.sighting-btns').length > 0) {
+        $('.sighting-btns')[0].href = `/plants/sightings/add/${id}`;
+        $('.sighting-btns')[1].href = `/plants/sightings/view/${id}`;
+      } else {
+        let adder = document.createElement('a');
+        adder.classList.add('sighting-btns');
+        adder.textContent = 'Add Sighting';
+        adder.href = `/plants/sightings/add/${id}`;
+
+        let viewer = document.createElement('a');
+        viewer.classList.add('sighting-btns');
+        viewer.textContent = 'View Sightings';
+        viewer.href = `/plants/sightings/view/${id}`;
+
+        $('#sighting_buttons').append(adder);
+        $('#sighting_buttons').append(viewer);
+      }
+
       // create canvas
       let cv = document.createElement('canvas');
       cv.width = 400;
@@ -128,11 +191,11 @@ $(function() {
       const highs = ['High', 'Rapid', 'Tolerant'];
 
       if (lows.indexOf(string) !== -1) {
-        return this.randomNum(35, 10);
+        return this.randomNum(35, 30);
       } else if (meds.indexOf(string) !== -1) {
-        return this.randomNum(65, 45);
+        return this.randomNum(65, 60);
       } else if (highs.indexOf(string) !== -1) {
-        return this.randomNum(95, 75);
+        return this.randomNum(95, 90);
       } else {
         return 0;
       }

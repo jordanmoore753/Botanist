@@ -5,9 +5,14 @@ block content
   h1= title
   section#collection
     if plants != 0
-      select#collection_selector(name='plant-for-analysis')
+      ul#collection_selector(name='plant-for-analysis')
         each plant in plants
-          option(class='plant-list-item', value=plant.plant_id) #{plant.name}
+          li(class='plant-list-item', value=plant.plant_id) 
+            a(href='') #{plant.name}
+            img(src="https://cdn.iconscout.com/icon/premium/png-256-thumb/trash-1739005-1477127.png" class='delete-icon')
     else
       p(class='no-plants-msg') There are no plants in your collection.
-  section#analysis_graph
+  section#notifications-analysis
+  section#analysis_container
+    section#analysis_graph
+    section#sighting_buttons

@@ -339,6 +339,7 @@ exports.getViewSighting = function(req, res, next) {
     if (err) {
       return res.redirect('/login');
     } else if (results.rows.length < 1) {
+      console.log('in here!');
       return res.status(200).render('view_sightings', { title: 'Reported Sightings' });
     }
 
@@ -359,7 +360,7 @@ exports.getViewSighting = function(req, res, next) {
                   'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MH', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 
                   'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'MP', 'OH', 'OK', 'OR', 'PW', 'PA', 
                   'PR', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VI', 'VA', 'WA', 'WV', 'WI', 'WY' ];
-;
+
     // for each object, create a DOM element to represent it in view
     return res.status(200).render('view_sightings', { title: 'Reported Sightings', sightings: formattedData, states: states });
   });
@@ -398,3 +399,22 @@ exports.getCollection = function(req, res, next) {
     });
   });
 };
+
+// POST delete plant
+exports.deletePlant = [
+  body('id').isNumeric({ min: 6, max: 6 }).escape(),
+(req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(404).send({ msg: 'The wrong plant identification number was sent.' });
+  }
+
+  pool.query('DELETE FROM plants WHERE user_id = $1 AND plant_id = $2', [req.session.userId, req.body.id], (err, results) => {
+    if (err) {
+      return res.status(500).send({ msg: 'Something went wrong! Contact the administrator.' });
+    }
+
+    return res.status(200).send({ msg: 'Plant successfully deleted from your collection.' });
+  });
+}];

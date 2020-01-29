@@ -7,10 +7,119 @@ $(function() {
     bindEvents: function() {
       $('#filter_form').on('submit', $.proxy(this.search, this));
       $('.toggle-info-btn').on('click', $.proxy(this.toggleField, this));
-      $('#all_results').on('click', 'a.more-info-btn', $.proxy(this.searchSinglePlant, this));
+      $('#all_results').on('click', 'a.more-info-btn', $.proxy(this.openPrompt, this));
+      $('#fullscreen_container').on('click', '#yesSir', $.proxy(this.addSinglePlant, this));
+      $('#fullscreen_container').on('click', '#not', $.proxy(this.closePrompt, this));
+      // $('#all_results').on('click', 'a.more-info-btn', $.proxy(this.addSinglePlant, this));
       // $('#fullscreen_container').on('submit', '#close_details', $.proxy(this.closeDetails, this));
       // $('#fullscreen_container').on('submit', '.single-plant-add-form', $.proxy(this.addPlantForUser, this));
       // bind buttons
+    },
+
+    openPrompt: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if ($('.success').length > 0) {
+        $('.success').remove();
+      } else if ($('.failure').length > 0) {
+        $('.failure').remove();
+      }
+
+      let section = document.createElement('section');
+      section.id = 'yes_no';
+
+      let prompt = document.createElement('p');
+      prompt.textContent = 'Add this plant to your collection?';
+
+      let yesBtn = document.createElement('button');
+      yesBtn.type = 'click';
+      yesBtn.textContent = 'Yes';
+      yesBtn.value = $(e.target).parent()[0].id + ', ' + e.target.textContent;
+      yesBtn.id = 'yesSir';
+      yesBtn.classList.add('yes-no-btns');
+
+      let noBtn = document.createElement('button');
+      noBtn.type = 'click';
+      noBtn.textContent = 'No';
+      noBtn.value = 'No';
+      noBtn.id = 'not';
+      noBtn.classList.add('yes-no-btns');
+
+      $('#yesSir').click(function(e) {
+        e.preventDefault();
+
+
+        $('#yes_no').fadeOut(100);
+        setTimeout(function() {
+          $('#yes_no').remove();
+        }, 100);
+        $('#fullscreen_container').fadeOut(100);
+      });
+
+      section.append(prompt);
+      section.append(yesBtn);
+      section.append(noBtn);
+
+      $('#fullscreen_container').fadeIn(100);
+      $('#fullscreen_container').append(section);
+      return;
+    },
+
+    closePrompt: function(e) {
+      e.preventDefault();
+
+      $('#yes_no').fadeOut(100);
+      setTimeout(function() {
+        $('#yes_no').remove();
+      }, 100);
+      $('#fullscreen_container').fadeOut(100);
+
+      return;
+    },
+
+    addSinglePlant: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      let id, name;
+      [id, name] = e.target.value.split(', ');
+
+      let data = {
+        id: id,
+        name: name
+      };
+
+      fetch('/plants/search/add_plant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(function(json) {
+        let message = document.createElement('p');
+        message.textContent = json.msg;
+
+        if (json.success === true) {
+          message.classList.add('success');
+        } else {
+          message.classList.add('failure');
+        }
+
+        $('#notifications').append(message);
+        $('#not').trigger('click');
+        return;
+      })
+      .catch(function(err) {
+        let message = document.createElement('p');
+        message.textContent = 'Something went horribly wrong. Contact an administrator.';
+        message.classList.add('failure');
+        $('#notifications').append(message);
+      });
+
+      return;
     },
 
     search: function(e) {

@@ -425,3 +425,41 @@ describe('No POST to /sightings/add/:id', () => {
     expect(postPlant.text.includes('<p class="alert">Data was incorrect. Try again.</p>')).toBe(true);
   });
 });
+
+describe('POST to DELETE plant', () => {
+  it('should not work if user not logged in', async () => {
+    const res = await request(app).post('/plants/analysis/collection')
+      .send({
+        id: 159446
+      });
+
+    expect(res.redirect).toBe(true);
+    expect(res.statusCode).toBe(302);
+    expect(res.text).toBe('Found. Redirecting to /login');
+  });
+
+  it('should not work if id is incorrect', async () => {
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
+
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!'
+      });
+
+    const res = await testSession.post('/plants/analysis/collection')
+      .send({
+        id: '<script>console.log(true);</script>'
+      });
+
+    expect(res.redirect).toBe(false);
+    expect(res.statusCode).toBe(404);
+    expect(res.body.msg).toBe('The wrong plant identification number was sent.');
+  });
+});

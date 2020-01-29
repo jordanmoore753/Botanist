@@ -17,17 +17,18 @@ block content
     else
       ul
         li No reported sightings for this plant.
-  div#directions_form
-    form(method='', action='')
-      label(for='street') Street Address
-      input(type='text', name='street', required)
-      label(for='city') City
-      input(type='text', name='city', required)
-      label(for='state') State
-      select(name='state', required)
-        each state in states
-          option #{state}
-      button(type='submit') Get Directions
+  if sightings
+    div#directions_form
+      form(method='', action='')
+        label(for='street') Street Address
+        input(type='text', name='street', required)
+        label(for='city') City
+        input(type='text', name='city', required)
+        label(for='state') State
+        select(name='state', required)
+          each state in states
+            option #{state}
+        button(type='submit') Get Directions
   div#directions
     ol#directions_list
   div#map
