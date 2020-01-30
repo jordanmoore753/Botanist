@@ -16,6 +16,10 @@ body {
   border-radius: 2px;
 }
 
+.has-image-centered {
+  margin-right: 0;
+  margin-left: 0;
+}
 /* Landing Page */
 
 

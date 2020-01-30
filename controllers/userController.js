@@ -7,6 +7,7 @@ const async = require('async');
 const { pool } = require('../config.js');
 const oauth2Client = new OAuth2(process.env.C_ID, process.env.C_SEC, "https://developers.google.com/oauthplayground");
 const renderHelper = require('./helpers.js');
+const gravatar = require('gravatar');
 
 oauth2Client.setCredentials({
   refresh_token: process.env.R_TOK
@@ -59,7 +60,8 @@ exports.profile = function(req, res, next) {
         email: results.rows[0].email
       },
       alert: msg.info,
-      type: msg.type
+      type: msg.type,
+      avatar: gravatar.url(results.rows[0].email,  {s: '100', r: 'x', d: 'retro'}, true)
     });
   });
 };

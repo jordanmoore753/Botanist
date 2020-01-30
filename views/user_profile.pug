@@ -1,6 +1,32 @@
 extends layout
 
 block content
+  section(class='hero is-large has-wood-image')
+    div(class='hero-body')
+      div(class='columns is-multiline is-centered')
+        div(class='column is-one-third')
+          div(class='card')
+            div(class='card-image')
+              figure(class='image is-128x128' style='display: block; margin: 0 auto;')
+                img(src=avatar, class='is-rounded' alt='Profile Image' style='display: block; margin: 0 auto; padding-top: 15px;')
+            div(class='card-content')
+              div(class='media')
+                div(class='media-content')
+                  p(class='title is-4 has-text-centered') #{userInfo.name}
+                  p(class='subtitle is-6 has-text-centered') #{userInfo.email}
+              div(class='content')
+                div(class='list is-hoverable' style='margin-bottom: 15px;')
+                  a(class='list-item has-text-centered has-text-success' href='/plants/analysis/collection/') Collection Analysis
+                div
+                  form#logout(method='POST', action='/logout')
+                    div(class='has-text-centered' style='margin-bottom: 10px;')
+                      button#logout(class='button is-danger is-light' type='submit') Logout
+                if type == 'success'
+                  div(class='notification is-success is-light')
+                    p(class='is-medium has-text-centered') #{alert}
+                else if type == 'error'
+                  div(class='notification is-danger is-light')
+                    p(class='is-medium has-text-centered') #{alert}
   if alert
     p(class='alert') #{alert}
   h1= title
@@ -8,5 +34,3 @@ block content
   ul
     li= userInfo.name
     li= userInfo.email
-  form#logout(method='POST', action='/logout')
-    button#logout(type='submit') Logout
