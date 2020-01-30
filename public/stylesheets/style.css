@@ -122,8 +122,10 @@ input[type='radio'], .radio-label {
 /* view plant sighting */
 
 #map {
-  width: 1000px;
-  height: 800px;
+  display: block;
+  margin: 0 auto;
+  width: 98%;
+  height: 550px;
   box-shadow: 1px 2px black;
   border-radius: 10px;
 }
@@ -141,6 +143,16 @@ textarea[name="description"] {
   border: 1px solid black;
 }
 
+@media (max-width: 900px) {
+  #map {
+    width: 98%;
+    height: 350px;
+  }
+
+  #world-map {
+    color: white;
+  }
+}
 
 /*.wrapper {
     display: grid;

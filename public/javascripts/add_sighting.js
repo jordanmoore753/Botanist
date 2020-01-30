@@ -3,6 +3,7 @@ $(function() {
     init: function() {
       this.drawMap();
       this.bindEvents();
+      $('form')[0].action = window.location.pathname;
     },
 
     bindEvents: function() {

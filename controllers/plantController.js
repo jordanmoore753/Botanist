@@ -244,25 +244,46 @@ exports.getAddSighting = function(req, res, next) {
   });
 };
 
+// exports.renderAlert = function(req, res, msg, title, view, status, type) {
+//   return res.status(status).render(view, { 
+//     title: title, 
+//     alert: msg,
+//     type: type
+//   });
+// };
 // POST Plant Sighting
 exports.addSighting = [
   body('description').isLength({ min: 10, max: 400 }).trim().escape(),
-  body('plant_id').isNumeric().escape(),
   body('lat').isNumeric().escape(),
   body('lng').isNumeric().escape(),
 (req, res, next) => {
   const errors = validationResult(req);
 
-  if (!errors.isEmpty() || Object.keys(req.body).length > 4) {
+  function verifyId(param) {
+    const badChars = ['<', '>', 'b', 'm', 's', 'c', '[', ']', '{', '}', '$', '%', '&', '*', '"', 'r'];
+
+    for (let i = 0; i < param.length; i += 1) {
+      if (badChars.includes(param[i]) || param.length !== 6) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  let isIdValid = verifyId(req.params.id);
+  
+  if (!errors.isEmpty() || Object.keys(req.body).length !== 3 || !isIdValid) {
     return res.status(404).render('add_sighting', {
       title: 'Report Sighting',
-      msg: 'Data was incorrect. Try again.'
+      alert: 'Data was incorrect. Try again.',
+      type: 'error'
     });
   }
 
   async.waterfall([
     function plantExists(callback) {
-      let url = 'https://trefle.io/api/plants/' + req.body.plant_id;
+      let url = 'https://trefle.io/api/plants/' + req.params.id;
 
       request({
         method: 'GET',
@@ -278,7 +299,8 @@ exports.addSighting = [
 
           return res.status(404).render('add_sighting', {
             title: 'Report Sighting',
-            msg: 'Data was incorrect. Try again.'
+            alert: 'Data was incorrect. Try again.',
+            type: 'error'
           });
         }
 
@@ -306,11 +328,12 @@ exports.addSighting = [
     },
 
     function postSighting(plantName, userId, userName, callback) {
-      pool.query('INSERT INTO sightings (user_id, plant_id, user_name, plant_name, lat, long, description) VALUES ($1, $2, $3, $4, $5, $6, $7)', [req.session.userId, req.body.plant_id, userName, plantName, req.body.lat, req.body.lng, req.body.description], (err, results) => {
+      pool.query('INSERT INTO sightings (user_id, plant_id, user_name, plant_name, lat, long, description) VALUES ($1, $2, $3, $4, $5, $6, $7)', [req.session.userId, req.params.id, userName, plantName, req.body.lat, req.body.lng, req.body.description], (err, results) => {
         if (err) {
           return res.status(404).render('add_sighting', {
             title: 'Report Sighting',
-            msg: 'Some data was invalid or missing. Try again.'
+            alert: 'Data was incorrect. Try again.',
+            type: 'error'
           });
         }
 
@@ -319,9 +342,10 @@ exports.addSighting = [
     }
   ], function(err, results) {
     if (err) {
-      return res.status(500).render('add_sighting', {
+        return res.status(404).render('add_sighting', {
         title: 'Report Sighting',
-        msg: err
+        alert: err.msg,
+        type: 'error'
       });
     }
 

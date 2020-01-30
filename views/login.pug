@@ -11,13 +11,13 @@ block content
                 div(class='field')
                   label(for='email' class='label') Email
                   div(class='control has-icons-left')
-                    input#email(type='email', name='email' class='input')
+                    input#email(type='email', name='email' class='input' required)
                     span(class='icon is-small is-left')
                       i(class='fas fa-envelope')
                 div(class='field')
                   label(for='password' class='label') Password
                   div(class='control has-icons-left')
-                    input#password(type='password', name='password' class='input')
+                    input#password(type='password', name='password' class='input' minlength='8' required)
                     span(class='icon is-small is-left')
                       i(class='fas fa-lock')
                 div(class='has-text-centered' style='margin-bottom: 10px;')

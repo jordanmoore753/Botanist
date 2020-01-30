@@ -2,16 +2,45 @@ extends layout
 
 block content
   script(src='/javascripts/add_sighting.js')
-  - let link = '/plants/sightings/add/' + plant_id;
-  h1= title
-  section#map
-  section#form-container
-    form#sighting-form(method='POST', action=link)
-      label(for='description') Description
-      textarea(maxlength='400', minlength='10', form='sighting-form', name='description', spellcheck='true', cols='60', rows='8', required) Give a description of the plant, or maybe more specific directions on how to reach it.
-      input(class="hidden-input-sighting", type="number", value=plant_id, name="plant_id")
-      input(type="number", step='any', name="lat")
-      input(type="number", step='any', name="lng")
-      button(type="submit") Submit
-  if msg
-    p(class='alert') #{msg}
+  section(class='hero is-medium has-wood-image')
+    div(class='hero-body')
+      div(class='columns is-multiline')
+        div(class='column is-4 is-offset-1')
+          div(class='content')
+            h1(class='is-medium has-text-centered') Sighting Submission
+          div(class='box')
+            div(class='content')
+              p(class='is-medium') The #[strong Latitude] and #[strong Longitude] inputs will be filled in when you click on the map.
+            section#form-container
+              form#sighting-form(method='POST', action='')
+                div(class='field')
+                  label(for='lat', class='label') Latitude
+                  div(class='control has-icons-left')
+                    input(type='number', step='any' name='lat' class='input' min='-90', max='90')
+                    span(class='icon is-small is-left')
+                      i(class='fas fa-map-marker-alt')
+                div(class='field')
+                  label(for='lng', class='label') Longitude
+                  div(class='control has-icons-left')
+                    input(type='number', step='any' name='lng' class='input' min='-180', max='180')
+                    span(class='icon is-small is-left')
+                      i(class='fas fa-map-marker-alt')
+                div(class='field')
+                  label(for='description', class='label') Description
+                  div(class='control')
+                    textarea(class='textarea' maxlength='400', minlength='10', form='sighting-form', name='description', spellcheck='true', cols='68', rows='8', required) Give a description of the plant, specific directions on how to reach it, or any other pertinent information regarding the plant.
+                div(class='has-text-centered' style='margin-bottom: 10px;')
+                  button(type='submit' class="button is-success is-outlined") Register
+        div(class='column is-5 is-offset-1')
+          div(class='content')
+            h1#world-map(class='is-medium has-text-centered') World Map
+          div(class='box')
+            section#map
+        div(class='column is-4 is-offset-1')
+          if type == 'success'
+            div(class='notification is-success is-light')
+              p(class='is-medium has-text-centered') #{alert}
+          else if type == 'error'
+            div(class='notification is-danger is-light')
+              p(class='is-medium has-text-centered') #{alert}
+

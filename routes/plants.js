@@ -16,7 +16,7 @@ const plantController = require('../controllers/plantController.js');
 router.get('/', plantController.index);
 
 // GET plant search
-router.get('/search', plantController.getSearch);
+router.get('/search', redirectLogin, plantController.getSearch);
 
 // POST plant search results ASYNC
 router.post('/search_results', plantController.searchResults);
