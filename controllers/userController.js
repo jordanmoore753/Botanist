@@ -58,7 +58,8 @@ exports.profile = function(req, res, next) {
         name: results.rows[0].name,
         email: results.rows[0].email
       },
-      alert: msg.info
+      alert: msg.info,
+      type: msg.type
     });
   });
 };
@@ -130,16 +131,16 @@ exports.register = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty() || Object.keys(req.body).length !== 4) {
-      return renderHelper.renderAlert(req, res, 'One or more inputs were incorrectly written. Try again.', 'Register', 'register', 404);
+      return renderHelper.renderAlert(req, res, 'One or more inputs were incorrectly written. Try again.', 'Register', 'register', 404, 'error');
     }
 
     bcrypt.hash(req.body.password, 10).then((hash) => {
       pool.query('INSERT INTO users(name, email, password) VALUES($1, $2, $3)', [req.body.username, req.body.email, hash], (err, results) => {
         if (err) {
-          return renderHelper.renderAlert(req, res, 'There was an error while creating user. Contact an administrator.', 'Register', 'register', 500);
+          return renderHelper.renderAlert(req, res, 'There was an error while creating user. Contact an administrator.', 'Register', 'register', 500, 'error');
         }
 
-        return renderHelper.redirectTo(req, res, '/login', { success: 'Successfully created user.' }, 200);
+        return renderHelper.redirectTo(req, res, '/login', { success: 'Successfully created user.' }, 200, 'success');
       });      
     });
 
@@ -147,7 +148,7 @@ exports.register = [
 
 exports.getLogin = function(req, res, next) {
   let msg = renderHelper.reassignSessionData(req, res);
-  return res.render('login', { title: 'Login', alert: msg.info });
+  return res.render('login', { title: 'Login', alert: msg.info, type: msg.type });
 };
 
 exports.login = [
@@ -161,20 +162,20 @@ exports.login = [
 
   pool.query('SELECT * FROM users WHERE email = $1', [req.body.email], (err, results) => {
     if (err || results.rows.length < 1) {
-      return renderHelper.renderAlert(req, res, 'No users with that email exist.', 'Login', 'login', 404);
+      return renderHelper.renderAlert(req, res, 'No users with that email exist.', 'Login', 'login', 404, 'error');
     } 
 
     bcrypt.compare(req.body.password, results.rows[0].password)
     .then(response => {
       if (response) {
         req.session.userId = results.rows[0].id;
-        return renderHelper.redirectTo(req, res, `/profile`, { success: 'Successfully logged in.' }, 200);
+        return renderHelper.redirectTo(req, res, `/profile`, { success: 'Successfully logged in.' }, 200, 'success');
       } else {
-        return renderHelper.renderAlert(req, res, 'Invalid credentials.', 'Login', 'login', 404);
+        return renderHelper.renderAlert(req, res, 'Invalid credentials.', 'Login', 'login', 404, 'error');
       }
     })
     .catch(err => {
-      return renderHelper.renderAlert(req, res, 'A severe error occurred. Contact an administrator.', 'Login', 'login', 500);
+      return renderHelper.renderAlert(req, res, 'A severe error occurred. Contact an administrator.', 'Login', 'login', 500, 'error');
     });
   });
 }];
@@ -182,7 +183,7 @@ exports.login = [
 exports.logout = function(req, res, next) {
   req.session.destroy(err => {
     if (err) {
-      return renderHelper.redirectTo(req, res, '/login', { error: 'There was a problem while trying to log out.' }, 500);
+      return renderHelper.redirectTo(req, res, '/login', { error: 'There was a problem while trying to log out.' }, 500, 'error');
     }
 
     res.clearCookie(process.env.SESS_NAME);
@@ -192,7 +193,7 @@ exports.logout = function(req, res, next) {
 
 exports.getPasswordReset = function(req, res, next) {
   let msg = renderHelper.reassignSessionData(req, res);
-  return res.render('reset_pw', { title: 'Reset Password', alert: msg.info });
+  return res.render('reset_pw', { title: 'Reset Password', alert: msg.info, type: msg.type });
 };
 
 exports.updatePassword = [
@@ -240,14 +241,14 @@ exports.updatePassword = [
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return renderHelper.renderAlert(req, res, 'Incorrect data provided. Check password, key, and email.', 'Password Reset', 'reset_pw', 404);
+    return renderHelper.renderAlert(req, res, 'Incorrect data provided. Check password, key, and email.', 'Password Reset', 'reset_pw', 404, 'error');
   }
 
   async.waterfall([
     function getUserId(callback) {
       pool.query('SELECT * FROM users WHERE email = $1', [req.body.email_two], (err, results) => {
         if (err || results.rows.length < 1) {
-          return renderHelper.renderAlert(req, res, 'No user with that email exists.', 'Password Reset', 'reset_pw', 404);
+          return renderHelper.renderAlert(req, res, 'No user with that email exists.', 'Password Reset', 'reset_pw', 404, 'error');
         }
 
         callback(null, results.rows[0].id);     
@@ -257,7 +258,7 @@ exports.updatePassword = [
     function checkKey(userId, callback) {
       pool.query('SELECT * FROM keys WHERE user_id = $1 AND name = $2 AND used = $3', [userId, req.body.key, false], (err, results) => {
         if (err || results.rows.length < 1) {
-          return renderHelper.renderAlert(req, res, 'No usable key with that name exists for that user.', 'Password Reset', 'reset_pw', 404);
+          return renderHelper.renderAlert(req, res, 'No usable key with that name exists for that user.', 'Password Reset', 'reset_pw', 404, 'error');
         }
 
         callback(null, userId, results.rows[0].id);         
@@ -267,7 +268,7 @@ exports.updatePassword = [
     function setUsed(userId, keyId, callback) {
       pool.query('UPDATE keys SET used = $1 WHERE id = $2 AND user_id = $3', [true, keyId, userId], (err, results) => {
         if (err) {
-          return renderHelper.renderAlert(req, res, 'Could not update the given user key to used status.', 'Password Reset', 'reset_pw', 500);
+          return renderHelper.renderAlert(req, res, 'Could not update the given user key to used status.', 'Password Reset', 'reset_pw', 500, 'error');
         }
 
         callback(null, userId);       
@@ -278,7 +279,7 @@ exports.updatePassword = [
       bcrypt.hash(req.body.password, 10).then((hash) => {
         pool.query('UPDATE users SET password = $1 WHERE id = $2', [hash, userId], (err, results) => {
           if (err) {
-            return renderHelper.renderAlert(req, res, 'Could not update the password.', 'Password Reset', 'reset_pw', 500);
+            return renderHelper.renderAlert(req, res, 'Could not update the password.', 'Password Reset', 'reset_pw', 500, 'error');
           }
 
           callback(null);
@@ -288,10 +289,10 @@ exports.updatePassword = [
 
   ], function(err, results) {
     if (err) {
-      return renderHelper.renderAlert(req, res, 'Something (big) went horribly wrong. Sorry! Contact an administrator.', 'Password Reset', 'reset_pw', 500);
+      return renderHelper.renderAlert(req, res, 'Something (big) went horribly wrong. Sorry! Contact an administrator.', 'Password Reset', 'reset_pw', 500, 'error');
     }
 
-    return renderHelper.redirectTo(req, res, '/login', { success: 'Successfully updated password.' }, 200);
+    return renderHelper.redirectTo(req, res, '/login', { success: 'Successfully updated password.' }, 200, 'success');
   });
 }];
 
@@ -305,7 +306,7 @@ exports.sendKey = [
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return renderHelper.redirectTo(req, res, '/passwordreset', { error: 'Some inputs were incorrectly formatted.' }, 404);
+    return renderHelper.renderAlert(req, res, 'Some inputs were incorrectly formatted.', 'Password Reset', 'reset_pw', 404, 'error');
   }
 
   let key = keyCreate();
@@ -314,7 +315,7 @@ exports.sendKey = [
     function getUserId(callback) {
       pool.query('SELECT * FROM users WHERE email = $1', [req.body.email], (err, results) => {
         if (err || results.rows.length < 1) {
-          return renderHelper.renderAlert(req, res, 'No user with that email exists.', 'Password Reset', 'reset_pw', 404);
+          return renderHelper.renderAlert(req, res, 'No user with that email exists.', 'Password Reset', 'reset_pw', 404, 'error');
         } 
 
         callback(null, results.rows[0].id);
@@ -324,12 +325,12 @@ exports.sendKey = [
     function insertKey(id, callback) {
       pool.query('SELECT * FROM keys WHERE user_id = $1 AND used = $2', [id, false], (err, results) => {
         if (err || results.rows.length > 0) {
-          return renderHelper.renderAlert(req, res, 'You already have a reset key: check your spam/inbox folders.', 'Password Reset', 'reset_pw', 404);
+          return renderHelper.renderAlert(req, res, 'You already have a reset key: check your spam/inbox folders.', 'Password Reset', 'reset_pw', 404, 'error');
         } 
 
         pool.query('INSERT INTO keys (user_id, name) VALUES ($1, $2)', [id, key], (err, results) => {
           if (err) {
-            return renderHelper.renderAlert(req, res, 'Some error occured while creating a key. Contact an administrator.', 'Password Reset', 'reset_pw', 500);
+            return renderHelper.renderAlert(req, res, 'Some error occured while creating a key. Contact an administrator.', 'Password Reset', 'reset_pw', 500, 'error');
           }
 
           callback(null, key);
@@ -348,7 +349,7 @@ exports.sendKey = [
 
       smtpTransport.sendMail(mailOptions, (error, response) => {
         if (error) {
-          return renderHelper.renderAlert(req, res, 'Unable to send email with key. Contact administrator.', 'Password Reset', 'reset_pw', 500);
+          return renderHelper.renderAlert(req, res, 'Unable to send email with key. Contact administrator.', 'Password Reset', 'reset_pw', 500, 'error');
         }
         
         callback(null, smtpTransport.close());
@@ -356,9 +357,9 @@ exports.sendKey = [
     }
   ], function(err, result) {
     if (err) {
-      return renderHelper.renderAlert(req, res, 'Something (big) went horribly wrong. Sorry! Contact an administrator.', 'Password Reset', 'reset_pw', 500);
+      return renderHelper.renderAlert(req, res, 'Something (big) went horribly wrong. Sorry! Contact an administrator.', 'Password Reset', 'reset_pw', 500, 'error');
     }
 
-    return renderHelper.redirectTo(req, res, '/passwordreset', { success: 'Key was created and sent to the specified email address.' }, 200);
+    return renderHelper.redirectTo(req, res, '/passwordreset', { success: 'Key was created and sent to the specified email address.' }, 200, 'success');
   });
 }];

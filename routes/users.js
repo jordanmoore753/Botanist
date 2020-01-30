@@ -26,7 +26,7 @@ const redirectProfile = (req, res, next) => {
 const userController = require('../controllers/userController.js');
 
 // GET index
-router.get('/', userController.index);
+router.get('/', redirectProfile, userController.index);
 
 // GET user login
 router.get('/login', redirectProfile, userController.getLogin);

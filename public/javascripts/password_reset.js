@@ -23,6 +23,7 @@ $(function() {
         $('#change_option').text('Already have key?');
       }
 
+      $('.notification').remove();
       $('.async-msg').text('');
       $('.async-msg').hide();
       $('.msg').hide();

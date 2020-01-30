@@ -1,14 +1,32 @@
 extends layout
 
 block content
-  h1= title
-  form(method='POST' action='login')
-    label(for='email') Email
-    input#email(type='email', name='email')
-    label(for='password') Password
-    input#password(type='password', name='password')
-    button(type='submit') Login
-  a#forgot(href='/passwordreset') Forgot password?
-
-  if alert
-    p(class='alert') #{alert}
+  section(class='hero is-large has-wood-image')
+    div(class='hero-body')
+      div(class='columns is-centered')
+        div(class='column is-one-third')
+          div(class='content')
+            div(class='box')
+              form(method='POST' action='')
+                div(class='field')
+                  label(for='email' class='label') Email
+                  div(class='control has-icons-left')
+                    input#email(type='email', name='email' class='input')
+                    span(class='icon is-small is-left')
+                      i(class='fas fa-envelope')
+                div(class='field')
+                  label(for='password' class='label') Password
+                  div(class='control has-icons-left')
+                    input#password(type='password', name='password' class='input')
+                    span(class='icon is-small is-left')
+                      i(class='fas fa-lock')
+                div(class='has-text-centered' style='margin-bottom: 10px;')
+                  button(type='submit' class="button is-success is-outlined") Login
+                div(class='has-text-centered', style='margin-bottom: 10px;')
+                  a#forgot(href='/passwordreset' class='has-text-success') Forgot password?
+                if type == 'success'
+                  div(class='notification is-success is-light')
+                    p(class='is-medium has-text-centered') #{alert}
+                else if type == 'error'
+                  div(class='notification is-danger is-light')
+                    p(class='is-medium has-text-centered') #{alert}

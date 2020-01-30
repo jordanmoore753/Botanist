@@ -2,27 +2,58 @@ extends layout
 
 block content
   script(src='/javascripts/password_reset.js')
-  h1= title
+  section(class='hero is-large has-wood-image')
+    div(class='hero-body')
+      div(class='columns is-centered')
+        div(class='column is-one-third')
+          div(class='content')
+            div(class='box')
+              div#request_key_form_container
+                form#request_form(method='POST' action='/passwordreset/send_key')
+                  div(class='field')
+                    label(for='email' class='label') Email
+                    div(class='control has-icons-left')
+                      input#email(type='email', name='email' class='input')
+                      span(class='icon is-small is-left')
+                        i(class='fas fa-envelope')
+                  div(class='has-text-centered', style='margin-bottom: 10px;')
+                    button(type='submit', class='button') Get Password Reset Key
+              div#reset_form_container(hidden)
+                form#reset_form(method='POST' action='/passwordreset/update_pw')
+                  div(class='field')
+                    label(for='email_two' class='label') Email
+                    div(class='control has-icons-left')
+                      input#email(type='email', name='email_two' class='input')
+                      span(class='icon is-small is-left')
+                        i(class='fas fa-envelope')
+                  div(class='field')
+                    label(for='key' class='label') Key
+                    div(class='control has-icons-left')
+                      input#email(type='text', name='key' class='input')
+                      span(class='icon is-small is-left')
+                        i(class='fas fa-key')
+                  div(class='field')
+                    label(for='password' class='label') New Password
+                    div(class='control has-icons-left')
+                      input#password(type='password', name='password' class='input')
+                      span(class='icon is-small is-left')
+                        i(class='fas fa-lock')
+                  div(class='field')
+                    label(for='password_conf' class='label') Password  Confirmation
+                    div(class='control has-icons-left')
+                      input#password_conf(type='password', name='password_conf' class='input')
+                      span(class='icon is-small is-left')
+                        i(class='fas fa-lock')
+                  div(class='has-text-centered' style='margin-bottom: 10px;')
+                    button(type='submit', class='button') Reset Password
+              div(class='has-text-centered' style='margin-bottom: 10px;')
+                a#change_option(href='', class='has-text-success') Already have key?
+              if type == 'success'
+                div(class='notification is-success is-light')
+                  p(class='is-medium has-text-centered') #{alert}
+              else if type == 'error'
+                div(class='notification is-danger is-light')
+                  p(class='is-medium has-text-centered') #{alert}         
 
-  div#request_key_form_container
-    form#request_form(method='POST' action='/passwordreset/send_key')
-      label(for='email') Email
-      input#email(type='email', name='email', required)
-      button(type='submit') Get Password Reset Key
-  div#reset_form_container(hidden)
-    form#reset_form(method='POST' action='/passwordreset/update_pw')
-      p If your request is successful, you will be redirected to the login page.
-      label(for='email_two') Email
-      input#email_two(type='email', name='email_two')
-      label(for='key') Key
-      input#key(type='text', name='key')
-      label(for='password') New Password 
-      span.pw-info (At least 8 characters, 1 symbol, 1 number)
-      input#password(type='password', name='password')
-      label(for='password_conf') Password Confirmation
-      input#password_conf(type='password', name='password_conf')
-      button(type='submit') Reset Password
-  a#change_option(href='') Already have key?
+
   
-  if alert
-    p(class='alert') #{alert}

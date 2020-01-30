@@ -1,19 +1,42 @@
 extends layout
 
 block content
-  h1= title
-  form(method='POST' action='')
-    label(for='username') Username 
-    span.pw-info (At least 1 character, maximum 20 characters)
-    input#username(type='text', name='username')
-    label(for='email') Email
-    input#email(type='email', name='email')
-    label(for='password') Password 
-    span.pw-info (At least 8 characters, 1 symbol, 1 number)
-    input#password(type='password', name='password')
-    label(for='password_conf') Password Confirmation
-    input#password_conf(type='password', name='password_conf')
-    button(type='submit') Register
-
-  if alert
-    p(class='alert') #{alert}
+  section(class='hero is-large has-wood-image')
+    div(class='hero-body')
+      div(class='columns is-centered')
+        div(class='column is-one-third')
+          div(class='content')
+            div(class='box')
+              form(method='POST' action='')
+                div(class='field')
+                  label(for='username', class='label') Username 
+                  div(class='control has-icons-left')
+                    input#username(type='text', name='username' class='input')
+                    span(class='icon is-small is-left')
+                      i(class='fas fa-user')
+                div(class='field')
+                  label(for='email' class='label') Email
+                  div(class='control has-icons-left')
+                    input#email(type='email', name='email' class='input')
+                    span(class='icon is-small is-left')
+                      i(class='fas fa-envelope')
+                div(class='field')
+                  label(for='password' class='label') Password
+                  div(class='control has-icons-left')
+                    input#password(type='password', name='password' class='input')
+                    span(class='icon is-small is-left')
+                      i(class='fas fa-lock')
+                div(class='field')
+                  label(for='password_conf' class='label') Password  Confirmation
+                  div(class='control has-icons-left')
+                    input#password_conf(type='password', name='password_conf' class='input')
+                    span(class='icon is-small is-left')
+                      i(class='fas fa-lock')
+                div(class='has-text-centered' style='margin-bottom: 10px;')
+                  button(type='submit' class="button is-success is-outlined") Register
+                if type == 'success'
+                  div(class='notification is-success is-light')
+                    p(class='is-medium has-text-centered') #{alert}
+                else if type == 'error'
+                  div(class='notification is-danger is-light')
+                    p(class='is-medium has-text-centered') #{alert}

@@ -80,7 +80,7 @@ describe('/login with non-existent email', () => {
 
     expect(res.statusCode).toEqual(404);
     expect(res.redirect).toEqual(false);
-    expect(res.text.includes('<p class="alert">No users with that email exist.</p>'))
+    expect(res.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">No users with that email exist.'))
   });
 });
 
@@ -94,7 +94,7 @@ describe('/login with incorrect password', () => {
 
     expect(res.statusCode).toEqual(404);
     expect(res.redirect).toEqual(false);
-    expect(res.text.includes('<p class="alert">Invalid credentials.</p>'))
+    expect(res.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">Invalid credentials.'))
   });
 });
 
@@ -149,7 +149,7 @@ describe('/register invalid data does not create new user', () => {
     expect(res.statusCode).toEqual(404);
     expect(res.redirect).toEqual(false);
     expect(res.req.finished).toEqual(true);
-    expect(res.text.includes('<p class="alert">No users with that email exist.</p>')).toEqual(true);
+    expect(res.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">No users with that email exist.')).toEqual(true);
   });
 });
 
@@ -167,7 +167,7 @@ describe('/register too many params does not create new user', () => {
     expect(res.statusCode).toEqual(404);
     expect(res.redirect).toEqual(false);
     expect(res.req.finished).toEqual(true);
-    expect(res.text.includes('<p class="alert">One or more inputs were incorrectly written. Try again.</p>')).toEqual(true);
+    expect(res.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">One or more inputs were incorrectly written. Try again.')).toEqual(true);
   });
 });
 
@@ -183,7 +183,7 @@ describe('/register too few params does not create new user', () => {
     expect(res.statusCode).toEqual(404);
     expect(res.redirect).toEqual(false);
     expect(res.req.finished).toEqual(true);
-    expect(res.text.includes('<p class="alert">One or more inputs were incorrectly written. Try again.</p>')).toEqual(true);
+    expect(res.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">One or more inputs were incorrectly written. Try again.')).toEqual(true);
   });
 });
 
@@ -232,7 +232,7 @@ describe('reset password requires a personal key', () => {
 
     expect(resDuplicate.statusCode).toEqual(404);
     expect(resDuplicate.redirect).toEqual(false);
-    expect(resDuplicate.text.includes('<p class="alert">You already have a reset key: check your spam/inbox folders.</p>')).toEqual(true);
+    expect(resDuplicate.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">You already have a reset key: check your spam/inbox folders.')).toEqual(true);
   });
 });
 
@@ -254,7 +254,7 @@ describe('reset password requires a personal key', () => {
 
     expect(resDuplicate.statusCode).toEqual(404);
     expect(resDuplicate.redirect).toEqual(false);
-    expect(resDuplicate.text.includes('<p class="alert">You already have a reset key: check your spam/inbox folders.</p>')).toEqual(true);
+    expect(resDuplicate.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">You already have a reset key: check your spam/inbox folders.')).toEqual(true);
   });
 });
 
@@ -289,9 +289,10 @@ describe('reset password requires a valid key, pw, pw_conf, email', () => {
         password_conf: 'abcdefgh1!'
       }); 
 
+    //console.log(resetResponse.text);
     expect(resetResponse.statusCode).toEqual(404);
     expect(resetResponse.redirect).toEqual(false);
-    expect(resetResponse.text.includes('<p class="alert">No usable key with that name exists for that user.</p>')).toEqual(true);
+    expect(resetResponse.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">No usable key with that name exists for that user.')).toEqual(true);
 
     const passwordResponse = await testSession.post('/passwordreset/update_pw')
       .send({
@@ -303,7 +304,7 @@ describe('reset password requires a valid key, pw, pw_conf, email', () => {
 
     expect(passwordResponse.statusCode).toEqual(404);
     expect(passwordResponse.redirect).toEqual(false);
-    expect(passwordResponse.text.includes('<p class="alert">Incorrect data provided. Check password, key, and email.</p>')).toEqual(true);
+    expect(passwordResponse.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">Incorrect data provided. Check password, key, and email.')).toEqual(true);
 
     const passwordConfResponse = await testSession.post('/passwordreset/update_pw')
       .send({
@@ -315,7 +316,7 @@ describe('reset password requires a valid key, pw, pw_conf, email', () => {
 
     expect(passwordConfResponse.statusCode).toEqual(404);
     expect(passwordConfResponse.redirect).toEqual(false);
-    expect(passwordConfResponse.text.includes('<p class="alert">Incorrect data provided. Check password, key, and email.</p>')).toEqual(true);
+    expect(passwordConfResponse.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">Incorrect data provided. Check password, key, and email.')).toEqual(true);
 
     const emailResponse = await testSession.post('/passwordreset/update_pw')
       .send({
@@ -327,7 +328,7 @@ describe('reset password requires a valid key, pw, pw_conf, email', () => {
 
     expect(emailResponse.statusCode).toEqual(404);
     expect(emailResponse.redirect).toEqual(false);
-    expect(emailResponse.text.includes('<p class="alert">No user with that email exists.</p>')).toEqual(true);
+    expect(emailResponse.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">No user with that email exists.')).toEqual(true);
   });
 }); 
 
