@@ -27,10 +27,4 @@ block content
                 else if type == 'error'
                   div(class='notification is-danger is-light')
                     p(class='is-medium has-text-centered') #{alert}
-  if alert
-    p(class='alert') #{alert}
-  h1= title
-  h2 User Information
-  ul
-    li= userInfo.name
-    li= userInfo.email
+

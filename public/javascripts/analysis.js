@@ -2,16 +2,48 @@ $(function() {
   let analyzer = {
     init: function() {
       this.bindEvents();
+
+      if ($('.list a').length > 0) {
+        $('.list a').first().trigger('click');
+      }
     },
 
     bindEvents: function() {
-      $('#collection_selector').on('click', 'a', $.proxy(this.analyzePlant, this));
-      $('#collection_selector').on('click', '.delete-icon', $.proxy(this.deletePlant, this));
+      $('#collection').on('click', 'a', $.proxy(this.analyzePlant, this));
+      $('#deleter_btn').on('click', $.proxy(this.deletePlant, this));
+      $('#add_viewer_btn').on('click', $.proxy(this.goToAdd, this));
+      $('#view_sightings_btn').on('click', $.proxy(this.goToView, this));
+    },
+
+    goToAdd: function(e) {
+      if ($('.list a.is-active').length < 1) {
+        this.newMsg({ error: 'You must select a plant to add a sighting for.' });
+        return;
+      }
+
+      let id = $('.list-item.is-active').attr('data-value');
+      return window.location.replace('/plants/sightings/add/' + id);
+    },
+
+    goToView: function(e) {
+      if ($('.list a.is-active').length < 1) {
+        this.newMsg({ error: 'You must select a plant to view sightings for.' });
+        return;
+      }
+
+      let id = $('.list-item.is-active').attr('data-value');
+      return window.location.replace('/plants/sightings/view/' + id);
     },
 
     deletePlant: function(e) {
       e.preventDefault();
-      let id = $(e.target).parent()[0].value;
+
+      if ($('.list a.is-active').length < 1) {
+        this.newMsg({ error: 'You must select a plant to delete.' });
+        return;
+      }
+
+      let id = $('.list-item.is-active').attr('data-value');
       let self = this;
       let data = { id: id };
 
@@ -24,33 +56,61 @@ $(function() {
       })
       .then(res => res.json())
       .then(function(json) {
-        $(`.plant-list-item[value="${id}"`).remove();
-        self.newMsg(json.msg);
+        $('.list-item.is-active').remove();
+
+        if ($('.list-item').length === 0) {
+          $('.list').remove();
+          let b = document.createElement('div');
+          let para = document.createElement('p');
+
+          b.classList.add('box');
+          para.classList.add('is-medium');
+          para.textContent = 'There are no plants in your collection.';
+
+          b.append(para);
+          $('#collection').append(b);
+        }
+
+        return self.newMsg({ success: json.msg });
       })
       .catch(function(err) {
-        //
+        return self.newMsg({ error: 'That plant could not be deleted.' });
       });
     },
 
     newMsg: function(msg) {
-      $('.analysis-notification').remove();
+      $('div.notification').remove();
+      $('canvas').remove();
+      $('#analysis_graph p').remove();
 
-      let words = document.createElement('p');
-      words.classList.add('analysis-notification');
-      words.textContent = msg;
+      let notification = document.createElement('div');
+      let message = document.createElement('p');
 
-      $('#notifications-analysis').append(words);
+      if (msg.success) {
+        notification.classList.add('notification');
+        notification.classList.add('is-success', 'is-light');
+      } else {
+        notification.classList.add('notification');
+        notification.classList.add('is-light', 'is-danger');
+      }
 
-      setTimeout(function() {
-        $('.analysis-notification').fadeOut(1000);
-      }, 5000);
+      message.textContent = msg.success || msg.error;
+      message.classList.add('is-medium', 'has-text-centered');
+      notification.append(message);
+
+      $('#analysis_graph').append(notification);
     },
 
     analyzePlant: function(e) {
       e.preventDefault();
-      let id = $(e.target).parent()[0].value;
+      
+      $('#analysis_graph p').remove();
+      let id = $(e.target).attr('data-value');
       let self = this;
       let data = { id: id };
+
+      $('.list a').removeClass('is-active');
+      e.target.classList.add('is-active');
 
       fetch('/plants/search_single_plant', {
         method: 'POST',
@@ -106,33 +166,14 @@ $(function() {
         return obj['value'];
       });
 
-      // add sighting and view sight buttons
-
-      $('#sighting_buttons');
-
-      if ($('.sighting-btns').length > 0) {
-        $('.sighting-btns')[0].href = `/plants/sightings/add/${id}`;
-        $('.sighting-btns')[1].href = `/plants/sightings/view/${id}`;
-      } else {
-        let adder = document.createElement('a');
-        adder.classList.add('sighting-btns');
-        adder.textContent = 'Add Sighting';
-        adder.href = `/plants/sightings/add/${id}`;
-
-        let viewer = document.createElement('a');
-        viewer.classList.add('sighting-btns');
-        viewer.textContent = 'View Sightings';
-        viewer.href = `/plants/sightings/view/${id}`;
-
-        $('#sighting_buttons').append(adder);
-        $('#sighting_buttons').append(viewer);
-      }
+      // change values of buttons and href
 
       // create canvas
       let cv = document.createElement('canvas');
-      cv.width = 400;
-      cv.height = 500;
+      cv.width = 300;
+      cv.height = 400;
       cv.id = 'my-chart';
+
       $('#analysis_graph').append(cv);
 
       // create chart

@@ -141,8 +141,41 @@ textarea[name="description"] {
   border: 1px solid black;
 }
 
+
+/*.wrapper {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: [col1-start] 1fr  [col2-start] 2fr  [col3-start] 1fr [col3-end];
+    grid-template-rows: [row1-start] 300px [row2-start] 300px [row2-end];
+    background-color: #aaa;
+    color: #444;
+  }
+
+  .grid-box {
+    background-color: #444;
+    color: #fff;
+    border-radius: 5px;
+    padding: 20px;
+  }
+
+  .a-box {
+    grid-column: col1-start;
+    grid-row: row1-start ;
+  }
+
+  .b-box {
+    grid-column: col2-start ;
+    grid-row: row1-start / row2-end;
+  }
+
+  .c-box {
+    grid-column: col1-start;
+    grid-row: row2-start ;
+  }*/
+
 /* analysis collection styles */
 
+/*
 #collection_selector {
   display: block;
   font-size: 16px;
@@ -152,7 +185,7 @@ textarea[name="description"] {
   line-height: 1.3;
   padding: .6em 1.4em .5em .8em;
   width: 500px;
-  height: 200px;
+  height: 300px;
   max-width: 100%;
   box-sizing: border-box;
   margin: 0;
@@ -160,6 +193,7 @@ textarea[name="description"] {
   box-shadow: 0 1px 0 1px rgba(0,0,0,.04);
   border-radius: .5em;
   overflow: auto;
+  background-color: white;
 }
 
 .plant-list-item {
@@ -177,4 +211,10 @@ textarea[name="description"] {
   float: right;
   width: 20px;
   cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  #collection_selector {
+    font-size: .7rem;
+  }
 }
