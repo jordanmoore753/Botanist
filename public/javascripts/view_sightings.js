@@ -161,7 +161,7 @@ $(function() {
 
       console.log(startLocation);
 
-      fetch(`http://www.mapquestapi.com/directions/v2/route?${random}=${coordinates}&from=${startLocation}&to=${endLocation}&narrativeType=text`, {
+      fetch(`https://www.mapquestapi.com/directions/v2/route?${random}=${coordinates}&from=${startLocation}&to=${endLocation}&narrativeType=text`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'

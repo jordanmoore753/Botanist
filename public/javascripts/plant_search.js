@@ -19,8 +19,8 @@ $(function() {
 
     showField: function(e) {
       e.preventDefault();
+      e.stopPropagation();
 
-      console.log($(e.currentTarget).children().find('svg').attr('data-icon'))
       if ($(e.currentTarget).children().find('svg').attr('data-icon') === 'angle-double-up') {
         $(e.currentTarget).children().find('svg').attr('data-icon', 'angle-double-down');  
       } else {
@@ -87,7 +87,7 @@ $(function() {
 
     search: function(e) {
       e.preventDefault();
-
+      e.stopPropagation();
       // handle whether or not previous/next page clicked, not search
 
       let allData = this.formatFormData();
