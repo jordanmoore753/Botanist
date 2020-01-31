@@ -2,35 +2,67 @@ extends layout
 
 block content
   script(src='/javascripts/view_sightings.js')
-  h1 #{title}
-  div#sightings
-    if sightings
-      ul#list_of_sightings
-        each sighting in sightings
-          li(class='title-sighting') #{sighting.date}
-            div(hidden, class="sub-details")
-              p(class='detail') #[span User]: #{sighting.userName}
-              p(class='detail') #[span Plant]: #{sighting.plantName}
-              p#lat(class='detail') #[span Latitude]: #{sighting.lat}
-              p#lng(class='detail') #[span Longitude]: #{sighting.lng}
-              p(class='detail') #[span Description]: #{sighting.description}
-    else
-      ul
-        li No reported sightings for this plant.
-  if sightings
-    div#directions_form
-      form(method='', action='')
-        label(for='street') Street Address
-        input(type='text', name='street', required)
-        label(for='city') City
-        input(type='text', name='city', required)
-        label(for='state') State
-        select(name='state', required)
-          each state in states
-            option #{state}
-        button(type='submit') Get Directions
-  div#directions
-    ol#directions_list
-  div#map
+  div#fullscreen_container(hidden)
+    div(class='columns is-centered')
+      div(class='column is-one-quarter')
+        div#directions_form(class='box')
+          div(class='content')
+            form(method='' action='')
+              div(class='field')
+                label(for='street', class='label') Street Address
+                div(class='control has-icons-left')
+                  input(type='text' name='street' class='input' required)
+                  span(class='icon is-small is-left')
+                    i(class='fas fa-map-marker-alt')
+              div(class='field')
+                label(for='city', class='label') City
+                div(class='control has-icons-left')
+                  input(type='text' name='city' class='input' required)
+                  span(class='icon is-small is-left')
+                    i(class='fas fa-map-marker-alt')
+              div(class='field')
+                label(for='state', class='label') State
+                div(class='select')
+                  select
+                    each state in states
+                      option #{state}
+              div(class='has-text-centered' style='margin-bottom: 10px;')
+                button(class='button is-success is-outlined') Get Directions
+  section(class='hero is-medium has-wood-image')
+    div(class='hero-body')
+      div(class='columns is-multiline')
+        div(class='column is-4 is-offset-1')
+          div(class='content')
+            h1(class='is-medium has-text-centered') Sightings
+          div(class='box')
+            if sightings.length > 0
+              div#sightings_list(class='list is-hoverable' style='height: 200px; overflow: auto;')
+                each sighting in sightings
+                  a(href='#' class='list-item', data-lat=sighting.lat, data-lng=sighting.lng, data-username=sighting.userName, data-plantname=sighting.plantName, data-description=sighting.description) #{sighting.date}
+            else
+              div(class='content')
+                p(class='is-medium has-text-centered') No reported sightings for this plant.
+          div#notification_box(class='box')
+            if type == 'success'
+              div(class='notification is-success is-light')
+                p(class='is-medium has-text-centered') #{alert}
+            else if type == 'error'
+              div(class='notification is-danger is-light')
+                p(class='is-medium has-text-centered') #{alert}
+            else
+              div(class='notification is-light')
+                p(class='is-medium has-text-centered') No sighting selected.
+        div(class='column is-5 is-offset-1')
+          div(class='content')
+            h1#world-map(class='is-medium has-text-centered') World Map
+          div(class='box')
+            section#map
+        div#directions_hover(class='content' hidden)
+          div(class='box is-small')
+            p(class='is-small') Click for directions to selected sighting.
+        div#directions_btn(class='button is-large is-rounded')
+          span(class='icon is-medium')
+            i(class='fas fa-directions')
+
 
 

@@ -1,15 +1,105 @@
 $(function() {
   let viewer = {
     init: function() {
-      this.populatePage();
       this.bindEvents();
+      this.startMap();
       //this.startMap();
     },
 
     bindEvents: function() {
       $('.title-sighting').on('click', $.proxy(this.toggleDetails, this));
+      $('#sightings_list').on('click', 'a', $.proxy(this.showDetails, this));
       $('form').on('submit', $.proxy(this.getDirections, this));
+      $('#directions_btn').on('mouseover', $.proxy(this.showHiddenInstructions, this));
+      $('#directions_btn').on('mouseleave', $.proxy(this.hideInstructions, this));
+      $('#directions_btn').on('click', $.proxy(this.showForm, this));
+      $('#fullscreen_container').on('click', $.proxy(this.hideForm, this));
       // events bound
+    },
+
+    showDetails: function(e) {
+      e.preventDefault();
+
+      $('#notification_box').children().remove();
+      $('.list-item').removeClass('is-active');
+      $(e.target).addClass('is-active');
+
+      let list = document.createElement('div');
+      list.classList.add('list', 'is-hoverable');
+      list.id = 'temp_list';
+
+      $('#notification_box').append(list);
+
+      let data = {};
+
+      ['username', 'plantname', 'lat', 'lng', 'description'].forEach(function(property) {
+        data[property] = $(e.target).attr(`data-${property}`);
+      });
+
+      let plantNameArray = data.plantname.split(' ');
+      let capitalizedPlantName = [];
+
+      plantNameArray.forEach(function(word) {
+        capitalizedPlantName.push(word[0].toUpperCase() + word.slice(1));
+      });
+
+      data.description = data.description.replace(/&#x27;/gi, "'");
+      data.plantname = capitalizedPlantName.join(' ');
+
+      let span;
+      let p;
+      let elementsToAppend = [];
+
+      Object.keys(data).forEach(function(property) {
+        let converts = {
+          username: 'User',
+          plantname: 'Plant',
+          lat: 'Latitude',
+          lng: 'Longitude',
+          description: 'Description'
+        };
+
+        span = document.createElement('span');
+        a = document.createElement('p');
+
+        span.classList.add('tag', 'is-primary', 'is-medium');
+        span.textContent = `${converts[property]}`;
+        a.append(span);
+
+        a.classList.add('is-medium', 'list-item', 'has-background-light', 'has-text-black');
+        a.append(' ' + data[property]);
+
+        $('#temp_list').append(a);
+        return;
+      });
+
+    },
+
+    hideForm: function(e) {
+      e.preventDefault();
+
+      if ($(e.target).attr('id') === 'fullscreen_container' || 
+          $(e.target).hasClass('is-one-quarter') || 
+          $(e.target).hasClass('is-centered')) {
+        $('#fullscreen_container').fadeOut(100);
+      }
+      
+      return;
+    },
+
+    showForm: function(e) {
+      e.preventDefault();
+
+      $('#directions_hover').hide();
+      $('#fullscreen_container').fadeIn(100);
+    },
+
+    showHiddenInstructions: function(e) {
+      return $('#directions_hover').fadeIn(300);
+    },
+
+    hideInstructions: function(e) {
+      return $('#directions_hover').fadeOut(300);
     },
 
     asyncher: function() {
@@ -60,13 +150,6 @@ $(function() {
       .catch(function(err) {
         window.location.replace('/login');
       });
-
-      // check all inputs are existing
-      // check inputs are valid types
-      // sanitize inputs
-      // make GET request
-      // trigger new map to be created for div#map showing directions
-      // populate directions div with HTML-spiced directions
     },
 
     changeMap: function(startLocation, endLocation) {
@@ -178,9 +261,6 @@ $(function() {
       } else {
         $details.hide();
       }
-
-      // insert coordinates into map form
-      // create map showing these coordinates, no directions yet
     },
 
     sanitize: function(str) {
@@ -203,23 +283,6 @@ $(function() {
       });
 
       return sanitizedString;
-    },
-
-    populatePage: function() {
-      let id = window.location.href.split('/')[window.location.href.split('/').length - 1];
-      // fetch(`/plants/sightings/view/${id}`, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json'
-      //   }
-      // })
-      // .then(res => res.json())
-      // .then(function(json) {
-      //   console.log(json);
-      // })
-      // .catch(function(error) {
-
-      // });
     }
   };
 
