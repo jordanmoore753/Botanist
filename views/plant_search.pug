@@ -2,123 +2,201 @@ extends layout
 
 block content
   script(src='/javascripts/plant_search.js')
-  div#fullscreen_container
-  h1= title
-  form#filter_form(method='', action='')
-    p#form_info No fields are mandatory.
-    fieldset#general_info
-      a(class='toggle-info-btn', href='#') Show General Info
-      label(for='common_name', class='label-heading') Common Name
-      input#common_name(name='common_name', type='text', maxlength='20')
-      label(for='scientific_name', class='label-heading') Scientific Name
-      input#scientific_name(name='scientific_name', type='text', maxlength='25')
-      label(for='resprout_ability', class='label-heading') Self-Resprouting
-      div(class='form-radio-div')
-        input#resprout_ability(name='resprout_ability', type='radio', value='true')
-        label(for='resprout_ability', class='radio-label') Yes
-        input#no_resprout_ability(name='resprout_ability', type='radio', value='false')
-        label(for='resprout_ability' class='radio-label') No
-      label(for='fruit_conspicuous', class='label-heading') Fruit-Bearing
-      div(class='form-radio-div')
-        input(name='fruit_conspicuous', type='radio', value='true')
-        label(for='fruit_conspicuous', class='radio-label') Yes
-        input(name='fruit_conspicuous', type='radio', value='false')
-        label(for='fruit_conspicuous', class='radio-label') No
-      label(for='flower_conspicuous', class='label-heading') Visible Flowers
-      div(class='form-radio-div')
-        input(name='flower_conspicuous', type='radio', value='true')
-        label(for='flower_conspicuous', class='radio-label') Yes
-        input(name='flower_conspicuous', type='radio', value='false')
-        label(for='flower_conspicuous', class='radio-label') No
-    fieldset#growing_conditions
-      a(class='toggle-info-btn', href='#') Show Growing Info
-      label(for='precipitation_minimum', class='label-heading') Precipitation Minimum
-      input#precipitation_minimum(name='precipitation_minimum', type='number', max='100', min='0')
-      label(for='temperature_minimum', class='label-heading') Temperature Minimum
-      input#temperature_minimum(name='temperature_minimum', type='number', max='200', min='0')
-      label(for='growth_rate', class='label-heading') Growth Rate
-      div(class='form-radio-div')
-        input(name='growth_rate', type='radio', value='Rapid')
-        label(for='growth_rate', class='radio-label') Rapid
-        input(name='growth_rate', type='radio', value='Moderate')
-        label(for='growth_rate' class='radio-label') Moderate
-        input(name='growth_rate', type='radio', value='Slow')
-        label(for='growth_rate' class='radio-label') Slow
-      label(for='bloom_period', class='label-heading') Bloom Period
-      div(class='form-radio-div')
-        input(name='bloom_period', type='radio', value='Spring')
-        label(for='bloom_period', class='radio-label') Spring
-        input(name='bloom_period', type='radio', value='Summer')
-        label(for='bloom_period', class='radio-label') Summer
-        input(name='bloom_period', type='radio', value='Fall')
-        label(for='bloom_period', class='radio-label') Fall
-        input(name='bloom_period', type='radio', value='Winter')
-        label(for='bloom_period', class='radio-label') Winter
-      label(for='active_growth_period', class='label-heading') Active Growth Period
-      div(class='form-radio-div')
-        input(name='active_growth_period', type='radio', value='Spring')
-        label(for='active_growth_period', class='radio-label') Spring
-        input(name='active_growth_period', type='radio', value='Summer')
-        label(for='active_growth_period', class='radio-label') Summer
-        input(name='active_growth_period', type='radio', value='Fall')
-        label(for='active_growth_period', class='radio-label') Fall
-        input(name='active_growth_period', type='radio', value='Winter')
-        label(for='active_growth_period', class='radio-label') Winter
-      label(for='shade_tolerance', class='label-heading') Shade Tolerance
-      div(class='form-radio-div')
-        input(name='shade_tolerance', type='radio', value='Intolerant')
-        label(class='radio-label') Intolerant
-        input(name='shade_tolerance', type='radio', value='Intermediate')
-        label(class='radio-label') Intermediate
-        input(name='shade_tolerance', type='radio', value='Tolerant')
-        label(class='radio-label') Tolerant  
-      label(for='drought_tolerance', class='label-heading') Drought Tolerance
-      div(class='form-radio-div')
-        input(name='drought_tolerance', type='radio', value='Low')
-        label(class='radio-label') Low
-        input(name='drought_tolerance', type='radio', value='Medium')
-        label(class='radio-label') Medium
-        input(name='drought_tolerance', type='radio', value='High')
-        label(class='radio-label') High
-      label(for='moisture_use', class='label-heading') Moisture Use
-      div(class='form-radio-div')
-        input(name='moisture_use', type='radio', value='Low')
-        label(class='radio-label') Low
-        input(name='moisture_use', type='radio', value='Medium')
-        label(class='radio-label') Medium
-        input(name='moisture_use', type='radio', value='High')
-        label(class='radio-label') High
-    fieldset#products
-      a(class='toggle-info-btn', href='#') Show Product Info
-      label(class='label-heading') Protein Potential
-      div(class='form-radio-div')
-        input(name='protein_potential', type='radio', value='Low')
-        label(class='radio-label') Low
-        input(name='protein_potential', type='radio', value='Medium')
-        label(class='radio-label') Medium
-        input(name='protein_potential', type='radio', value='High')
-        label(class='radio-label') High  
-      label(class='label-heading') Human-Edible
-      div(class='form-radio-div')
-        input(name='palatable_human', type='radio', value='true')
-        label(class='radio-label') Yes
-        input(name='palatable_human', type='radio', value='false')
-        label(class='radio-label') No
-      label(class='label-heading', for='fruit_seed_color') Fruit/Seed Color
-      input(name='fruit_seed_color', type='text', maxlength='15')
-      label(class='label-heading') Fruit/Seed Abundance
-      div(class='form-radio-div')
-        input(name='fruit_seed_abundance', type='radio', value='Low')
-        label(class='radio-label') Low
-        input(name='fruit_seed_abundance', type='radio', value='Medium')
-        label(class='radio-label') Medium
-        input(name='fruit_seed_abundance', type='radio', value='High')
-        label(class='radio-label') High  
-    button#plant-form-btn(type='submit') Search
-  section#notifications
-  section#all_results
-  div#error_central
-    if errors
-      ul
-        for error in errors
-          li(class='err-msg') #{error.msg}
+  div#fullscreen_container(hidden)
+    div(class='columns is-centered')
+      div(class='column is-one-quarter')
+        div(class='box' style='margin-top: 200px;')
+          div(class='content')
+            p(class='is-medium has-text-centered') Add this plant to your collection?
+            div(class='field is-grouped is-grouped-centered')
+              p(class='control')
+                button#yesser(class='button is-success is-outlined', type='click') Yes
+              p(class='control')
+                button#noer(class='button is-danger is-outlined' type='click') No
+  section(class='hero is-medium has-wood-image')
+    div(class='hero-body')
+      div(class='columns is-multiline')
+        div#search_columns(class='column is-3 is-offset-1')
+          div(class='box has-text-centered')
+            button(class='button is-medium' type='click' style='border: none;')
+              span(class='icon is-medium')
+                i(class='fas fa-angle-double-down')
+            div(class='content' hidden)
+              div(class='field')
+                label(for='common_name' class='label') Common Name
+                div(class='control has-icons-left')
+                  input(type='text' name='common_name' class='input' maxlength='20' title='Type this in lowercase.')
+                  span(class='icon is-small is-left')
+                    i(class='fas fa-font') 
+              div(class='field')
+                label(for='scientific_name' class='label') Scientific Name
+                div(class='control has-icons-left')
+                  input(type='text' name='scientific_name' class='input' maxlength='25' title='Type this like actual Scientific Names are spelled.')
+                  span(class='icon is-small is-left')
+                    i(class='fas fa-font')
+              div(class='field')
+                label(for='resprout_ability' class='label') Self-Resprouting
+                label(class='radio')
+                  input(name='resprout_ability' type='radio' value='true')
+                  | Yes
+                label(class='radio')
+                  input(name='resprout_ability' type='radio' value='false')
+                  | No
+              div(class='field')
+                label(for='fruit_conspicuous' class='label') Fruit-Bearing
+                label(class='radio')
+                  input(name='fruit_conspicuous' type='radio' value='true')
+                  | Yes
+                label(class='radio')
+                  input(name='fruit_conspicuous' type='radio' value='false')
+                  | No
+              div(class='field')
+                label(for='flower_conspicuous' class='label') Flower-Bearing
+                label(class='radio')
+                  input(name='flower_conspicuous' type='radio' value='true')
+                  | Yes
+                label(class='radio')
+                  input(name='flower_conspicuous' type='radio' value='false')
+                  | No
+        div(class='column is-3')
+          div(class='box has-text-centered')
+            button(class='button is-medium' type='click' style='border: none;')
+              span(class='icon is-medium')
+                i(class='fas fa-angle-double-down')
+            div(class='content' hidden)
+              div(class='field')
+                label(for='precipitation_minimum' class='label') Precipitation Minimum
+                div(class='control has-icons-left')
+                  input(type='number' name='precipitation_minimum' class='input' max='300' min='0')
+                  span(class='icon is-small is-left')
+                    i(class='fas fa-calculator')
+              div(class='field')
+                label(for='growth_rate' class='label') Growth Rate
+                label(class='radio')
+                  input(name='growth_rate' type='radio' value='Rapid')
+                  | Rapid
+                label(class='radio')
+                  input(name='growth_rate' type='radio' value='Moderate')
+                  | Moderate
+                label(class='radio')
+                  input(name='growth_rate' type='radio' value='Slow')
+                  | Slow
+              div(class='field')
+                label(for='bloom_period' class='label') Bloom Period
+                label(class='radio')
+                  input(name='bloom_period' type='radio' value='Spring')
+                  | Spring
+                label(class='radio')
+                  input(name='bloom_period' type='radio' value='Summer')
+                  | Summer
+                label(class='radio')
+                  input(name='bloom_period' type='radio' value='Fall')
+                  | Fall
+                label(class='radio')
+                  input(name='bloom_period' type='radio' value='Winter')
+                  | Winter
+              div(class='field')
+                label(for='active_growth_period' class='label') Active Growth Period
+                label(class='radio')
+                  input(name='active_growth_period' type='radio' value='Spring')
+                  | Spring
+                label(class='radio')
+                  input(name='active_growth_period' type='radio' value='Summer')
+                  | Summer
+                label(class='radio')
+                  input(name='active_growth_period' type='radio' value='Fall')
+                  | Fall
+                label(class='radio')
+                  input(name='active_growth_period' type='radio' value='Winter')
+                  | Winter
+              div(class='field')
+                label(for='shade_tolerance' class='label') Shade Tolerance
+                label(class='radio')
+                  input(name='shade_tolerance' type='radio' value='Tolerant')
+                  | Tolerant
+                label(class='radio')
+                  input(name='shade_tolerance' type='radio' value='Intermediate')
+                  | Intermediate
+                label(class='radio')
+                  input(name='shade_tolerance' type='radio' value='Intolerant')
+                  | Intolerant
+              div(class='field')
+                label(for='drought_tolerance' class='label') Drought Tolerance
+                label(class='radio')
+                  input(name='drought_tolerance' type='radio' value='High')
+                  | Tolerant
+                label(class='radio')
+                  input(name='drought_tolerance' type='radio' value='Medium')
+                  | Intermediate
+                label(class='radio')
+                  input(name='drought_tolerance' type='radio' value='Low')
+                  | Intolerant
+        div(class='column is-3')
+          div(class='box has-text-centered')
+            button(class='button is-medium' type='click' style='border: none;')
+              span(class='icon is-medium')
+                i(class='fas fa-angle-double-down')
+            div(class='content' hidden)
+              div(class='field')
+                label(for='fruit_seed_color' class='label') Fruit/Seed Color
+                div(class='control has-icons-left')
+                  input(type='text' name='fruit_seed_color' class='input' maxlength='15')
+                  span(class='icon is-small is-left')
+                    i(class='fas fa-font')
+              div(class='field')
+                label(for='moisture_use' class='label') Moisture Use
+                label(class='radio')
+                  input(name='moisture_use' type='radio' value='High')
+                  | High
+                label(class='radio')
+                  input(name='moisture_use' type='radio' value='Medium')
+                  | Medium
+                label(class='radio')
+                  input(name='moisture_use' type='radio' value='Low')
+                  | Low
+              div(class='field')
+                label(for='protein_potential' class='label') Protein Potential
+                label(class='radio')
+                  input(name='protein_potential' type='radio' value='High')
+                  | High
+                label(class='radio')
+                  input(name='protein_potential' type='radio' value='Medium')
+                  | Medium
+                label(class='radio')
+                  input(name='protein_potential' type='radio' value='Low')
+                  | Low
+              div(class='field')
+                label(for='fruit_seed_abundance' class='label') Fruit Seed Abundance
+                label(class='radio')
+                  input(name='fruit_seed_abundance' type='radio' value='High')
+                  | High
+                label(class='radio')
+                  input(name='fruit_seed_abundance' type='radio' value='Medium')
+                  | Medium
+                label(class='radio')
+                  input(name='fruit_seed_abundance' type='radio' value='Low')
+                  | Low
+              div(class='field')
+                label(for='palatable_human' class='label') Human Edible
+                label(class='radio')
+                  input(name='palatable_human' type='radio' value='true')
+                  | Yes
+                label(class='radio')
+                  input(name='palatable_human' type='radio' value='false')
+                  | No 
+        div(class='column is-1')
+          div(class='box has-text-centered')
+            button#searcher(class='button is-medium' type='click' style='border: none;' title='Search Plants')
+              span(class='icon is-medium')
+                i(class='fas fa-search')
+        div(class='column is-6 is-offset-1')
+          div#result_list(class='box')
+            div(class='content')
+              p(class='notification is-medium has-background-light has-text-centered') Results from the plant search will populate here.
+        div(class='column is-3')
+          div#notifications(class='box')
+            div(class='content')
+              p(class='notification is-medium has-background-light has-text-centered') Any pressing notifications will be shown here.
+        div(class='column is-1')
+          div#pagination(class='box has-text-centered')
+            p(class='notification is-medium has-text-centered') No pages.

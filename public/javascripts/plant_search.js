@@ -5,76 +5,42 @@ $(function() {
     },
 
     bindEvents: function() {
-      $('#filter_form').on('submit', $.proxy(this.search, this));
-      $('.toggle-info-btn').on('click', $.proxy(this.toggleField, this));
+      $('#searcher').on('click', $.proxy(this.search, this));
+      $('#result_list').on('click', 'a', $.proxy(this.openPrompt, this));
       $('#all_results').on('click', 'a.more-info-btn', $.proxy(this.openPrompt, this));
-      $('#fullscreen_container').on('click', '#yesSir', $.proxy(this.addSinglePlant, this));
-      $('#fullscreen_container').on('click', '#not', $.proxy(this.closePrompt, this));
+      $('#search_columns button').on('click', $.proxy(this.showField, this));
+      $('#yesser').on('click', $.proxy(this.addPlantForUser, this));
+      $('#noer').on('click', $.proxy(this.closePrompt, this));
       // $('#all_results').on('click', 'a.more-info-btn', $.proxy(this.addSinglePlant, this));
       // $('#fullscreen_container').on('submit', '#close_details', $.proxy(this.closeDetails, this));
       // $('#fullscreen_container').on('submit', '.single-plant-add-form', $.proxy(this.addPlantForUser, this));
       // bind buttons
     },
 
+    showField: function(e) {
+      e.preventDefault();
+
+      if ($(e.currentTarget).children().find('svg').attr('data-icon') === 'angle-double-up') {
+        $(e.currentTarget).children().find('svg [data-icon="angle-double-up"]').attr('data-icon', 'angle-double-down');
+      } else {
+        $(e.currentTarget).children().find('svg [data-icon="angle-double-down"]').attr('data-icon', 'angle-double-up');       
+      }
+
+      return $(e.currentTarget).siblings().first().toggle();
+    },
+
+    closePrompt: function() {
+      $('.list-item.is-active').removeClass('is-active');
+      $('#fullscreen_container').fadeOut(100);
+    },
+
     openPrompt: function(e) {
       e.preventDefault();
       e.stopPropagation();
 
-      if ($('.success').length > 0) {
-        $('.success').remove();
-      } else if ($('.failure').length > 0) {
-        $('.failure').remove();
-      }
-
-      let section = document.createElement('section');
-      section.id = 'yes_no';
-
-      let prompt = document.createElement('p');
-      prompt.textContent = 'Add this plant to your collection?';
-
-      let yesBtn = document.createElement('button');
-      yesBtn.type = 'click';
-      yesBtn.textContent = 'Yes';
-      yesBtn.value = $(e.target).parent()[0].id + ', ' + e.target.textContent;
-      yesBtn.id = 'yesSir';
-      yesBtn.classList.add('yes-no-btns');
-
-      let noBtn = document.createElement('button');
-      noBtn.type = 'click';
-      noBtn.textContent = 'No';
-      noBtn.value = 'No';
-      noBtn.id = 'not';
-      noBtn.classList.add('yes-no-btns');
-
-      $('#yesSir').click(function(e) {
-        e.preventDefault();
-
-
-        $('#yes_no').fadeOut(100);
-        setTimeout(function() {
-          $('#yes_no').remove();
-        }, 100);
-        $('#fullscreen_container').fadeOut(100);
-      });
-
-      section.append(prompt);
-      section.append(yesBtn);
-      section.append(noBtn);
+      $(e.target).addClass('is-active');
 
       $('#fullscreen_container').fadeIn(100);
-      $('#fullscreen_container').append(section);
-      return;
-    },
-
-    closePrompt: function(e) {
-      e.preventDefault();
-
-      $('#yes_no').fadeOut(100);
-      setTimeout(function() {
-        $('#yes_no').remove();
-      }, 100);
-      $('#fullscreen_container').fadeOut(100);
-
       return;
     },
 
@@ -99,24 +65,20 @@ $(function() {
       })
       .then(res => res.json())
       .then(function(json) {
-        let message = document.createElement('p');
-        message.textContent = json.msg;
+        let message;
 
         if (json.success === true) {
-          message.classList.add('success');
+          message = { success: json.msg };
         } else {
-          message.classList.add('failure');
+          message = { error: json.msg };
         }
 
-        $('#notifications').append(message);
-        $('#not').trigger('click');
+        self.newMsg(message);
+        $('#not').trigger('click'); // close full screen container
         return;
       })
       .catch(function(err) {
-        let message = document.createElement('p');
-        message.textContent = 'Something went horribly wrong. Contact an administrator.';
-        message.classList.add('failure');
-        $('#notifications').append(message);
+        return self.newMsg({ error: 'Some error occurred. Try refreshing.' });
       });
 
       return;
@@ -143,7 +105,7 @@ $(function() {
         self.appendPageResults(JSON.parse(json.body), json['response']['headers']);
       })
       .catch(function(err) {
-        throw err;
+        return self.newMsg({ error: 'Some error occurred. Try refreshing.' });
       });
 
       // async GET results from query search
@@ -172,12 +134,17 @@ $(function() {
         self.appendSinglePlantDetails($(e.target), plantData);
       })
       .catch(function(err) {
-        throw err;
+        self.newMsg({ error: 'Some error occurred. Try refreshing.' });
       });
     },
 
     appendPageResults: function(plantList, headers) {
       this.reset();
+
+      let listDiv = document.createElement('div');
+      listDiv.classList.add('list', 'is-hoverable');
+      listDiv.style.height = '300px';
+      listDiv.style.overflow = 'auto';
 
       let list = document.createElement('ul');
       let listItem;
@@ -185,35 +152,44 @@ $(function() {
       let nameArray;
 
       plantList.forEach(function(plant) {
-        listItem = document.createElement('li');
-        moreInfoLink = document.createElement('a');
+        listItem = document.createElement('a');
 
-        moreInfoLink.textContent = plant.common_name ? plant.common_name : plant.scientific_name;
-        nameArray = moreInfoLink.textContent.split(' ');
+        listItem.classList.add('list-item');
+        listItem.textContent = plant.common_name ? plant.common_name : plant.scientific_name;
+        nameArray = listItem.textContent.split(' ');
         nameArray = nameArray.map(function(word) {
           return word[0].toUpperCase() + word.slice(1); 
         });
 
-        moreInfoLink.textContent = nameArray.join(' ');
-
+        listItem.textContent = nameArray.join(' ');
         listItem.id = plant.id;
-
-        listItem.classList.add('plant-list-element');
-        moreInfoLink.classList.add('more-info-btn');
-
-        listItem.append(moreInfoLink);
-        list.append(listItem);
+        listDiv.append(listItem);
       });
 
-      list.id = 'list_of_results';
-      $('#all_results').append(list);
+      $('#result_list').append(listDiv)
+
+
+      // notification
+
+      this.newMsg({ success: 'The search was successfully executed.' });
+
+      // pagination
+
+      $('#pagination').children().remove();
 
       if (headers['total-pages'] < 1 && plantList.length < 1) {
+        let p = document.createElement('p');
+        p.classList.add('is-medium', 'notification');
+        p.textContent = 'No more pages.';
+
+        $('#pagination').append(p);
         return;
       }
 
+      let divOne = document.createElement('div');
       let pages = document.createElement('select');
-      pages.classList.add('all-pages');
+
+      divOne.classList.add('select');
 
       let lastPage = Number(headers['total-pages']);
       let option;
@@ -230,10 +206,9 @@ $(function() {
 
       pages.addEventListener('change', (function(e) {
         e.preventDefault();
-        let pageNumber = $('.all-pages option:selected')[0].value;
+        let pageNumber = $('#pagination select option:selected')[0].value;
         let data = self.formatFormData();
         data.page = pageNumber;
-
 
         fetch(window.location.pathname + '_results', {
           method: 'POST',
@@ -248,115 +223,39 @@ $(function() {
           self.appendPageResults(JSON.parse(json.body), json['response']['headers']);
         })
         .catch(function(err) {
-          throw err;
+          self.newMsg({ error: err.msg });
         });
       }));
 
-      $('#all_results').append(pages);
+      divOne.append(pages);
+      $('#pagination').append(divOne);
 
       if (Number(headers['page-number']) > 1) {
-        $(`.all-pages`).val(Number(headers['page-number']));
+        $(`#pagination select`).val(Number(headers['page-number']));
       }
 
       return;
     },
 
-    appendSinglePlantDetails: function($element, plantDetails) {
-      function titleize(string) {
-        let array = string.split('_');
-        let newString = '';
+    newMsg: function(msg) {
+      $('#notifications').children().remove();
 
-        array.forEach(function(word) {
-          newString += word[0].toUpperCase() + word.slice(1) + ' ';
-        });
+      let notification = document.createElement('div');
+      let message = document.createElement('p');
 
-        return newString;
+      if (msg.success) {
+        notification.classList.add('notification');
+        notification.classList.add('is-success', 'is-light');
+      } else {
+        notification.classList.add('notification');
+        notification.classList.add('is-light', 'is-danger');
       }
 
-      if ($element.children().length > 0) {
-        $element.children().remove();
-        return;
-      }
+      message.textContent = msg.success || msg.error;
+      message.classList.add('is-medium', 'has-text-centered');
+      notification.append(message);
 
-      let section = document.createElement('section');
-      section.classList.add('single-plant-details');
-
-      let closeBtn = document.createElement('button');
-      closeBtn.type = 'submit';
-      closeBtn.textContent = 'Close Details';
-      closeBtn.id = 'close_details';
-
-      section.append(closeBtn);
-
-      let uList = document.createElement('ul');
-      uList.classList.add('plant-detail-list');
-
-      let listItem;
-      let details = {
-        image: 'Not Available',
-        common_name: plantDetails.main_species.common_name || 'Not Available',
-        scientific_name: plantDetails.main_species.scientific_name || 'Not Available',
-        temperature_minimum: plantDetails.main_species.growth.temperature_minimum.deg_f + 'F' || 'Not Available',
-        precipitation_minimum: plantDetails.main_species.growth.precipitation_minimum.inches + ' inches' || 'Not Available',
-        shade_tolerance: plantDetails.main_species.growth.shade_tolerance || 'Not Available',
-        drought_tolerance: plantDetails.main_species.growth.drought_tolerance || 'Not Available',
-        moisture_use: plantDetails.main_species.growth.moisture_use || 'Not Available',
-        fruit_or_seed_color: plantDetails.main_species.fruit_or_seed.color || 'Not Available',
-        flower_color: plantDetails.main_species.flower.color || 'Not Available',
-        seed_period_begin: plantDetails.main_species.fruit_or_seed.seed_period_begin || 'Not Available',
-        seed_period_end: plantDetails.main_species.fruit_or_seed.seed_period_end || 'Not Available',
-        seed_abundance: plantDetails.main_species.fruit_or_seed.seed_abundance || 'Not Available',
-        seeds_per_pound: String(plantDetails.main_species.seed.seeds_per_pound) || 'Not Available',
-        bloom_period: plantDetails.main_species.seed.bloom_period || 'Not Available',
-        vegetative_spread_rate: plantDetails.main_species.seed.vegetative_spread_rate || 'Not Available',
-        growth_rate: plantDetails.main_species.specifications.growth_rate || 'Not Available',
-      };
-
-      if (plantDetails.images.length > 0) {
-        details['image'] = plantDetails.images[0].url;
-      } 
-
-      let keys = Object.keys(details);
-      let image;
-      let span;
-
-      keys.forEach(function(attribute) {
-        listItem = document.createElement('li');
-        listItem.classList.add('single-plant-list-item');
-
-        if (attribute === 'image' && details[attribute] !== 'Not Available') {
-          image = document.createElement('img');
-          image.src = details[attribute];
-          image.classList.add('single-plant-image');
-          listItem.append(image);
-        } else {
-          listItem.textContent = titleize(attribute) + ': ' + titleize(details[attribute]);
-        }
-
-        uList.append(listItem);
-      });
-
-      let addPlantLink = document.createElement('a');
-      addPlantLink.classList.add('add-btn-plant');
-      addPlantLink.textContent = 'Add Plant';
-
-      let addPlantForm = document.createElement('form');
-      addPlantForm.classList.add('single-plant-add-form');
-
-      let submitBtn = document.createElement('button');
-      submitBtn.type = 'submit';
-      submitBtn.value = $element.parent().attr('id');
-      submitBtn.textContent = 'Add Plant';
-
-      addPlantForm.append(submitBtn);
-      uList.append(addPlantForm);
-      section.append(uList);
-
-      $('#fullscreen_container').fadeIn(100);
-      $('#fullscreen_container').append(section);
-      $('#close_details').on('click', $.proxy(this.closeDetails, this));
-      $('.single-plant-add-form').on('submit', $.proxy(this.addPlantForUser, this));
-      return;
+      $('#notifications').append(notification);
     },
 
     closeDetails: function(e) {
@@ -376,9 +275,9 @@ $(function() {
     },
 
     formatFormData: function() {
-      let $textInputs = $('#filter_form').find('input[type="text"]');
-      let $numberInputs = $('#filter_form').find('input[type="number"]');
-      let $checkedInputs = $('#filter_form').find('input[type="radio"]:checked');
+      let $textInputs = $('body').find('input[type="text"]');
+      let $numberInputs = $('body').find('input[type="number"]');
+      let $checkedInputs = $('body').find('input[type="radio"]:checked');
 
       let validNumInputs = [];
       let validStringInputs = [];
@@ -409,33 +308,19 @@ $(function() {
       });
 
       return data;
-      // format any input with a value
-      // for the Trefle API GET request in controller
-      // return as Object
     },
 
     addPlantForUser: function(e) {
       e.preventDefault();
 
-      if ($('.success').length > 0) {
-        $('.success').remove();
-      } else if ($('.failure').length > 0) {
-        $('.failure').remove();
-      }
-
-      let $button = $(e.target).find('button');
-      let name = $(e.target).parent().find('li')[1];
-
-      if (name.textContent === 'Common Name : Not Available ') {
-        name = $(e.target).parent().find('li')[2].textContent.replace('Scientific Name : ', '');
-      } else {
-        name = name.textContent.replace('Common Name : ', '');
-      }
+      let self = this;
+      let id = $('.list-item.is-active')[0].id;
+      let name = $('.list-item.is-active')[0].textContent;
 
       name = name.trim();
 
       let data = {
-        id: $button[0].value,
+        id: id,
         name: name
       };
 
@@ -448,20 +333,21 @@ $(function() {
       })
       .then(res => res.json())
       .then(function(json) {
-        let message = document.createElement('p');
-        message.textContent = json.msg;
+        let message;
 
-        if (json.success === true) {
-          message.classList.add('success');
+        if (json.msg === 'Successfully added plant to your collection.') {
+          message = { success: json.msg };
         } else {
-          message.classList.add('failure');
+          message = { error: json.msg };
         }
 
-        $(e.target).parent().parent()[0].append(message);
-        return;
-        // body
+        self.newMsg(message);
+        return self.closePrompt();
       })
-      .catch(err => console.error(err));
+      .catch(function(err) {
+        self.newMsg({ error: err.msg });
+        return self.closePrompt();
+      });
 
       return;
       // form includes date planted and quantity
@@ -488,6 +374,7 @@ $(function() {
     },
 
     reset: function() {
+      $('#result_list').children().remove();
       if ($('#list_of_results')) {
         $('#list_of_results').remove();
       }

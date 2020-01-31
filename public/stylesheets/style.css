@@ -6,6 +6,7 @@ body {
   width: 100%;
   background-image: url('../images/woodlandtrees.jpg');
   background-size: cover;
+  height: 1200px;
 }
 /* overall */
 
@@ -166,7 +167,7 @@ textarea[name="description"] {
 @media (max-width: 900px) {
   #map {
     width: 98%;
-    height: 350px;
+    height: 227px;
   }
 
   #world-map {
@@ -179,6 +180,10 @@ textarea[name="description"] {
 
   #directions_hover {
     display: none;
+  }
+
+  .has-wood-image {
+    height: auto;
   }
 }
 
@@ -289,3 +294,7 @@ textarea[name="description"] {
   div#directions
     ol#directions_list
   div#map
+
+      button#plant-form-btn(type='submit') Search
+  section#notifications
+  section#all_results
