@@ -362,9 +362,6 @@ exports.getViewSighting = function(req, res, next) {
   pool.query('SELECT * FROM sightings WHERE plant_id = $1 ', [req.params.id], (err, results) => {
     if (err) {
       return res.redirect('/login');
-    } else if (results.rows.length < 1) {
-      console.log('in here!');
-      return res.status(200).render('view_sightings', { title: 'Reported Sightings' });
     }
 
     let formattedData = [];

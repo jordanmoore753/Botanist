@@ -30,6 +30,8 @@ $(function() {
       let list = document.createElement('div');
       list.classList.add('list', 'is-hoverable');
       list.id = 'temp_list';
+      list.style.height = '300px';
+      list.style.overflow = 'auto';
 
       $('#notification_box').append(list);
 
@@ -257,6 +259,8 @@ $(function() {
 
       let listDiv = document.createElement('div');
       listDiv.classList.add('list');
+      listDiv.style.height = '300px';
+      listDiv.style.overflow = 'auto';
 
       let maneuvers = directionsObject.route.legs[0].maneuvers;
       let totalTime = directionsObject.route.legs[0].formattedTime;

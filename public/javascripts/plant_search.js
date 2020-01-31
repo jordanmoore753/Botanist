@@ -20,10 +20,11 @@ $(function() {
     showField: function(e) {
       e.preventDefault();
 
+      console.log($(e.currentTarget).children().find('svg').attr('data-icon'))
       if ($(e.currentTarget).children().find('svg').attr('data-icon') === 'angle-double-up') {
-        $(e.currentTarget).children().find('svg [data-icon="angle-double-up"]').attr('data-icon', 'angle-double-down');
+        $(e.currentTarget).children().find('svg').attr('data-icon', 'angle-double-down');  
       } else {
-        $(e.currentTarget).children().find('svg [data-icon="angle-double-down"]').attr('data-icon', 'angle-double-up');       
+        $(e.currentTarget).children().find('svg').attr('data-icon', 'angle-double-up');  
       }
 
       return $(e.currentTarget).siblings().first().toggle();
