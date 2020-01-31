@@ -14,6 +14,9 @@ $(function() {
       $('#directions_btn').on('mouseleave', $.proxy(this.hideInstructions, this));
       $('#directions_btn').on('click', $.proxy(this.showForm, this));
       $('#fullscreen_container').on('click', $.proxy(this.hideForm, this));
+      $('form button').on('click', function(e) {
+        $('form').trigger('submit');
+      });
       // events bound
     },
 
@@ -70,9 +73,29 @@ $(function() {
         a.append(' ' + data[property]);
 
         $('#temp_list').append(a);
-        return;
       });
 
+      this.genStaticMap(data.lat, data.lng);
+    },
+
+    genStaticMap: function(lat, lng) {
+      let random = 'key';
+      let img;
+      $('#map').children().remove();
+      let coordinates = this.forgetSchema();
+
+      fetch(`https://www.mapquestapi.com/staticmap/v5/map?${random}=${coordinates}&locations=${lat},${lng}&zoom=10&size=800,800`, {
+        method: 'GET'
+      })
+      .then(function(response) {
+        img = document.createElement('img');
+        img.src = response.url;
+        $('#map')[0].append(img);
+        return 'done';
+      })
+      .catch(function(err) {
+        window.location.replace('/login');
+      });
     },
 
     hideForm: function(e) {
@@ -89,6 +112,10 @@ $(function() {
 
     showForm: function(e) {
       e.preventDefault();
+
+      if ($('.is-active').length === 0) {
+        return;
+      }
 
       $('#directions_hover').hide();
       $('#fullscreen_container').fadeIn(100);
@@ -114,11 +141,6 @@ $(function() {
     getDirections: async function(e) {
       e.preventDefault();
 
-      if ($('.sub-details:visible').length === 0) {
-        console.log('need active coordinates');
-        return;
-      }
-
       let sanitizedInputs = []; 
       let self = this;
 
@@ -131,10 +153,11 @@ $(function() {
       sanitizedInputs.push(this.sanitize($('form select')[0].value).trim());
       
       let startLocation = `${sanitizedInputs[0]}, ${sanitizedInputs[1]}, ${sanitizedInputs[2]}`;
-      let $activeSighting = $('.sub-details:visible');
-      let lat = $activeSighting.find('#lat')[0].textContent.replace('Latitude: ', '');
-      let lng = $activeSighting.find('#lng')[0].textContent.replace('Longitude: ', '');
+      let lat = $('.is-active').attr('data-lat');
+      let lng = $('.is-active').attr('data-lng');
       let endLocation = [lat, lng].join(',');
+
+      console.log(startLocation);
 
       fetch(`http://www.mapquestapi.com/directions/v2/route?${random}=${coordinates}&from=${startLocation}&to=${endLocation}&narrativeType=text`, {
         method: 'GET',
@@ -148,6 +171,8 @@ $(function() {
         self.changeMap(startLocation, endLocation);
       })
       .catch(function(err) {
+        console.log(err);
+        return;
         window.location.replace('/login');
       });
     },
@@ -201,9 +226,37 @@ $(function() {
       return child;
     },
 
+    newMsg: function(msg) {
+      $('#notification_box').children().remove();
+
+      let notification = document.createElement('div');
+      let message = document.createElement('p');
+
+      if (msg.success) {
+        notification.classList.add('notification');
+        notification.classList.add('is-success', 'is-light');
+      } else {
+        notification.classList.add('notification');
+        notification.classList.add('is-light', 'is-danger');
+      }
+
+      message.textContent = msg.success || msg.error;
+      message.classList.add('is-medium', 'has-text-centered');
+      notification.append(message);
+
+      $('#notification_box').append(notification);
+    },
+
     formatDirections: function(directionsObject) {
-      $('#directions_list li').remove();
-      $('#directions p').remove();
+      $('#notification_box').children().remove();
+
+      if (directionsObject === undefined || directionsObject.info.statuscode === 402) {
+        console.log('yes');
+        return this.newMsg({ error: 'The directions could not be calculated for this route.' });
+      }
+
+      let listDiv = document.createElement('div');
+      listDiv.classList.add('list');
 
       let maneuvers = directionsObject.route.legs[0].maneuvers;
       let totalTime = directionsObject.route.legs[0].formattedTime;
@@ -212,32 +265,25 @@ $(function() {
 
       maneuvers.forEach(function(obj) {
         item = document.createElement('li');
-        item.classList.add('direction-element');
+        item.classList.add('list-item');
         item.textContent = obj.narrative;
         item.textContent += ` (${obj.distance} miles)`;
-        $('#directions_list')[0].append(item);
+        listDiv.append(item);
       });
 
-      item = document.createElement('p');
-      item.classList.add('direction-overall-time-distance');
-      let span;
+      item = document.createElement('li');
+      item.classList.add('list-item', 'has-background-primary', 'has-text-white');
 
       [totalTime, totalDistance].forEach(function(value) {
-        span = document.createElement('span');
-
         if (value === totalTime) {
-          span.classList.add('direction-time');
-          span.textContent = `Time: ${value}, `;
+          item.textContent += `Time: ${value}, `;
         } else {
-          span.classList.add('direction-distance');
-          span.textContent = `Distance: ${value} miles.`;
+          item.textContent += `Distance: ${value} miles.`;
         }
-
-        item.append(span);
       });
 
-      $('#directions')[0].append(item);
-      return;
+      listDiv.append(item);
+      return $('#notification_box').append(listDiv)
     },
 
     toggler: function() {

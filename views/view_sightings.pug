@@ -7,7 +7,7 @@ block content
       div(class='column is-one-quarter')
         div#directions_form(class='box')
           div(class='content')
-            form(method='' action='')
+            form(method='POST' action='')
               div(class='field')
                 label(for='street', class='label') Street Address
                 div(class='control has-icons-left')
@@ -27,7 +27,7 @@ block content
                     each state in states
                       option #{state}
               div(class='has-text-centered' style='margin-bottom: 10px;')
-                button(class='button is-success is-outlined') Get Directions
+                button(class='button is-success is-outlined', type='submit') Get Directions
   section(class='hero is-medium has-wood-image')
     div(class='hero-body')
       div(class='columns is-multiline')
@@ -42,7 +42,7 @@ block content
             else
               div(class='content')
                 p(class='is-medium has-text-centered') No reported sightings for this plant.
-          div#notification_box(class='box')
+          div#notification_box(class='box' style='height: 300px; overflow: auto;')
             if type == 'success'
               div(class='notification is-success is-light')
                 p(class='is-medium has-text-centered') #{alert}

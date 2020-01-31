@@ -227,7 +227,7 @@ describe('GET to view_sightings', () => {
 
     expect(res.statusCode).toEqual(200);
     expect(res.redirect).toEqual(false);
-    expect(res.text.includes('<p class="detail"><span>Description</span>: This is the first plant I ever saw. I love it! Great location.</p>')).toEqual(true);
+    expect(res.text.includes('<a class="list-item" href="#" data-lat="23.111" data-lng="-73.222" data-username="suck" data-plantname="Ogeechee tupelo" data-description="This is the first plant I ever saw. I love it! Great location.">')).toEqual(true);
 
     const remove = await pool.query('DELETE FROM users WHERE email = $1', ['suck@gmail.com']);
   });
