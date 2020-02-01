@@ -14,7 +14,7 @@ html
     script(src='/javascripts/menu.js')
     nav(class="navbar has-background-light" role='navigation' aria-label='main navigation')
       div(class='navbar-brand is-size-4')
-        a(class="navbar-item has-text-success has-text-weight-medium" href="/") 
+        a(class="navbar-item has-text-success has-text-weight-medium" href="/profile") 
           img(src='/images/fern1.png' width='32' height='32', style='margin-left: 5px;')
         a(role='button', class='navbar-burger burger', aria-label='menu' aria-expanded='false' data-target='navbarBaby')
           span(aria-hidden='true')
@@ -22,6 +22,7 @@ html
           span(aria-hidden='true')
       div#navbarBaby(class='navbar-menu')
         div(class='navbar-start')
-          a(class='navbar-item', href='/register') Register
-          a(class='navbar-item', href='/profile') Login
+          a(class='navbar-item', href='/profile') Profile
+          a(class='navbar-item', href='/plants/analysis/collection') Collection
+          a(class='navbar-item', href='/plants/search') Search
     block content
