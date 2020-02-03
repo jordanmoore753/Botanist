@@ -8,13 +8,11 @@ $(function() {
       $('#searcher').on('click', $.proxy(this.search, this));
       $('#result_list').on('click', 'a', $.proxy(this.openPrompt, this));
       $('#all_results').on('click', 'a.more-info-btn', $.proxy(this.openPrompt, this));
-      $('#search_columns button').on('click', $.proxy(this.showField, this));
       $('#yesser').on('click', $.proxy(this.addPlantForUser, this));
       $('#noer').on('click', $.proxy(this.closePrompt, this));
-      // $('#all_results').on('click', 'a.more-info-btn', $.proxy(this.addSinglePlant, this));
-      // $('#fullscreen_container').on('submit', '#close_details', $.proxy(this.closeDetails, this));
-      // $('#fullscreen_container').on('submit', '.single-plant-add-form', $.proxy(this.addPlantForUser, this));
-      // bind buttons
+      $('#field_one').on('click', $.proxy(this.showField, this));
+      $('#field_two').on('click', $.proxy(this.showField, this));
+      $('#field_three').on('click', $.proxy(this.showField, this));
     },
 
     showField: function(e) {
