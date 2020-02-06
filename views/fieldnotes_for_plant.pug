@@ -1,0 +1,111 @@
+extends session_layout
+
+block content
+  script(src='/javascripts/fieldnotes.js')
+  div#fullscreen_container(hidden)
+    div(class='columns is-centered')
+      div(class='column is-one-quarter')
+        div#add_form(class='box' hidden)
+          div(class='content')
+            form#adding_form(method='POST' action='')
+              div(class='field')
+                label(for='description', class='label') Description
+                div(class='control has-icons-left')
+                  div(class='control')
+                    textarea(class='textarea' minlength='10', form='adding_form', name='description', spellcheck='true', cols='50', rows='3', required) What happened with this plant? Is this an important change or update?
+              div(class='field')
+                label(for='lat', class='label') Latitude
+                div(class='control has-icons-left')
+                  input(type='number', step='any' name='lat' class='input' min='-90', max='90')
+                  span(class='icon is-small is-left')
+                    i(class='fas fa-map-marker-alt')
+              div(class='field')
+                label(for='lng', class='label') Longitude
+                div(class='control has-icons-left')
+                  input(type='number', step='any' name='lng' class='input' min='-180', max='180')
+                  span(class='icon is-small is-left')
+                    i(class='fas fa-map-marker-alt')
+              div(class='field')
+                label(for='important' class='label') Important
+                label(class='radio')
+                  input(name='important' type='radio' value='true')
+                  | Yes
+                label(class='radio')
+                  input(name='important' type='radio' value='false' checked)
+                  | No
+              div(class='has-text-centered' style='margin-bottom: 10px;')
+                button(class='button is-success is-outlined', type='submit') Add Note
+            div(class='has-text-centered' style='margin-bottom: 10px;')
+              button(class='button is-success is-outlined no_btn' type='click') Cancel
+        div#update_form(class='box', hidden)
+          div(class='content')
+            form#updating_form(method='POST' action='')
+              div(class='field')
+                label(for='description', class='label') Description
+                div(class='control has-icons-left')
+                  div(class='control')
+                    textarea(class='textarea' minlength='10', form='updating_form', name='description', spellcheck='true', cols='68', rows='8') What happened with this plant? Is this an important change or update?
+              div(class='field')
+                label(for='important' class='label') Important
+                label(class='radio')
+                  input(name='important' type='radio' value='true')
+                  | Yes
+                label(class='radio')
+                  input(name='important' type='radio' value='false' checked)
+                  | No
+              div(class='has-text-centered' style='margin-bottom: 10px;')
+                button(class='button is-success is-outlined', type='submit') Update Note
+            div(class='has-text-centered' style='margin-bottom: 10px;')
+              button(class='button is-success is-outlined no_btn' type='click') Cancel
+        div#delete_form(class='box', hidden)
+          div(class='content')
+            p(class='is-medium') Delete this note?
+            form(method='POST' action='')
+              div(class='has-text-centered' style='margin-bottom: 10px;')
+                button(class='button is-success is-outlined', type='submit') Yes
+            div(class='has-text-centered' style='margin-bottom: 10px;')
+                button(class='button no_btn' type='click') No
+  section(class='hero is-medium has-wood-image')
+    div(class='hero-body')
+      div(class='columns is-multiline')
+        div(class='column is-6 is-offset-2')
+          div(class='content')
+            h1(class='is-medium has-text-centered') Field Notes
+          div(class='container' style='height: 180px; overflow: auto;')
+            section#collection
+              if notes != 0
+                div(class='list is-hoverable')
+                  each note in notes
+                    a(href='#' class='list-item' data-value=note.note_id) #{note.day}
+                      if note.important
+                        span(class='tag is-warning') Important
+              else
+                div(class='box')
+                  p(class='is-medium') There are no field notes for this plant.
+        div(class='column is-2')
+          div(class='content')
+            h1(class='is-medium has-text-centered', style='text-shadow: 1px 1px white;') Note Actions
+          div(class='box')
+            div(class='field')
+              div(class='control')
+                div(class='has-text-centered' style='padding-top: 5px;')
+                  button#add_note_btn(class='button' type='click') Add Note
+              div(class='control')
+                div(class='has-text-centered' style='padding-top: 5px;')
+                  button#delete_note_btn(class='button' type='click') Delete Note  
+              div(class='control')
+                div(class='has-text-centered' style='padding-top: 5px;')
+                  button#update_note_btn(class='button' type='click') Update Note 
+        div(class='column is-8 is-offset-2')
+          section#notifications(class='box')   
+            p(class='is-medium has-text-centered') Notifications will populate here.
+        if type == 'success'
+          div(class='notification is-success is-light')
+            p(class='is-medium has-text-centered') #{alert}
+        else if type == 'error'
+          div(class='notification is-danger is-light')
+            p(class='is-medium has-text-centered') #{alert}
+        div(class='column is-4 is-offset-2')
+          section#note
+        div(class='column is-4 is-offset-2')
+          section#map

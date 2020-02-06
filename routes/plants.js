@@ -19,13 +19,13 @@ router.get('/', plantController.index);
 router.get('/search', redirectLogin, plantController.getSearch);
 
 // POST plant search results ASYNC
-router.post('/search_results', plantController.searchResults);
+router.post('/search_results', redirectLogin, plantController.searchResults);
 
 // POST plant information for one ASYNC
-router.post('/search_single_plant', plantController.singlePlantResults);
+router.post('/search_single_plant', redirectLogin, plantController.singlePlantResults);
 
 // POST plant to user collection ASYNC
-router.post('/search/add_plant', plantController.addPlant);
+router.post('/search/add_plant', redirectLogin, plantController.addPlant);
 
 // GET plant add sighting
 router.get('/sightings/add/:id', redirectLogin, plantController.getAddSighting);
@@ -41,5 +41,17 @@ router.get('/analysis/collection', redirectLogin, plantController.getCollection)
 
 // POST plant delete from collection
 router.post('/analysis/collection', redirectLogin, plantController.deletePlant);
+
+// GET field notes for a given plant
+router.get('/fieldnotes/view/:id', redirectLogin, plantController.getSpecificNotes);
+
+// POST plant field note
+router.post('/fieldnotes/add/:id', redirectLogin, plantController.postFieldNote);
+
+// POST delete plant specific field note
+router.post('/fieldnotes/view/:id/delete/:field_id', redirectLogin, plantController.deleteNote);
+
+// POST update plant specific field note
+router.post('/fieldnotes/view/:id/update/:field_id', redirectLogin, plantController.updateNote);
 
 module.exports = router;

@@ -439,3 +439,140 @@ exports.deletePlant = [
     return res.status(200).send({ msg: 'Plant successfully deleted from your collection.' });
   });
 }];
+
+// GET all field notes for given plant id
+exports.getSpecificNotes = function(req, res, next) {
+  pool.query('SELECT * FROM notes WHERE user_id = $1 AND plant_id = $2', [req.session.userId, req.params.id], (err, results) => {
+    if (err) {
+      return res.redirect('/profile');
+    } else if (results.rows.length < 1) {
+      return res.status(200).render('fieldnotes_for_plant', {
+        title: 'Field Notes',
+        notes: 0
+      });
+    }
+
+    let notes = [];
+    let keys = ['description', 'lat', 'lng', 'important', 'day'];
+    let obj = {};
+    let day;
+
+    results.rows.forEach(function(note) {
+      keys.forEach(function(key) {
+        if (key === 'day') {
+          day = moment(note['day']).format("dddd, MMMM Do YYYY");
+          obj[key] = day;
+        } else if (note[key]) {
+          obj[key] = note[key];
+        }
+      });
+
+      notes.push(obj);
+      obj = {};
+    });
+
+    return res.status(200).render('fieldnotes_for_plant', {
+      title: 'Field Notes',
+      notes: notes
+    });
+  });
+};
+
+// POST to add field note for plant
+exports.postFieldNote = [
+  body('description').trim().escape(),
+  body('important').isIn(['true', 'false']),
+  body('lat').isNumeric({ min: -90, max: 90 }).escape(),
+  body('lng').isNumeric({ min: -180, max: 180 }).escape(),
+(req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    req.session.error = 'Some information was entered incorrectly.';
+    return res.redirect('/profile');
+  }
+
+  let lat = req.body.lat || null;
+  let lng = req.body.lng || null;
+  let bool = req.body.important === 'true' || false;
+
+  pool.query('INSERT INTO notes (description, user_id, plant_id, lat, lng, important) VALUES ($1, $2, $3, $4, $5, $6)', [req.body.description, req.session.userId, req.params.id, lat, lng, bool], (err, results) => {
+    if (err) {
+      req.session.error = 'Could not add the field note.';
+      return res.redirect('/profile');
+    }
+
+    req.session.success = 'Field note added successfully.';
+    return res.redirect('/profile');
+  });
+}];
+
+// POST to delete field note for plant
+exports.deleteNote = function(req, res, next) {
+  pool.query('DELETE FROM notes WHERE id = $1 AND user_id = $2', [req.params.field_id, req.session.userId], (err, results) => {
+    if (err) {
+      req.session.error = 'Could not delete the note.';
+      return res.redirect('/profile');
+    }  
+
+    req.session.success = 'Successfully deleted note.';
+    return res.redirect('/profile');   
+  });
+};
+
+// POST to update field note for plant
+exports.updateNote = [
+  body('description').trim().escape(),
+  body('important').isIn(['true', 'false']).escape(),
+(req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    req.session.error = 'Could not update. Some information was not formatted correctly.';
+    return res.redirect('/profile');
+  }  
+
+  let lat = req.body.lat || null;
+  let lng = req.body.lng || null;
+  let bool = req.body.important === 'true' || false;
+
+  async.parallel([
+    function updateDescription(callback) {
+      if (req.body.description) {
+        pool.query('UPDATE notes SET description = $1 WHERE id = $2', [req.body.description, req.params.field_id], (err, results) => {
+          if (err) {
+            req.session.error = 'Could not update. Some information was not formatted correctly.';
+            return res.redirect('/profile');          
+          }
+
+          callback(null);
+        });
+      } else {
+        callback(null);
+      }
+    },
+
+    function updateImportant(callback) {
+      if (req.body.important) {
+        pool.query('UPDATE notes SET important = $1 WHERE id = $2', [bool, req.params.field_id], (err, results) => {
+          if (err) {
+            req.session.error = 'Could not update. Some information was not formatted correctly.';
+            return res.redirect('/profile');          
+          }
+
+          callback(null);
+        });           
+      } else {
+        callback(null);
+      }
+    }
+  ], function(err, results) {
+    if (err) {
+      req.session.error = 'Could not update. Some information was not formatted correctly.';
+      return res.redirect('/profile');         
+    }
+
+    req.session.success = 'Successfully updated field note.';
+    return res.redirect('/profile');  
+  });
+}];

@@ -8,7 +8,7 @@ block content
         div(class='column is-6 is-offset-2')
           div(class='content')
             h1(class='is-medium has-text-centered') Plant Collection
-          div(class='container' style='height: 180px; overflow: auto;')
+          div(class='container' style='height: 220px; overflow: auto;')
             section#collection
               if plants != 0
                 div(class='list is-hoverable')
@@ -28,6 +28,9 @@ block content
               div(class='control')
                 div(class='has-text-centered' style='padding-top: 5px;')
                   button#view_sightings_btn(class='button' type='click') View Sightings  
+              div(class='control')
+                div(class='has-text-centered' style='padding-top: 5px;')
+                  button#view_notes_btn(class='button' type='click') View Field Notes  
               div(class='control')
                 div(class='has-text-centered' style='padding-top: 5px;')
                   button#deleter_btn(class='button', type='click') Delete Plant

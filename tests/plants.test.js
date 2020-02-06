@@ -486,3 +486,73 @@ describe('POST to DELETE plant', () => {
     expect(deleteRes.body.msg).toBe('Plant successfully deleted from your collection.');    
   });
 });
+
+describe('GET to field notes', () => {
+  it('should populate a list of available plants', async () => {
+
+  });
+})
+
+describe('POST to add field note', () => {
+  it('should not add without session data', async () => {
+
+  });
+
+  it('should not add without description', async () => {
+
+  });
+
+  it('should not add with invalid data', async () => {
+
+  });
+
+  it('should add with valid data', async () => {
+
+  });
+});
+
+describe('POST to delete field note', () => {
+  it('should not delete without session data', async () => {
+
+  });
+
+  it('should not delete with non-existent id', async () => {
+
+  });
+
+  it('should delete with correct id', async () => {
+
+  });
+});
+
+describe('GET to all notes for given plant', () => {
+  it('should redirect to login if not logged in', async () => {
+
+  });
+
+  it('should load all notes for plant id', async () => {
+
+  });
+});
+
+describe('POST to update field note', () => {
+  it('should redirect to login if not session data', async () => {
+
+  });
+
+  it('should not update if id is non-existent', async () => {
+
+  });
+
+  it('should not update if plant_id is non-existent', async () => {
+
+  });
+
+  it('should not update if data is invalid', async () => {
+
+  });
+
+  it('should update if data is valid', async () => {
+
+  });
+});

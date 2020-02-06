@@ -13,6 +13,7 @@ $(function() {
       $('#deleter_btn').on('click', $.proxy(this.deletePlant, this));
       $('#add_viewer_btn').on('click', $.proxy(this.goToAdd, this));
       $('#view_sightings_btn').on('click', $.proxy(this.goToView, this));
+      $('#view_notes_btn').on('click', $.proxy(this.goToNotes, this));
     },
 
     goToAdd: function(e) {
@@ -33,6 +34,16 @@ $(function() {
 
       let id = $('.list-item.is-active').attr('data-value');
       return window.location.replace('/plants/sightings/view/' + id);
+    },
+
+    goToNotes: function(e) {
+      if ($('.list a.is-active').length < 1) {
+        this.newMsg({ error: 'You must select a plant to view field notes for.' });
+        return;
+      }
+
+      let id = $('.list-item.is-active').attr('data-value');
+      return window.location.replace('/plants/fieldnotes/view/' + id);     
     },
 
     deletePlant: function(e) {
