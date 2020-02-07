@@ -19,7 +19,7 @@ const plantsRouter = require('./routes/plants');
 
 const app = express();
 
-let client = new Redis(process.env.REDIS_URL);
+let client = new Redis();
 
 let store = new RedisStore({ client });
 
