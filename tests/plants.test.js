@@ -45,7 +45,21 @@ describe('Open up plant search route', () => {
 
 describe('POST to retrieve plants matching criteria from Trefle API', () => {
   it('should receive 30 plants', async () => {
-    const res = await request(app).post('/plants/search_results')
+    const r = await testSession.post('/register')
+      .send({
+        username: 'suck',
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!',
+        password_conf: 'abcdefgh1!'
+      });
+
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!'
+      });
+
+    const res = await testSession.post('/plants/search_results')
       .send({
         resprout_ability: 'true',
         fruit_conspicuous: 'true',
@@ -65,7 +79,21 @@ describe('POST to retrieve plants matching criteria from Trefle API', () => {
 
 describe('POST to retrieve plant details for single plant from Trefle API', () => {
   it('should receive plant details for Ogeechee Tupelo', async () => {
-    const res = await request(app).post('/plants/search_single_plant')
+    const r = await testSession.post('/register')
+      .send({
+        username: 'suck',
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!',
+        password_conf: 'abcdefgh1!'
+      });
+
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!'
+      });
+
+    const res = await testSession.post('/plants/search_single_plant')
       .send({
         id: '159446'
       });
@@ -151,14 +179,14 @@ describe('No POST to insert duplicate plant for given user', () => {
 
 describe('No POST to insert plant into DB for given user', () => {
   it('should not insert since no one is logged in', async () => {
-    const res = await testSession.post('/plants/search/add_plant')
+    const res = await request(app).post('/plants/search/add_plant')
       .send({
         id: '159446',
         name: 'Ogeechee Tupelo'
       });
 
-    expect(res.statusCode).toEqual(200);
-    expect(res.redirect).toEqual(false);
+    expect(res.statusCode).toEqual(302);
+    expect(res.redirect).toEqual(true);
     expect(res.res.text.includes("<p class='error'>You are not logged in.</p>"));
     // no login data in session
   });

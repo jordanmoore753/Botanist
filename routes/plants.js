@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { pool } = require('../config.js');
 
 const redirectLogin = (req, res, next) => {
@@ -10,10 +11,20 @@ const redirectLogin = (req, res, next) => {
   }
 };
 
+const redirectProfile = (req, res, next) => {
+  if (req.session.userId) {
+    return res.redirect('/profile')
+  } else {
+    return res.redirect('/login');
+  }
+};
+
 const plantController = require('../controllers/plantController.js');
 
+let upload = multer({ dest: 'uploads/' });
+
 // GET index
-router.get('/', plantController.index);
+router.get('/', redirectProfile, plantController.index);
 
 // GET plant search
 router.get('/search', redirectLogin, plantController.getSearch);
@@ -45,8 +56,11 @@ router.post('/analysis/collection', redirectLogin, plantController.deletePlant);
 // GET field notes for a given plant
 router.get('/fieldnotes/view/:id', redirectLogin, plantController.getSpecificNotes);
 
+// GET for field note picture
+router.get('/fieldnotes/pictures/:key', redirectLogin, plantController.getImage);
+
 // POST plant field note
-router.post('/fieldnotes/add/:id', redirectLogin, plantController.postFieldNote);
+router.post('/fieldnotes/add/:id', redirectLogin, upload.single('image_file'), plantController.postFieldNote);
 
 // POST delete plant specific field note
 router.post('/fieldnotes/view/:id/delete/:field_id', redirectLogin, plantController.deleteNote);

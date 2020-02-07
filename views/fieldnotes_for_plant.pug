@@ -7,24 +7,26 @@ block content
       div(class='column is-one-quarter')
         div#add_form(class='box' hidden)
           div(class='content')
-            form#adding_form(method='POST' action='')
+            form#adding_form(method='POST' action='' encType="multipart/form-data")
               div(class='field')
                 label(for='description', class='label') Description
                 div(class='control has-icons-left')
                   div(class='control')
                     textarea(class='textarea' minlength='10', form='adding_form', name='description', spellcheck='true', cols='50', rows='3', required) What happened with this plant? Is this an important change or update?
               div(class='field')
-                label(for='lat', class='label') Latitude
+                label(for='upload' class='label') Upload Image?
+                label(class='radio')
+                  input(name='upload' type='radio' value='true' class='uploader')
+                  | Yes
+                label(class='radio')
+                  input(name='upload' type='radio' value='false' class='uploader' checked)
+                  | No
+              div#img_field(class='field' hidden)
+                label(for='image_file', class='label') Image
                 div(class='control has-icons-left')
-                  input(type='number', step='any' name='lat' class='input' min='-90', max='90')
+                  input(type='file' name='image_file' class='input' style='border: none; box-shadow: none;')
                   span(class='icon is-small is-left')
-                    i(class='fas fa-map-marker-alt')
-              div(class='field')
-                label(for='lng', class='label') Longitude
-                div(class='control has-icons-left')
-                  input(type='number', step='any' name='lng' class='input' min='-180', max='180')
-                  span(class='icon is-small is-left')
-                    i(class='fas fa-map-marker-alt')
+                    i(class='fas fa-camera')
               div(class='field')
                 label(for='important' class='label') Important
                 label(class='radio')
@@ -60,11 +62,12 @@ block content
         div#delete_form(class='box', hidden)
           div(class='content')
             p(class='is-medium') Delete this note?
-            form(method='POST' action='')
-              div(class='has-text-centered' style='margin-bottom: 10px;')
-                button(class='button is-success is-outlined', type='submit') Yes
-            div(class='has-text-centered' style='margin-bottom: 10px;')
-                button(class='button no_btn' type='click') No
+            div(class='field is-grouped is-grouped-centered')
+              form(method='POST' action='')
+                div(class='has-text-centered' style='margin-bottom: 10px; margin-right: 10px;')
+                  button(class='button is-success is-outlined', type='submit') Yes
+              div(class='has-text-centered' style='margin-bottom: 10px; margin-left: 10px;')
+                  button(class='button no_btn' type='click') No
   section(class='hero is-medium has-wood-image')
     div(class='hero-body')
       div(class='columns is-multiline')
@@ -76,9 +79,10 @@ block content
               if notes != 0
                 div(class='list is-hoverable')
                   each note in notes
-                    a(href='#' class='list-item' data-value=note.note_id) #{note.day}
+                    a(href='#' class='list-item' data-value=note.id data-key=note.key data-desc=note.description)
                       if note.important
-                        span(class='tag is-warning') Important
+                        span(class='tag is-warning' style='margin-right: 10px;') Important
+                      | #{note.day}
               else
                 div(class='box')
                   p(class='is-medium') There are no field notes for this plant.
@@ -97,15 +101,14 @@ block content
                 div(class='has-text-centered' style='padding-top: 5px;')
                   button#update_note_btn(class='button' type='click') Update Note 
         div(class='column is-8 is-offset-2')
-          section#notifications(class='box')   
-            p(class='is-medium has-text-centered') Notifications will populate here.
-        if type == 'success'
-          div(class='notification is-success is-light')
-            p(class='is-medium has-text-centered') #{alert}
-        else if type == 'error'
-          div(class='notification is-danger is-light')
-            p(class='is-medium has-text-centered') #{alert}
-        div(class='column is-4 is-offset-2')
+          section#notifications   
+          if type == 'success'
+            div(class='box notification is-success is-light')
+              p(class='is-medium has-text-centered') #{alert}
+          else if type == 'error'
+            div(class='box notification is-danger is-light')
+              p(class='is-medium has-text-centered') #{alert}
+        div(class='column is-8 is-offset-2')
           section#note
-        div(class='column is-4 is-offset-2')
-          section#map
+        div(class='column is-8 is-offset-2')
+          section#picture

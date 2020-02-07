@@ -3,7 +3,6 @@ const express = require('express');
 const session = require('express-session');
 const Redis = require('ioredis');
 const favicon = require('serve-favicon');
-
 const RedisStore = require('connect-redis')(session);
 const helmet = require('helmet');
 const compression = require('compression');

@@ -87,6 +87,11 @@ textarea[name="description"] {
   margin-top: 200px;
 }
 
+#picture img {
+  width: 99%;
+  height: auto;
+}
+
 @media (max-width: 900px) {
   #map {
     width: 98%;
@@ -106,6 +111,6 @@ textarea[name="description"] {
   }
 
   #add_form, #update_form, #delete_form {
-    margin-top: 20px;
+    margin-top: 30px;
   }
 }

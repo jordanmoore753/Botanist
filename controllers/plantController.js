@@ -10,6 +10,15 @@ const oauth2Client = new OAuth2(process.env.C_ID, process.env.C_SEC, "https://de
 const https = require('https');
 const request = require('request');
 const moment = require('moment');
+const AWS = require('aws-sdk');
+const S3_BUCKET = process.env.S3_BUCKET;
+const fs = require('fs');
+AWS.config.region = process.env.REGION;
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+});
 
 oauth2Client.setCredentials({
   refresh_token: process.env.R_TOK
@@ -28,8 +37,22 @@ let smtpTransport = nodeMailer.createTransport({
   }
 });
 
+let keyCreate = function() {
+  let chars = 'abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let l = chars.length;
+  let key = '';
+  let idx;
+
+  for (let i = 0; i < 16; i += 1) {
+    idx = Math.floor(Math.random() * Math.floor(l));
+    key += chars[idx];
+  }
+
+  return key;
+};
+
 function unescaper(str) {
-  return str.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#x2F;/g, '/').replace(/&#x5C;/g, '\\').replace(/&#96;/g, '`');
+  return str.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&#x5C;/g, '\\');
 }
 
 // GET Plant Index
@@ -453,7 +476,7 @@ exports.getSpecificNotes = function(req, res, next) {
     }
 
     let notes = [];
-    let keys = ['description', 'lat', 'lng', 'important', 'day'];
+    let keys = ['id', 'description', 'key', 'important', 'day'];
     let obj = {};
     let day;
 
@@ -481,30 +504,60 @@ exports.getSpecificNotes = function(req, res, next) {
 // POST to add field note for plant
 exports.postFieldNote = [
   body('description').trim().escape(),
-  body('important').isIn(['true', 'false']),
-  body('lat').isNumeric({ min: -90, max: 90 }).escape(),
-  body('lng').isNumeric({ min: -180, max: 180 }).escape(),
+  body('important').isIn(['true', 'false']).escape(),
+  body('upload').isIn(['true', 'false']).escape(),
 (req, res, next) => {
   const errors = validationResult(req);
+  const validFileTypes = ['image/jpeg'];
+  let uploadButNoFile = false;
+  let fileValid = true;
 
-  if (!errors.isEmpty()) {
-    req.session.error = 'Some information was entered incorrectly.';
+  if (req.body.upload === 'true') {
+    if (!req.file) { 
+      fileValid = false; 
+    } else {
+      fileValid = validFileTypes.includes(req.file.mimetype);
+    }
+  }
+
+  if (!errors.isEmpty() || fileValid === false) {
+    req.session.error = 'Some information was entered incorrectly. Only images of .jpeg or .jpg accepted.';
     return res.redirect('/profile');
   }
 
-  let lat = req.body.lat || null;
-  let lng = req.body.lng || null;
+  let fileName = 'none';
   let bool = req.body.important === 'true' || false;
 
-  pool.query('INSERT INTO notes (description, user_id, plant_id, lat, lng, important) VALUES ($1, $2, $3, $4, $5, $6)', [req.body.description, req.session.userId, req.params.id, lat, lng, bool], (err, results) => {
+  if (req.body.upload === 'true' && req.file) {
+    fileName = keyCreate();
+  }
+
+  pool.query('INSERT INTO notes (description, user_id, plant_id, key, important) VALUES ($1, $2, $3, $4, $5)', [req.body.description, req.session.userId, req.params.id, fileName, bool], (err, results) => {
     if (err) {
       req.session.error = 'Could not add the field note.';
       return res.redirect('/profile');
     }
 
+    if (fileName !== 'none') {
+      const params = {
+        Bucket: S3_BUCKET,
+        Key: fileName,
+        Body: fs.readFileSync(req.file.path)
+      };
+
+      s3.putObject(params, function(err, data) {
+        if (err) {
+          req.session.error = 'Could not add the field note image.';
+          return res.redirect('/profile');        
+        }
+      });  
+    }
+
     req.session.success = 'Field note added successfully.';
     return res.redirect('/profile');
   });
+
+
 }];
 
 // POST to delete field note for plant
@@ -532,8 +585,6 @@ exports.updateNote = [
     return res.redirect('/profile');
   }  
 
-  let lat = req.body.lat || null;
-  let lng = req.body.lng || null;
   let bool = req.body.important === 'true' || false;
 
   async.parallel([
@@ -576,3 +627,25 @@ exports.updateNote = [
     return res.redirect('/profile');  
   });
 }];
+
+// GET to retrieve image
+exports.getImage = function(req, res, next) {
+  let params = {
+    Bucket: S3_BUCKET,
+    Key: undefined
+  };
+
+  if (req.params.key === 'none') {
+    params['Key'] = '6385aYRaZCXxLaNa';
+  } else {
+    params['Key'] = req.params.key;
+  } 
+
+  s3.getObject(params, function(err, data) {
+    if (err) {
+      return res.send({ msg: 'An error occurred. Try again.' });      
+    }
+
+    return res.send({ body: data.Body.toString('base64') });
+  });   
+};
