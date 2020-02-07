@@ -19,7 +19,7 @@ const plantsRouter = require('./routes/plants');
 
 const app = express();
 
-let client = new Redis();
+let client = new Redis(process.env.REDIS_URL);
 
 let store = new RedisStore({ client });
 
@@ -27,7 +27,6 @@ let store = new RedisStore({ client });
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(
   session({
     name: process.env.SESS_NAME,
@@ -41,6 +40,8 @@ app.use(
     store: new RedisStore({ client })
   })
 );
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
 
 app.use(compression());
 app.use(helmet());
