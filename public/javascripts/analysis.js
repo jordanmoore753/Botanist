@@ -16,6 +16,83 @@ $(function() {
       $('#view_notes_btn').on('click', $.proxy(this.goToNotes, this));
     },
 
+    populateDetails: function(plantData) {
+      const capitalize = (key) => {
+        let stringArr = key.split('_');
+        stringArr = stringArr.map((word) => word[0].toUpperCase() + word.slice(1));
+        return stringArr.join(' ');
+      };
+
+      const getValues = (parentList, object) => {
+        const noValues = '012345678';
+        const noConversions = ['cm', 'acre', 'deg_c'];
+        const special = ['inches', 'sqm', 'ft', 'deg_f'];
+        const converts = {
+          true: 'Yes',
+          false: 'No',
+          null: 'Information not available.'
+        };
+
+        let div;
+        let li;
+        let keys = Object.keys(object);
+
+        keys.forEach(function(key) {
+          console.log(key);
+          if (object[key] === null) {
+            return;
+          } else if (typeof object[key] === 'object') {
+            let div = document.createElement('a');
+
+            div.textContent = noValues.includes(key) ? '' : capitalize(key);
+            div.classList.add('list-item');
+            parentList.append(div);
+
+            getValues(div, object[key]);
+          } else {
+            if (noConversions.includes(key)) {
+              return;
+            }
+
+            li = document.createElement('a');
+            li.classList.add('list-item');
+
+            if (special.includes(key)) {
+              li.textContent = object[key] + ' ' + capitalize(key);
+              li.style.display = 'none';
+              parentList.append(li);
+              return;
+            }
+
+            div = document.createElement('a');
+            div.textContent = capitalize(key);
+            div.classList.add('list-item');
+
+            li.textContent = converts[object[key]] ? converts[object[key]] : object[key];
+            li.style.display = 'none';
+
+            div.append(li);
+            parentList.append(div);
+          }
+        });
+      };
+
+      $('#analysis_graph div').remove();
+      let fields = ['specifications', 'soils_adaptation', 'seed', 'propagation', 'products', 'growth', 'fruit_or_seed'];
+      let firstObject = [];
+      fields.forEach(function(key) {
+        firstObject[key] = plantData[key];
+      });
+
+      console.log(firstObject);
+      let div = document.createElement('div');
+      div.classList.add('list', 'is-hoverable');
+
+      getValues(div, firstObject);
+      $('#analysis_graph').append(div);
+      return;
+    },
+
     goToAdd: function(e) {
       if ($('.list a.is-active').length < 1) {
         this.newMsg({ error: 'You must select a plant to add a sighting for.' });
@@ -134,8 +211,9 @@ $(function() {
       .then(res => res.json())
       .then(function(json) {
         let plantData = JSON.parse(json.body);
-        // console.log(plantData);
-        self.createGraph(plantData['main_species']);
+        console.log(plantData['main_species']);
+        self.populateDetails(plantData['main_species']);
+        //self.createGraph(plantData['main_species']);
       })
       .catch(function(err) {
         throw err;
