@@ -140,13 +140,12 @@ $(function() {
         }
       });
 
-      console.log(data);
-      // fetch request
+
     },
 
     addTask: function(e) {
       e.preventDefault();
-
+      console.log(e)
       let data = {
         description: $('#adding_form textarea[name="description"]').val(),
         title: $('#adding_form input[name="title"]').val(),
@@ -155,6 +154,21 @@ $(function() {
         difficulty: $('#adding_form input[name="difficulty"]:checked').val()
       };
 
+      fetch('/tasks/new', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(function(json) {
+        console.log('yes')
+        console.log(json);
+      })
+      .catch(function(err) {
+        console.log(err);
+      });
       // fetch request
     },
 

@@ -387,16 +387,15 @@ exports.newTask = [
   if (!errors.isEmpty()) {
     return res.send({
       success: false,
-      msg: errors.errors
+      msg: errors
     });
   }
 
-  pool.query('INSERT INTO tasks(title, description, due_date, urgent, difficulty, user_id) VALUES ($1, $2, $3, $4, $5, $6)', 
-            [req.body.title, req.body.description, req.body.due_date, bool, req.body.difficulty, req.session.userId], (err, results) => {
+  pool.query('INSERT INTO tasks(title, description, due_date, urgent, difficulty, user_id) VALUES($1, $2, $3, $4, $5, $6)', [req.body.title, req.body.description, req.body.due_date, req.body.urgent, req.body.difficulty, req.session.userId], (err, results) => {
     if (err) {
       return res.send({
         success: false,
-        msg: err.msg
+        msg: 'There was a problem while creating the task. Contact the admin.'
       });
     }
 
