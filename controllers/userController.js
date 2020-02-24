@@ -365,3 +365,203 @@ exports.sendKey = [
     return renderHelper.redirectTo(req, res, '/passwordreset', { success: 'Key was created and sent to the specified email address.' }, 200, 'success');
   });
 }];
+
+exports.getTasks = function(req, res, next) {
+  res.render('tasks', { title: 'Tasks', tasks: 0 });
+};
+
+exports.newTask = [
+  body('description').isLength({ min: 10, max: 500 }).escape(),
+  body('title').isLength({ min: 1, max: 30 }).escape(),
+  body('due_date').isISO8601().escape(),
+  body('urgent').isIn(['true', 'false']).escape(),
+  body('difficulty').isIn(['easy', 'medium', 'hard']).escape(),
+(req, res, next) => {
+  const errors = validationResult(req);
+  let bool = false;
+
+  if (req.body.urgent === 'true') {
+    bool = true;
+  }
+
+  if (!errors.isEmpty()) {
+    return res.send({
+      success: false,
+      msg: errors.errors
+    });
+  }
+
+  pool.query('INSERT INTO tasks(title, description, due_date, urgent, difficulty, user_id) VALUES ($1, $2, $3, $4, $5, $6)', 
+            [req.body.title, req.body.description, req.body.due_date, bool, req.body.difficulty, req.session.userId], (err, results) => {
+    if (err) {
+      return res.send({
+        success: false,
+        msg: err.msg
+      });
+    }
+
+    return res.send({
+      success: true,
+      msg: {
+        description: req.body.description,
+        title: req.body.title,
+        due_date: req.body.due_date,
+        urgent: req.body.urgent,
+        difficulty: req.body.difficulty
+      }
+    });
+  });
+}];
+
+exports.updateTask = [
+  body('description').optional().isLength({ min: 10, max: 500 }).escape(),
+  body('title').optional().isLength({ min: 1, max: 30 }).escape(),
+  body('due_date').optional().isISO8601().escape(),
+(req, res, next) => {
+  const goodKeys = ['description', 'title', 'due_date', 'urgent', 'difficulty'];
+  let keys = Object.keys(req.body);
+  let goodKeysOnly = true;
+
+  for (let i = 0; i < keys.length; i += 1) {
+    if (!goodKeys.includes(keys[i])) {
+      goodKeysOnly = false;
+      break;
+    }
+  }
+
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty() || !goodKeysOnly) {
+    return res.send({
+      success: false,
+      msg: errors.errors
+    });
+  } 
+
+  let bool = false;
+
+  if (req.body.urgent === 'true') {
+    bool = true;
+  }
+
+  async.series([
+    function updateDescription(callback) {
+      if (req.body.description) {
+        pool.query('UPDATE tasks SET description = $1 WHERE id = $2', [req.body.description, req.params.id], (err, results) => {
+          if (err) {
+            return res.send({
+              success: false,
+              msg: err.msg
+            });
+          }
+
+          callback(null);
+        });
+      }
+
+      callback(null);
+    },
+
+    function updateTitle(callback) {
+      if (req.body.title) {
+        pool.query('UPDATE tasks SET title = $1 WHERE id = $2', [req.body.title, req.params.id], (err, results) => {
+          if (err) {
+            return res.send({
+              success: false,
+              msg: err.msg
+            });
+          }
+
+          callback(null);
+        });
+      }
+
+      callback(null);
+    },
+
+    function updateDate(callback) {
+      if (req.body.due_date) {
+        pool.query('UPDATE tasks SET due_date = $1 WHERE id = $2', [req.body.due_date, req.params.id], (err, results) => {
+          if (err) {
+            return res.send({
+              success: false,
+              msg: err.msg
+            });
+          }
+
+          callback(null);
+        });
+      }
+
+      callback(null);
+    },
+
+    function updateDifficulty(callback) {
+      if (req.body.difficulty) {
+        pool.query('UPDATE tasks SET difficulty = $1 WHERE id = $2', [req.body.difficulty, req.params.id], (err, results) => {
+          if (err) {
+            return res.send({
+              success: false,
+              msg: err.msg
+            });
+          }
+
+          callback(null);
+        });
+      }
+
+      callback(null);
+    }, 
+
+    function updateUrgent(callback) {
+      if (req.body.urgent) {
+        pool.query('UPDATE tasks SET urgent = $1 WHERE id = $2', [bool, req.params.id], (err, results) => {
+          if (err) {
+            return res.send({
+              success: false,
+              msg: err.msg
+            });
+          }
+
+          callback(null);
+        });
+      }
+
+      callback(null);
+    }
+  ], function(err, results) {
+    if (err) {
+      return res.send({
+        success: false,
+        msg: err.msg
+      });
+    }
+
+    // success! updated. return the task from db using req.params.id
+    pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.id], (err, results) => {
+      if (err) {
+        return res.send({
+          success: false,
+          msg: err.msg
+        });
+      }
+
+      let s = results.rows[0];
+
+      return res.send({
+        success: true,
+        msg: {
+          description: s.description,
+          title: s.title,
+          due_date: s.due_date,
+          difficulty: s.difficulty,
+          urgent: s.urgent 
+        }
+      });
+    });
+  });
+}];
+
+exports.deleteTask = function(req, res, next) {
+
+};

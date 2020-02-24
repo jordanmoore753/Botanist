@@ -55,4 +55,16 @@ router.post('/passwordreset/send_key', redirectProfile, userController.sendKey);
 // PATCH password key form to update password
 router.post('/passwordreset/update_pw', redirectProfile, userController.updatePassword);
 
+// GET tasks for user
+router.get('/tasks', redirectLogin, userController.getTasks);
+
+// POST task, add task for user
+router.post('/tasks/new', redirectLogin, userController.newTask);
+
+// POST task, update task for user
+router.post('/tasks/update/:id', redirectLogin, userController.updateTask);
+
+// POST task, delete task for user
+router.post('/tasks/delete/:id', redirectLogin, userController.deleteTask);
+
 module.exports = router;
