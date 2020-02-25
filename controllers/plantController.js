@@ -494,9 +494,24 @@ exports.getSpecificNotes = function(req, res, next) {
       obj = {};
     });
 
-    return res.status(200).render('fieldnotes_for_plant', {
+    let sess = 0;
+    let type = 0;
+
+    if (req.session.error) {
+      sess = req.session.error;
+      req.session.error = null;
+      type = 'error';
+    } else if (req.session.success) {
+      sess = req.session.success;
+      req.session.success = null;
+      type = 'success';
+    }
+
+    return res.render('fieldnotes_for_plant', {
       title: 'Field Notes',
-      notes: notes
+      notes: notes,
+      data: sess,
+      type: type
     });
   });
 };
@@ -520,9 +535,9 @@ exports.postFieldNote = [
     }
   }
 
-  if (!errors.isEmpty() || fileValid === false) {
-    req.session.error = 'Some information was entered incorrectly. Only images of .jpeg or .jpg accepted.';
-    return res.redirect('/profile');
+  if (!errors.isEmpty() || fileValid === false || req.body.description === '') {
+    req.session.error = 'An input was invalid. Try again.';
+    return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);
   }
 
   let fileName = 'none';
@@ -534,8 +549,8 @@ exports.postFieldNote = [
 
   pool.query('INSERT INTO notes (description, user_id, plant_id, key, important) VALUES ($1, $2, $3, $4, $5)', [req.body.description, req.session.userId, req.params.id, fileName, bool], (err, results) => {
     if (err) {
-      req.session.error = 'Could not add the field note.';
-      return res.redirect('/profile');
+      req.session.error = 'Could not add the note.';
+      return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);
     }
 
     if (fileName !== 'none') {
@@ -547,14 +562,14 @@ exports.postFieldNote = [
 
       s3.putObject(params, function(err, data) {
         if (err) {
-          req.session.error = 'Could not add the field note image.';
-          return res.redirect('/profile');        
+          req.session.error = 'Could not add note.';
+          return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);
         }
       });  
     }
 
-    req.session.success = 'Field note added successfully.';
-    return res.redirect('/profile');
+    req.session.success = 'Successfully added note.';
+    return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);
   });
 
 
@@ -564,12 +579,12 @@ exports.postFieldNote = [
 exports.deleteNote = function(req, res, next) {
   pool.query('DELETE FROM notes WHERE id = $1 AND user_id = $2', [req.params.field_id, req.session.userId], (err, results) => {
     if (err) {
-      req.session.error = 'Could not delete the note.';
-      return res.redirect('/profile');
+      req.session.error = 'An input was invalid. Try again.';
+      return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);
     }  
 
     req.session.success = 'Successfully deleted note.';
-    return res.redirect('/profile');   
+    return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);
   });
 };
 
@@ -581,8 +596,8 @@ exports.updateNote = [
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    req.session.error = 'Could not update. Some information was not formatted correctly.';
-    return res.redirect('/profile');
+    req.session.error = 'An input was invalid. Try again.';
+    return res.redirect(`/plants/fieldnotes/view/${req.params.id}`); 
   }  
 
   let bool = req.body.important === 'true' || false;
@@ -592,8 +607,8 @@ exports.updateNote = [
       if (req.body.description) {
         pool.query('UPDATE notes SET description = $1 WHERE id = $2', [req.body.description, req.params.field_id], (err, results) => {
           if (err) {
-            req.session.error = 'Could not update. Some information was not formatted correctly.';
-            return res.redirect('/profile');          
+            req.session.error = 'An input was invalid. Try again.';
+            return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);     
           }
 
           callback(null);
@@ -607,8 +622,8 @@ exports.updateNote = [
       if (req.body.important) {
         pool.query('UPDATE notes SET important = $1 WHERE id = $2', [bool, req.params.field_id], (err, results) => {
           if (err) {
-            req.session.error = 'Could not update. Some information was not formatted correctly.';
-            return res.redirect('/profile');          
+            req.session.error = 'An input was invalid. Try again.';
+            return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);      
           }
 
           callback(null);
@@ -619,12 +634,31 @@ exports.updateNote = [
     }
   ], function(err, results) {
     if (err) {
-      req.session.error = 'Could not update. Some information was not formatted correctly.';
-      return res.redirect('/profile');         
+      req.session.error = 'An input was invalid. Try again.';
+      return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);        
     }
 
-    req.session.success = 'Successfully updated field note.';
-    return res.redirect('/profile');  
+    pool.query('SELECT * FROM notes WHERE id = $1', [req.params.field_id], (err, results) => {
+      if (err) {
+        req.session.error = 'An input was invalid. Try again.';
+        return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);     
+      }
+
+      let lastNote = results.rows[0];
+      let keys = ['id', 'description', 'key', 'important', 'day'];
+      let returnNote = {};
+
+      keys.forEach(function(property) {
+        if (property === 'day') {
+          returnNote.day = moment(lastNote.day).format("dddd, MMMM Do YYYY");
+        } else {
+          returnNote[property] = lastNote[property];
+        }
+      });
+
+      req.session.success = 'Successfully updated note.';
+      return res.redirect(`/plants/fieldnotes/view/${req.params.id}`);
+    });
   });
 }];
 

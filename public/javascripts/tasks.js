@@ -101,7 +101,7 @@ $(function() {
 
     showUpdateForm: function() {
       if ($('.list a.is-active').length < 1) {
-        this.newMsg({ error: 'You must select a task to update.' });
+        this.newMsg({ success: false, msg: 'You must select a task to update.' });
         return;
       }
 
@@ -114,7 +114,7 @@ $(function() {
 
     showDeletePrompt: function() {
       if ($('.list a.is-active').length < 1) {
-        this.newMsg({ error: 'You must select a task to delete.' });
+        this.newMsg({ success: false, msg: 'You must select a task to delete.' });
         return;
       }
 

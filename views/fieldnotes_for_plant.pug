@@ -102,12 +102,12 @@ block content
                   button#update_note_btn(class='button' type='click') Update Note 
         div(class='column is-8 is-offset-2')
           section#notifications   
-          if type == 'success'
-            div(class='box notification is-success is-light')
-              p(class='is-medium has-text-centered') #{alert}
-          else if type == 'error'
-            div(class='box notification is-danger is-light')
-              p(class='is-medium has-text-centered') #{alert}
+            if type == 'success'
+              div(class='box notification is-success is-light')
+                p(class='is-medium has-text-centered') #{data}
+            else if type == 'error'
+              div(class='box notification is-danger is-light')
+                p(class='is-medium has-text-centered') #{data}
         div(class='column is-8 is-offset-2')
           section#note
         div(class='column is-8 is-offset-2')

@@ -47,7 +47,8 @@ $(function() {
 
     populateDetails: function() {
       $('#note div').remove();
-
+      $('#notifications div').remove();
+      
       let desc = $('.list a.is-active').attr('data-desc');
       let note = document.createElement('div');
       let words = document.createElement('p');
@@ -166,17 +167,17 @@ $(function() {
       $('#notifications').append(notification);
     },
 
-    // addNote: function(e) {
-    //   e.preventDefault();
-    // },
+    addNote: function(e) {
+      e.preventDefault();
+    },
 
-    // updateNote: function(e) {
-    //   e.preventDefault();
-    // },
+    updateNote: function(e) {
+      e.preventDefault();
+    },
 
-    // deleteNote: function(e) {
-    //   e.preventDefault();
-    // }
+    deleteNote: function(e) {
+      e.preventDefault();
+    }
   };
 
   noteManager.init();

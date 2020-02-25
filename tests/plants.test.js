@@ -570,13 +570,14 @@ describe('POST to add field note', () => {
   });
 
   it('should not add without description', async () => {
-const r = await testSession.post('/register')
-    .send({
-      username: 'suck',
-      email: 'suck@gmail.com',
-      password: 'abcdefgh1!',
-      password_conf: 'abcdefgh1!'
-    });
+    const clearPool = pool.query('DELETE FROM notes');
+    const r = await testSession.post('/register')
+      .send({
+        username: 'suck',
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!',
+        password_conf: 'abcdefgh1!'
+      });
 
     const l = await testSession.post('/login')
       .send({
@@ -586,10 +587,6 @@ const r = await testSession.post('/register')
 
     const res = await testSession.get('/plants/fieldnotes/view/130397');
 
-    expect(res.statusCode).toBe(200);
-    expect(res.redirect).toBe(false);
-    expect(res.text.includes('There are no field notes for this plant.')).toBe(true);
-
     let data = {
       important: 'true',
       upload: 'false'
@@ -598,9 +595,12 @@ const r = await testSession.post('/register')
     const res2 = await testSession.post('/plants/fieldnotes/add/130397')
       .send(data);
     
-    expect(res2.statusCode).toBe(404);
-    expect(res2.redirect).toBe(false);
-    expect(res2.body.success).toBe(false);    
+    expect(res2.statusCode).toBe(302);
+    expect(res2.redirect).toBe(true);
+    expect(res2.headers.location).toBe('/plants/fieldnotes/view/130397');
+
+    const poolCheck = await pool.query('SELECT * FROM notes');
+    expect(poolCheck.rows.length).toBe(0);
   });
 });
 
@@ -648,30 +648,105 @@ describe('POST to delete field note', () => {
     const fieldId = getId.rows[0].id;
 
     const res3 = await testSession.post(`/plants/fieldnotes/view/130397/delete/${fieldId}`);
-    expect(res3.statusCode).toBe(200);
-    expect(res3.redirect).toBe(false);
-    expect(res3.body.success).toBe(true);
+    expect(res3.statusCode).toBe(302);
+    expect(res3.redirect).toBe(true);
+    
+    const checkPool = await pool.query('SELECT * FROM notes');
+    expect(checkPool.rows.length).toBe(0);
   });
 });
 
 describe('POST to update field note', () => {
   it('should redirect to login if not session data', async () => {
+    const res3 = await testSession.post(`/plants/fieldnotes/view/130397/update/1`)
+      .send({
+        description: 'Yes man! Me! Me!',
+        important: 'false'
+      });
 
-  });
-
-  it('should not update if id is non-existent', async () => {
-
-  });
-
-  it('should not update if plant_id is non-existent', async () => {
-
+    expect(res3.statusCode).toBe(302);
+    expect(res3.redirect).toBe(true);
+    expect(res3.headers.location).toEqual('/login');
   });
 
   it('should not update if data is invalid', async () => {
+    const clearPool = await pool.query('DELETE FROM notes');
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
 
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!'
+      });
+
+    let data = {
+      description: 'Something cool.',
+      important: 'true',
+      upload: 'false'
+    };
+
+    const res2 = await testSession.post('/plants/fieldnotes/add/130397')
+      .send(data);
+
+    const getId = await pool.query('SELECT * FROM notes');
+    const fieldId = getId.rows[0].id;
+
+    const res3 = await testSession.post(`/plants/fieldnotes/view/130397/update/${fieldId}`)
+      .send({
+        important: 'in'
+      });
+
+    expect(res3.statusCode).toBe(302);
+    expect(res3.redirect).toBe(true);
+
+    const checkPool = await pool.query('SELECT * FROM notes');
+    expect(checkPool.rows[0].important).toBe(true);
   });
 
   it('should update if data is valid', async () => {
+    const clearPool = await pool.query('DELETE FROM notes');
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
 
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!'
+      });
+
+    let data = {
+      description: 'Something cool.',
+      important: 'true',
+      upload: 'false'
+    };
+
+    const res2 = await testSession.post('/plants/fieldnotes/add/130397')
+      .send(data);
+
+    const getId = await pool.query('SELECT * FROM notes');
+    const fieldId = getId.rows[0].id;
+
+    const res3 = await testSession.post(`/plants/fieldnotes/view/130397/update/${fieldId}`)
+      .send({
+        description: 'New description!',
+        important: 'true'
+      });
+
+    expect(res3.statusCode).toBe(302);
+    expect(res3.redirect).toBe(true);
+
+    const checkPool = await pool.query('SELECT * FROM notes');
+    expect(checkPool.rows[0].description).toBe('New description!');
   });
 });
