@@ -12,7 +12,7 @@ $(function() {
       $('.no_btn').on('click', $.proxy(this.hideForm, this));
       $('#adding_form').on('submit', $.proxy(this.addTask, this));
       $('#updating_form').on('submit', $.proxy(this.updateTask, this));
-      $('#deleting_form').on('submit', $.proxy(this.updateTask, this));
+      $('#deleting_form').on('submit', $.proxy(this.removeTask, this));
     },
 
     selectItem: function(e) {
@@ -27,21 +27,45 @@ $(function() {
 
     getAllDetails: function() {
       $('#notifications div').remove();
-      this.getImage();
       return this.populateDetails();
     },
 
     populateDetails: function() {
       $('#note div').remove();
-
+      let self = this;
       let desc = $('.list a.is-active').attr('data-desc');
+      let date = $('.list a.is-active').attr('data-due');
+
       let note = document.createElement('div');
+      let list = document.createElement('div');
       let words = document.createElement('p');
+      let dateP = document.createElement('p');
+      let s;
+      let t;
+
+      list.classList.add('list');
+
+      [dateP, words].forEach(function(e, i) {
+        s = document.createElement('span');
+        s.classList.add('tag', 'is-primary');
+        s.setAttribute('style', 'margin-right: 10px;');
+        if (i === 1) {
+          s.textContent = 'Description';
+          t = document.createTextNode(self.unescaper(desc));
+        } else {
+          s.textContent = 'Due Date';
+          t = document.createTextNode(self.unescaper(date));
+        }
+
+        e.append(s);
+        e.append(t);
+        e.classList.add('is-medium', 'list-item');
+      });
 
       note.classList.add('box');
-      words.classList.add('is-medium');
-      words.textContent = this.unescaper(desc);
+      note.setAttribute('style', 'max-height: 300px; width: 100%; overflow: auto;');
 
+      note.append(dateP);
       note.append(words);
       $('#note').append(note);
     },
@@ -66,7 +90,6 @@ $(function() {
 
       $('#add_form').show();
       $('#add_form form').attr('action', `/tasks/new`);
-      // assign path for POST form
     },
 
     showUpdateForm: function() {
@@ -77,11 +100,9 @@ $(function() {
 
       this.hideForm();
 
-
       let task_id = $('.list a.is-active').attr('data-value');
       $('#update_form form').attr('action', `/tasks/update/${task_id}`);
       $('#update_form').show();
-      // assign path for POST form
     },
 
     showDeletePrompt: function() {
@@ -95,17 +116,17 @@ $(function() {
       let task_id = $('.list a.is-active').attr('data-value');
       $('#delete_form form').attr('action', `/tasks/delete/${task_id}`);
       $('#delete_form').show();
-      // assign path for POST form using active id
     },
 
     newMsg: function(msg) {
+      $('#note .box').remove();
       $('div.notification').remove();
       $('#notifications div').remove();
 
       let notification = document.createElement('div');
       let message = document.createElement('p');
 
-      if (msg.success) {
+      if (msg.success === true) {
         notification.classList.add('notification', 'box');
         notification.classList.add('is-success', 'is-light');
       } else {
@@ -113,7 +134,7 @@ $(function() {
         notification.classList.add('is-light', 'is-danger');
       }
 
-      message.textContent = msg.success || msg.error;
+      message.textContent = msg.msg;
       message.classList.add('is-medium', 'has-text-centered');
       notification.append(message);
 
@@ -145,7 +166,8 @@ $(function() {
 
     addTask: function(e) {
       e.preventDefault();
-      console.log(e)
+      const self = this;
+
       let data = {
         description: $('#adding_form textarea[name="description"]').val(),
         title: $('#adding_form input[name="title"]').val(),
@@ -154,7 +176,7 @@ $(function() {
         difficulty: $('#adding_form input[name="difficulty"]:checked').val()
       };
 
-      fetch('/tasks/new', {
+      return fetch('/tasks/new', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -163,17 +185,42 @@ $(function() {
       })
       .then(res => res.json())
       .then(function(json) {
-        console.log('yes')
-        console.log(json);
+        if (json.success === true) {
+          self.populateAdd(json.msg);
+          self.newMsg({
+            success: true,
+            msg: 'Successfully added task.'
+          });          
+        } else {
+          self.newMsg(json);
+        }
+
+        self.hideForm();
       })
       .catch(function(err) {
-        console.log(err);
+        self.newMsg(err);
+        self.hideForm();
       });
-      // fetch request
     },
 
     removeTask: function(e) {
       e.preventDefault();
+      const self = this;
+
+      let id = $('.is-active').attr('data-value');
+
+      return fetch(`/tasks/delete/${id}`, {
+        method: 'POST'
+      })
+      .then(res => res.json())
+      .then(function(json) {
+        self.populateDelete();
+        self.hideForm();
+      })
+      .catch(function(err) {
+        self.newMsg(err);
+        self.hideForm();
+      });
     },
 
     populateUpdate: function(body) {
@@ -181,11 +228,57 @@ $(function() {
     },
 
     populateAdd: function(body) {
+      $('.is-active').removeClass('is-active');
 
+      let newItem = document.createElement('a');
+      newItem.classList.add('list-item', 'is-active');
+
+      // add data attributes
+      newItem.dataset.value = body.id;
+      newItem.dataset.due = body.due_date;
+      newItem.dataset.desc = body.description;
+
+      let s = document.createElement('span');
+      s.setAttribute('style', 'margin-right: 10px;');
+
+      if (body.urgent === 'true') {
+        s.classList.add('tag', 'is-warning');
+        s.textContent = 'URGENT';
+      } else if (body.difficulty === 'easy') {
+        s.classList.add('tag', 'is-success', 'is-light');
+        s.textContent = 'Easy';
+      } else if (body.difficulty === 'medium') {
+        s.classList.add('tag', 'is-warning', 'is-light');
+        s.textContent = 'Medium';
+      } else {
+        s.classList.add('tag', 'is-danger', 'is-light');
+        s.textContent = 'Hard';
+      }
+
+      newItem.append(s);
+
+      s = document.createTextNode(body.title);
+      newItem.append(s);
+
+      $('#collection .box').remove();
+      s = document.createElement('div');
+      s.classList.add('list', 'is-hoverable');
+
+      if ($('#collection div').length === 0) {
+        s.append(newItem);
+        $('#collection').append(s);        
+      }
+
+      $('#collection div').append(newItem);
+      return;
     },
 
-    populateDelete: function(body) {
-
+    populateDelete: function() {
+      $('.is-active').remove();
+      this.newMsg({
+        success: true,
+        msg: 'Successfully removed task.'
+      });
     }
   };
 

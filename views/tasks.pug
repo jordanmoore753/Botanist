@@ -68,7 +68,7 @@ block content
               button(class='button is-success is-outlined no_btn' type='click') Cancel
         div#delete_form(class='box', hidden)
           div(class='content')
-            p(class='is-medium') Delete this Task?
+            p(class='is-medium') Mark this task completed and remove it?
             div(class='field is-grouped is-grouped-centered')
               form#deleting_form(method='POST' action='')
                 div(class='has-text-centered' style='margin-bottom: 10px; margin-right: 10px;')
@@ -86,16 +86,16 @@ block content
               if tasks != 0
                 div(class='list is-hoverable')
                   each task in tasks
-                    a(href='#' class='list-item' data-value=task.id data-due=task.date_due data-desc=task.description)
-                      if task.difficulty == 'easy'
-                          span(class='tag is-success' style='margin-right: 10px;') Easy
+                    a(href='#' class='list-item' data-value=task.id data-due=task.due_date data-desc=task.description)
+                      if task.urgent
+                        span(class='tag is-warning' style='margin-right: 10px;') URGENT                      
+                      else if task.difficulty == 'easy'
+                          span(class='tag is-success is-light' style='margin-right: 10px;') Easy
                       else if task.difficulty == 'medium'
-                        span(class='tag is-warning' style='margin-right: 10px;') Medium
+                        span(class='tag is-warning is-light' style='margin-right: 10px;') Medium
                       else 
-                        span(class='tag is-danger' style='margin-right: 10px;') Hard
-                      | if task.urgent
-                      span(class='tag is-warning' style='margin-right: 10px;') Urgent
-                      | task.title
+                        span(class='tag is-danger is-light' style='margin-right: 10px;') Hard
+                      | #{task.title}
               else
                 div(class='box')
                   p(class='is-medium') There are no tasks to display.
@@ -109,10 +109,10 @@ block content
                   button#add_note_btn(class='button' type='click') Add Task
               div(class='control')
                 div(class='has-text-centered' style='padding-top: 5px;')
-                  button#delete_note_btn(class='button' type='click') Delete Task  
+                  button#update_note_btn(class='button' type='click') Update Task
               div(class='control')
                 div(class='has-text-centered' style='padding-top: 5px;')
-                  button#update_note_btn(class='button' type='click') Update Task 
+                  button#delete_note_btn(class='button' type='click') Finish Task   
         div(class='column is-8 is-offset-2')
           section#notifications   
           if type == 'success'
@@ -123,5 +123,7 @@ block content
               p(class='is-medium has-text-centered') #{alert}
         div(class='column is-8 is-offset-2')
           section#note
+            div(class='box')
+              p(class='is-medium') Task details will populate here.
         div(class='column is-8 is-offset-2')
           section#picture

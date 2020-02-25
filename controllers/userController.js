@@ -8,6 +8,7 @@ const { pool } = require('../config.js');
 const oauth2Client = new OAuth2(process.env.C_ID, process.env.C_SEC, "https://developers.google.com/oauthplayground");
 const renderHelper = require('./helpers.js');
 const gravatar = require('gravatar');
+const moment = require('moment');
 
 oauth2Client.setCredentials({
   refresh_token: process.env.R_TOK
@@ -367,11 +368,30 @@ exports.sendKey = [
 }];
 
 exports.getTasks = function(req, res, next) {
-  res.render('tasks', { title: 'Tasks', tasks: 0 });
+  pool.query('SELECT * FROM tasks WHERE user_id = $1', [req.session.userId], (err, results) => {
+    if (err) {
+      return res.render('tasks', { title: 'Tasks', tasks: 0 });
+    }
+
+    let tasks = [];
+
+    results.rows.forEach(function(task) {
+      tasks.push({
+        description: task.description,
+        title: task.title,
+        due_date: moment(task.due_date).format("dddd, MMMM Do YYYY"),
+        urgent: task.urgent,
+        difficulty: task.difficulty,
+        id: task.id
+      });
+    });
+
+    return res.render('tasks', { title: 'Tasks', tasks: tasks });
+  });
 };
 
 exports.newTask = [
-  body('description').isLength({ min: 10, max: 500 }).escape(),
+  body('description').isLength({ min: 10, max: 1000 }).escape(),
   body('title').isLength({ min: 1, max: 30 }).escape(),
   body('due_date').isISO8601().escape(),
   body('urgent').isIn(['true', 'false']).escape(),
@@ -379,7 +399,7 @@ exports.newTask = [
 (req, res, next) => {
   const errors = validationResult(req);
   let bool = false;
-
+  console.log(req.body);
   if (req.body.urgent === 'true') {
     bool = true;
   }
@@ -387,7 +407,7 @@ exports.newTask = [
   if (!errors.isEmpty()) {
     return res.send({
       success: false,
-      msg: errors
+      msg: 'There was a problem with some inputs. Try again.'
     });
   }
 
@@ -493,40 +513,6 @@ exports.updateTask = [
       }
 
       callback(null);
-    },
-
-    function updateDifficulty(callback) {
-      if (req.body.difficulty) {
-        pool.query('UPDATE tasks SET difficulty = $1 WHERE id = $2', [req.body.difficulty, req.params.id], (err, results) => {
-          if (err) {
-            return res.send({
-              success: false,
-              msg: err.msg
-            });
-          }
-
-          callback(null);
-        });
-      }
-
-      callback(null);
-    }, 
-
-    function updateUrgent(callback) {
-      if (req.body.urgent) {
-        pool.query('UPDATE tasks SET urgent = $1 WHERE id = $2', [bool, req.params.id], (err, results) => {
-          if (err) {
-            return res.send({
-              success: false,
-              msg: err.msg
-            });
-          }
-
-          callback(null);
-        });
-      }
-
-      callback(null);
     }
   ], function(err, results) {
     if (err) {
@@ -562,5 +548,17 @@ exports.updateTask = [
 }];
 
 exports.deleteTask = function(req, res, next) {
+  pool.query('DELETE FROM tasks WHERE id = $1', [req.params.id], (err, results) => {
+    if (err) {
+      return res.send({
+        success: false,
+        msg: 'Task could not be marked finished.'
+      });
+    }
 
+    return res.send({
+      success: true,
+      msg: 'Task successfully marked finished and removed.'
+    });
+  });
 };
