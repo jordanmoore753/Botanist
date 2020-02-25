@@ -399,13 +399,13 @@ exports.newTask = [
 (req, res, next) => {
   const errors = validationResult(req);
   let bool = false;
-  console.log(req.body);
+
   if (req.body.urgent === 'true') {
     bool = true;
   }
 
   if (!errors.isEmpty()) {
-    return res.send({
+    return res.status(404).send({
       success: false,
       msg: 'There was a problem with some inputs. Try again.'
     });
@@ -413,18 +413,18 @@ exports.newTask = [
 
   pool.query('INSERT INTO tasks(title, description, due_date, urgent, difficulty, user_id) VALUES($1, $2, $3, $4, $5, $6)', [req.body.title, req.body.description, req.body.due_date, req.body.urgent, req.body.difficulty, req.session.userId], (err, results) => {
     if (err) {
-      return res.send({
+      return res.status(404).send({
         success: false,
         msg: 'There was a problem while creating the task. Contact the admin.'
       });
     }
 
-    return res.send({
+    return res.status(200).send({
       success: true,
       msg: {
         description: req.body.description,
         title: req.body.title,
-        due_date: req.body.due_date,
+        due_date: moment(req.due_date).format("dddd, MMMM Do YYYY"),
         urgent: req.body.urgent,
         difficulty: req.body.difficulty
       }
@@ -451,9 +451,9 @@ exports.updateTask = [
   const errors = validationResult(req);
 
   if (!errors.isEmpty() || !goodKeysOnly) {
-    return res.send({
+    return res.status(404).send({
       success: false,
-      msg: errors.errors
+      msg: 'Could not update. There was a problem with an input.'
     });
   } 
 
@@ -468,79 +468,82 @@ exports.updateTask = [
       if (req.body.description) {
         pool.query('UPDATE tasks SET description = $1 WHERE id = $2', [req.body.description, req.params.id], (err, results) => {
           if (err) {
-            return res.send({
+            return res.status(404).send({
               success: false,
-              msg: err.msg
+              msg: 'There was a problem with the description input.'
             });
           }
 
           callback(null);
         });
+      } else {
+        callback(null);
       }
-
-      callback(null);
     },
 
     function updateTitle(callback) {
       if (req.body.title) {
         pool.query('UPDATE tasks SET title = $1 WHERE id = $2', [req.body.title, req.params.id], (err, results) => {
           if (err) {
-            return res.send({
+            return res.status(404).send({
               success: false,
-              msg: err.msg
+              msg: 'There was a problem with the title input.'
             });
           }
 
           callback(null);
         });
+      } else {
+        callback(null);
       }
-
-      callback(null);
     },
 
     function updateDate(callback) {
       if (req.body.due_date) {
         pool.query('UPDATE tasks SET due_date = $1 WHERE id = $2', [req.body.due_date, req.params.id], (err, results) => {
           if (err) {
-            return res.send({
+            return res.status(404).send({
               success: false,
-              msg: err.msg
+              msg: 'There was a problem with the date input.'
             });
           }
 
           callback(null);
         });
+      } else {
+        callback(null);
       }
 
-      callback(null);
+
     }
   ], function(err, results) {
     if (err) {
-      return res.send({
+      return res.status(404).send({
         success: false,
-        msg: err.msg
+        msg: 'Could not perform one of the updates.'
       });
     }
 
     // success! updated. return the task from db using req.params.id
-    pool.query('SELECT * FROM tasks WHERE id = $1', [req.params.id], (err, results) => {
+    pool.query('SELECT * FROM tasks WHERE id = $1 AND user_id = $2', [req.params.id, req.session.userId], (err, results) => {
       if (err) {
-        return res.send({
+        return res.status(404).send({
           success: false,
-          msg: err.msg
+          msg: 'Could not return the task from the database.'
         });
       }
 
       let s = results.rows[0];
 
-      return res.send({
+      return res.status(200).send({
         success: true,
         msg: {
           description: s.description,
           title: s.title,
-          due_date: s.due_date,
+          due_date: moment(s.due_date).format("dddd, MMMM Do YYYY"),
           difficulty: s.difficulty,
-          urgent: s.urgent 
+          urgent: s.urgent,
+          id: s.id
         }
       });
     });
@@ -548,15 +551,15 @@ exports.updateTask = [
 }];
 
 exports.deleteTask = function(req, res, next) {
-  pool.query('DELETE FROM tasks WHERE id = $1', [req.params.id], (err, results) => {
+  pool.query('DELETE FROM tasks WHERE id = $1 AND user_id = $2', [req.params.id, req.session.userId], (err, results) => {
     if (err) {
-      return res.send({
+      return res.status(404).send({
         success: false,
         msg: 'Task could not be marked finished.'
       });
     }
 
-    return res.send({
+    return res.status(200).send({
       success: true,
       msg: 'Task successfully marked finished and removed.'
     });

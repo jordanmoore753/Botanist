@@ -13,6 +13,13 @@ $(function() {
       $('#adding_form').on('submit', $.proxy(this.addTask, this));
       $('#updating_form').on('submit', $.proxy(this.updateTask, this));
       $('#deleting_form').on('submit', $.proxy(this.removeTask, this));
+      $('textarea').on('keydown', $.proxy(this.preventEnter, this));
+    },
+
+    preventEnter: function(e) {
+      if (e.keyCode === 13) {
+        e.preventDefault();
+      }
     },
 
     selectItem: function(e) {
@@ -148,6 +155,8 @@ $(function() {
         1: 'title',
         2: 'due_date'
       };
+      const self = this;
+      const id = $('.is-active').attr('data-value');
 
       let data = {};
 
@@ -156,12 +165,31 @@ $(function() {
       let date = $('#updating_form input[name="due_date"]').val();
 
       [d, t, date].forEach(function(value, i) {
-        if (value !== undefined) {
-          data[eq[i]] = value;
-        }
+        if (value.length > 0) { data[eq[i]] = value; }
       });
 
+      fetch(`/tasks/update/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(function(json) {
+        if (json.success === true) {
+          $('#notifications div').remove();
+          self.populateUpdate(json.msg);
+          self.populateDetails();
+        } else {
+          self.newMsg(json);
+        }
 
+        self.hideForm();
+      })
+      .catch(function(err) {
+
+      });
     },
 
     addTask: function(e) {
@@ -224,14 +252,39 @@ $(function() {
     },
 
     populateUpdate: function(body) {
+      $('.is-active').empty();
+      $('.is-active').attr('data-desc', body.description);
+      $('.is-active').attr('data-value', body.id);
+      $('.is-active').attr('data-due', body.due_date);
 
+      let s = document.createElement('span');
+      s.setAttribute('style', 'margin-right: 10px;');
+
+      if (body.urgent === true) {
+        s.classList.add('tag', 'is-warning');
+        s.textContent = 'URGENT';
+      } else if (body.difficulty === 'easy') {
+        s.classList.add('tag', 'is-success', 'is-light');
+        s.textContent = 'Easy';
+      } else if (body.difficulty === 'medium') {
+        s.classList.add('tag', 'is-warning', 'is-light');
+        s.textContent = 'Medium';
+      } else {
+        s.classList.add('tag', 'is-danger', 'is-light');
+        s.textContent = 'Hard';
+      }
+
+      let t = document.createTextNode(body.title);
+
+      $('.is-active').append(s);
+      $('.is-active').append(t);
     },
 
     populateAdd: function(body) {
       $('.is-active').removeClass('is-active');
 
       let newItem = document.createElement('a');
-      newItem.classList.add('list-item', 'is-active');
+      newItem.classList.add('list-item');
 
       // add data attributes
       newItem.dataset.value = body.id;

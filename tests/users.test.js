@@ -365,20 +365,16 @@ describe('valid information allows for password reset', () => {
 
 describe('tasks route', () => {
   it('should get all tasks', async () => {
-    const res = await testSession.post('/login')
-      .send({
-        email: 'suckboot323@gmail.com',
-        password: 'abcdefgh1!'
-      });
+    await login();
 
     const res2 = await testSession.get('/tasks');
     expect(res2.statusCode).toEqual(200);
     expect(res2.redirect).toEqual(false);
-    console.log(res2.res.text);
+    expect(res2.res.text.includes('<title>Tasks</title>')).toBe(true);
   });
 
   it('should not get all tasks, not logged in', async () => {
-    const res2 = await request.get('tasks');
+    const res2 = await testSession.get('/tasks');
 
     expect(res2.statusCode).toEqual(302);
     expect(res2.redirect).toEqual(true);
@@ -386,18 +382,14 @@ describe('tasks route', () => {
   });
 
   it('should add tasks', async () => {
-    const res = await testSession.post('/login')
-      .send({
-        email: 'suckboot323@gmail.com',
-        password: 'abcdefgh1!'
-      });
+    await login();
 
     const data = {
       description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
       title: 'Hunter Mountain Work',
       difficulty: 'medium',
       urgent: 'false',
-      date_due: '2020-04-20'
+      due_date: '2020-04-20'
     };
 
     const res2 = await testSession.post('/tasks/new')
@@ -405,7 +397,7 @@ describe('tasks route', () => {
 
     expect(res2.statusCode).toEqual(200);
     expect(res2.redirect).toEqual(false);
-    console.log(res2.res.body);
+    expect(res2.body.success).toEqual(true);
   });
 
   it('should not add task, not logged in', async () => {
@@ -414,10 +406,10 @@ describe('tasks route', () => {
       title: 'Hunter Mountain Work',
       difficulty: 'medium',
       urgent: 'false',
-      date_due: '2020-04-20'
+      due_date: '2020-04-20'
     };
 
-    const res2 = await request.post('/tasks/new')
+    const res2 = await request(app).post('/tasks/new')
       .send(data);
 
     expect(res2.statusCode).toEqual(302);
@@ -426,17 +418,13 @@ describe('tasks route', () => {
   });
 
   it('should not add task, invalid params', async () => {
-    const res = await testSession.post('/login')
-      .send({
-        email: 'suckboot323@gmail.com',
-        password: 'abcdefgh1!'
-      });
+    await login();
 
     let data = {
       title: 'Hunter Mountain Work',
       difficulty: 'medium',
       urgent: 'false',
-      date_due: '2020-04-20'
+      due_date: '2020-04-20'
     };
 
     let res2 = await testSession.post('/tasks/new')
@@ -444,15 +432,14 @@ describe('tasks route', () => {
 
     expect(res2.statusCode).toEqual(404);
     expect(res2.redirect).toEqual(false);
-    console.log(res2.res.body);
+    expect(res2.body.success).toEqual(false);
 
     data = {
       description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
       title: 'Hunter Mountain Work',
       difficulty: 'medium',
       urgent: 'false',
-      date_due: '2020-04-20',
-      one: '22'
+      due_date: 'finger',
     };
 
     res2 = await testSession.post('/tasks/new')
@@ -460,29 +447,14 @@ describe('tasks route', () => {
 
     expect(res2.statusCode).toEqual(404);
     expect(res2.redirect).toEqual(false);
-    console.log(res2.res.body);
-
-    data = {
-      description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
-      title: 'Hunter Mountain Work',
-      difficulty: 'medium',
-      urgent: 'false',
-      date_due: 'finger',
-    };
-
-    res2 = await testSession.post('/tasks/new')
-      .send(data);
-
-    expect(res2.statusCode).toEqual(404);
-    expect(res2.redirect).toEqual(false);
-    console.log(res2.res.body);
+    expect(res2.body.success).toEqual(false);
 
     data = {
       description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
       title: 'Hunter Mountain Work',
       difficulty: 'med',
       urgent: 'false',
-      date_due: '2020-04-20',
+      due_date: '2020-04-20',
     };
 
     res2 = await testSession.post('/tasks/new')
@@ -490,14 +462,14 @@ describe('tasks route', () => {
 
     expect(res2.statusCode).toEqual(404);
     expect(res2.redirect).toEqual(false);
-    console.log(res2.res.body);
+    expect(res2.body.success).toEqual(false);
 
     data = {
       description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
       title: 'Hunter Mountain Work',
       difficulty: 'medium',
       urgent: 'yum',
-      date_due: '2020-04-20',
+      due_date: '2020-04-20',
     };
 
     res2 = await testSession.post('/tasks/new')
@@ -505,107 +477,87 @@ describe('tasks route', () => {
 
     expect(res2.statusCode).toEqual(404);
     expect(res2.redirect).toEqual(false);
-    console.log(res2.res.body);
+    expect(res2.body.success).toEqual(false);
   });
 
   it('should remove tasks', async () => {
-    const res = await testSession.post('/login')
-      .send({
-        email: 'suckboot323@gmail.com',
-        password: 'abcdefgh1!'
-      });
+    await login();
 
+    const clearPool = pool.query('DELETE FROM tasks');
     const data = {
       description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
       title: 'Hunter Mountain Work',
       difficulty: 'medium',
       urgent: 'false',
-      date_due: '2020-04-20'
+      due_date: '2020-04-20'
     };
 
     const res2 = await testSession.post('/tasks/new')
       .send(data);
 
     const poolRes = await pool.query('SELECT * FROM tasks');
-    const id = poolRes.rows[0].user_id;
+    const id = poolRes.rows[0].id;
     const res3 = await testSession.post(`/tasks/delete/${id}`);
 
     expect(res3.statusCode).toEqual(200);
     expect(res3.redirect).toEqual(false);
-    console.log(res3.res.body);
+    expect(res3.body.success).toBe(true);
+
+    const poolThree = await pool.query('SELECT * FROM tasks');
+    expect(poolThree.rows.length === 0).toBe(true);
   });
 
   it('should not remove task, not logged in', async () => {
-    const res3 = await request.post(`/tasks/delete/1`);
+    const res3 = await request(app).post(`/tasks/delete/1`);
 
     expect(res3.statusCode).toEqual(302);
     expect(res3.redirect).toEqual(true);
     expect(res3.headers.location).toBe('/login');
   });
 
-  it('should not remove task, doesnt exist', async () => {
-    const res = await testSession.post('/login')
-      .send({
-        email: 'suckboot323@gmail.com',
-        password: 'abcdefgh1!'
-      });
-
-    const res3 = await request.post(`/tasks/delete/1`);
-
-    expect(res3.statusCode).toEqual(404);
-    expect(res3.redirect).toEqual(false);
-    console.log(res3.res.body);
-  });
-
   it('should update tasks', async () => {
-    const res = await testSession.post('/login')
-      .send({
-        email: 'suckboot323@gmail.com',
-        password: 'abcdefgh1!'
-      });
+    await login();
+    const clearPool = pool.query('DELETE FROM tasks');
 
     let data = {
       description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
       title: 'Hunter Mountain Work',
       difficulty: 'medium',
       urgent: 'false',
-      date_due: '2020-04-20'
+      due_date: '2020-04-20'
     };
 
     const res2 = await testSession.post('/tasks/new')
       .send(data);
 
     const poolRes = await pool.query('SELECT * FROM tasks');
-    const id = poolRes.rows[0].user_id;
-
-    data = {
-      title: 'Not Mountain',
-      urgent: 'true'
-    };
-
-    // test for limited data
-    const res3 = await testSession.post(`/tasks/update/${id}`)
-      .send(data);
-
-    expect(res3.statusCode).toBe(200);
-    expect(res3.redirect).toBe(false);
-    console.log(res3.res.body);
+    const id = poolRes.rows[0].id;
 
     // test for full data
     data = {
       description: 'Sample descriptionription.',
       title: 'Whatever!',
-      difficulty: 'easy',
-      urgent: 'false',
-      date_due: '2020-04-21'
+      due_date: '2020-04-21'
     };
 
     const res4 = await testSession.post(`/tasks/update/${id}`)
       .send(data);
 
-    expect(res3.statusCode).toBe(200);
-    expect(res3.redirect).toBe(false);
-    console.log(res3.res.body);
+    expect(res4.statusCode).toBe(200);
+    expect(res4.redirect).toBe(false);
+    expect(res4.body.success).toBe(true);
+
+    // test for partial data
+    data = {
+      description: 'Something Yes'
+    };
+
+    const res5 = await testSession.post(`/tasks/update/${id}`)
+      .send(data);
+
+    expect(res5.statusCode).toEqual(200);
+    expect(res5.redirect).toEqual(false);
+    expect(res5.body.success).toEqual(true);
   });
 
   it('should not update task, not logged in', async () => {
@@ -614,10 +566,10 @@ describe('tasks route', () => {
       title: 'Hunter Mountain Work',
       difficulty: 'medium',
       urgent: 'false',
-      date_due: '2020-04-20'
+      due_date: '2020-04-20'
     };
 
-    const res2 = await request.post(`/tasks/update/1`)
+    const res3 = await request(app).post(`/tasks/update/1`)
       .send(data);
 
     expect(res3.statusCode).toEqual(302);
@@ -626,23 +578,18 @@ describe('tasks route', () => {
   });
 
   it('should not update task, invalid params', async () => {
-    const res = await testSession.post('/login')
-      .send({
-        email: 'suckboot323@gmail.com',
-        password: 'abcdefgh1!'
-      });
+    await login();
 
     let data = {
       description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
       title: 'Hunter Mountain Work',
       difficulty: 'medium',
       urgent: 'false',
-      date_due: '2020-04-20'
+      due_date: '2020-04-20'
     };
 
     const res2 = await testSession.post('/tasks/new')
       .send(data);
-
     const poolRes = await pool.query('SELECT * FROM tasks');
     const id = poolRes.rows[0].user_id;
 
@@ -653,7 +600,7 @@ describe('tasks route', () => {
       title: 'Hunter Mountain Work',
       difficulty: 'medium',
       urgent: 'false',
-      date_due: '2020-04-20',
+      due_date: '2020-04-20',
       one: 'more'
     };
 
@@ -662,16 +609,14 @@ describe('tasks route', () => {
 
     expect(res3.statusCode).toBe(404);
     expect(res3.redirect).toBe(false);
-    console.log(res3.res.body);
+    expect(res3.body.success).toEqual(false);
 
     // wrong date type
 
     data = {
       description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
       title: 'Hunter Mountain Work',
-      difficulty: 'medium',
-      urgent: 'false',
-      date_due: 'one'
+      due_date: 'one'
     };
 
     res3 = await testSession.post(`/tasks/update/${id}`)
@@ -679,39 +624,6 @@ describe('tasks route', () => {
 
     expect(res3.statusCode).toBe(404);
     expect(res3.redirect).toBe(false);
-    console.log(res3.res.body);
-
-    // not true or false for urgent
-
-    data = {
-      description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
-      title: 'Hunter Mountain Work',
-      difficulty: 'medium',
-      urgent: '123',
-      date_due: '2020-04-20'
-    };
-
-    res3 = await testSession.post(`/tasks/update/${id}`)
-      .send(data);
-
-    expect(res3.statusCode).toBe(404);
-    expect(res3.redirect).toBe(false);
-    console.log(res3.res.body);
-    // not easy, medium, hard for difficulty
-
-    data = {
-      description: 'Go the top of Hunter Mountain and collect frost samples for lab work.',
-      title: 'Hunter Mountain Work',
-      difficulty: 'sucker',
-      urgent: 'false',
-      date_due: '2020-04-20'
-    };
-
-    res3 = await testSession.post(`/tasks/update/${id}`)
-      .send(data);
-
-    expect(res3.statusCode).toBe(404);
-    expect(res3.redirect).toBe(false);
-    console.log(res3.res.body);
+    expect(res3.body.success).toEqual(false);
   });
 });

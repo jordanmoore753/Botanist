@@ -517,49 +517,140 @@ describe('POST to DELETE plant', () => {
 
 describe('GET to field notes', () => {
   it('should populate a list of available plants', async () => {
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
 
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!'
+      });
+
+    const res = await testSession.get('/plants/fieldnotes/view/130397');
+
+    expect(res.statusCode).toBe(200);
+    expect(res.redirect).toBe(false);
+    expect(res.text.includes('There are no field notes for this plant.')).toBe(true);
+
+    let data = {
+      description: 'Something cool.',
+      important: 'true',
+      upload: 'false'
+    };
+
+    const res2 = await testSession.post('/plants/fieldnotes/add/130397')
+      .send(data);
+
+    const res3 = await testSession.get('/plants/fieldnotes/view/130397');
+    expect(res3.statusCode).toBe(200);
+    expect(res3.redirect).toBe(false);
+    expect(res3.text.includes('There are no field notes for this plant.')).toBe(false);
   });
 })
 
 describe('POST to add field note', () => {
   it('should not add without session data', async () => {
+    let data = {
+      description: 'Something cool.',
+      important: 'true',
+      upload: 'false'
+    };
 
+    const res3 = await request(app).post('/plants/fieldnotes/add/130397')
+      .send(data);
+
+    expect(res3.statusCode).toBe(302);
+    expect(res3.redirect).toBe(true);
+    expect(res3.headers.location).toEqual('/login');
   });
 
   it('should not add without description', async () => {
+const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
 
-  });
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!'
+      });
 
-  it('should not add with invalid data', async () => {
+    const res = await testSession.get('/plants/fieldnotes/view/130397');
 
-  });
+    expect(res.statusCode).toBe(200);
+    expect(res.redirect).toBe(false);
+    expect(res.text.includes('There are no field notes for this plant.')).toBe(true);
 
-  it('should add with valid data', async () => {
+    let data = {
+      important: 'true',
+      upload: 'false'
+    };
 
+    const res2 = await testSession.post('/plants/fieldnotes/add/130397')
+      .send(data);
+    
+    expect(res2.statusCode).toBe(404);
+    expect(res2.redirect).toBe(false);
+    expect(res2.body.success).toBe(false);    
   });
 });
 
 describe('POST to delete field note', () => {
   it('should not delete without session data', async () => {
+    const res3 = await request(app).post('/plants/fieldnotes/view/130397/delete/1');
 
-  });
-
-  it('should not delete with non-existent id', async () => {
-
+    expect(res3.statusCode).toBe(302);
+    expect(res3.redirect).toBe(true);
+    expect(res3.headers.location).toEqual('/login');
   });
 
   it('should delete with correct id', async () => {
+    const clearPool = await pool.query('DELETE FROM notes');
+    const r = await testSession.post('/register')
+    .send({
+      username: 'suck',
+      email: 'suck@gmail.com',
+      password: 'abcdefgh1!',
+      password_conf: 'abcdefgh1!'
+    });
 
-  });
-});
+    const l = await testSession.post('/login')
+      .send({
+        email: 'suck@gmail.com',
+        password: 'abcdefgh1!'
+      });
 
-describe('GET to all notes for given plant', () => {
-  it('should redirect to login if not logged in', async () => {
+    const res = await testSession.get('/plants/fieldnotes/view/130397');
 
-  });
+    expect(res.statusCode).toBe(200);
+    expect(res.redirect).toBe(false);
+    expect(res.text.includes('There are no field notes for this plant.')).toBe(true);
 
-  it('should load all notes for plant id', async () => {
+    let data = {
+      description: 'Something cool.',
+      important: 'true',
+      upload: 'false'
+    };
 
+    const res2 = await testSession.post('/plants/fieldnotes/add/130397')
+      .send(data);
+
+    const getId = await pool.query('SELECT * FROM notes');
+    const fieldId = getId.rows[0].id;
+
+    const res3 = await testSession.post(`/plants/fieldnotes/view/130397/delete/${fieldId}`);
+    expect(res3.statusCode).toBe(200);
+    expect(res3.redirect).toBe(false);
+    expect(res3.body.success).toBe(true);
   });
 });
 

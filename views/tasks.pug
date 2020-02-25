@@ -11,14 +11,14 @@ block content
               div(class='field')
                 label(for='title' class='label') Title
                 div(class='control has-icons-left')
-                  input(type='text' name='title' class='input' maxlength='30' title='This is the text that will be displayed in the list.' required)
+                  input(type='text' name='title' class='input' maxlength='30' title='1-30 characters.' required)
                   span(class='icon is-small is-left')
                     i(class='fas fa-font') 
               div(class='field')
                 label(for='description', class='label') Description
                 div(class='control has-icons-left')
                   div(class='control')
-                    textarea(class='textarea' minlength='10', form='adding_form', name='description', spellcheck='true', cols='50', rows='3', required) What do you need to do?
+                    textarea(class='textarea' minlength='10', form='adding_form', name='description', spellcheck='true', cols='50', rows='3', title='10-1000 characters.' required) What do you need to do?
               div(class='field')
                 label(for='date_due', class='label')
                   input(type='date', name='due_date', class='input' required)
@@ -51,14 +51,14 @@ block content
               div(class='field')
                 label(for='title' class='label') Title
                 div(class='control has-icons-left')
-                  input(type='text' name='title' class='input' maxlength='30' title='This is the text that will be displayed in the list.')
+                  input(type='text' name='title' class='input' maxlength='30' title='1-30 characters.')
                   span(class='icon is-small is-left')
                     i(class='fas fa-font') 
               div(class='field')
                 label(for='description', class='label') Description
                 div(class='control has-icons-left')
                   div(class='control')
-                    textarea(class='textarea' minlength='10', form='adding_form', name='description', spellcheck='true', cols='50', rows='3')
+                    textarea(class='textarea' minlength='10', form='adding_form', name='description', spellcheck='true', cols='50', rows='3' title='10-1000 characters only.')
               div(class='field')
                 label(for='date_due', class='label')
                   input(type='date', name='due_date', class='input')
@@ -101,7 +101,7 @@ block content
                   p(class='is-medium') There are no tasks to display.
         div(class='column is-2')
           div(class='content')
-            h1(class='is-medium has-text-centered', style='text-shadow: 1px 1px white;') Task Actions
+            h1(class='is-medium has-text-centered', style='text-shadow: 1px 1px white;') Actions
           div(class='box')
             div(class='field')
               div(class='control')
