@@ -419,15 +419,25 @@ exports.newTask = [
       });
     }
 
-    return res.status(200).send({
-      success: true,
-      msg: {
-        description: req.body.description,
-        title: req.body.title,
-        due_date: moment(req.due_date).format("dddd, MMMM Do YYYY"),
-        urgent: req.body.urgent,
-        difficulty: req.body.difficulty
-      }
+    pool.query('SELECT * FROM tasks WHERE user_id = $1 AND title = $2 AND description = $3', [req.session.userId, req.body.title, req.body.description], (err, results) => {
+      if (err) {
+        return res.status(404).send({
+          success: false,
+          msg: 'There was a problem while retrieving the task. Contact the admin.'
+        });
+      }  
+
+      return res.status(200).send({
+        success: true,
+        msg: {
+          description: req.body.description,
+          title: req.body.title,
+          due_date: moment(req.due_date).format("dddd, MMMM Do YYYY"),
+          urgent: req.body.urgent,
+          difficulty: req.body.difficulty,
+          id: results.rows[results.rows.length - 1].id
+        }
+      });    
     });
   });
 }];
