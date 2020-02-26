@@ -222,7 +222,7 @@ $(function() {
       $('#details_info').css('height', 'auto');
 
       let p = document.createElement('p');
-      p.textContent = 'Information regarding a plant will populate here.';
+      p.textContent = 'Click on an attribute in the list to the left to see its information.';
       p.classList.add('is-medium', 'has-text-centered');
 
       $('#details_info').append(p);
