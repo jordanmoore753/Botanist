@@ -134,7 +134,19 @@ exports.register = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty() || Object.keys(req.body).length !== 4) {
-      return renderHelper.renderAlert(req, res, 'One or more inputs were incorrectly written. Try again.', 'Register', 'register', 404, 'error');
+      let e = [];
+
+      errors.errors.forEach(function(obj) {
+        e.push(obj.msg);
+      });
+
+      e = e.filter((msg) => msg !== 'Invalid value' ).join(' ');
+
+      if (e.length === 0) {
+        e = 'Invalid values submitted.'
+      }
+      
+      return renderHelper.renderAlert(req, res, e, 'Register', 'register', 404, 'error');
     }
 
     bcrypt.hash(req.body.password, 10).then((hash) => {

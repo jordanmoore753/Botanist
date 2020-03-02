@@ -157,7 +157,7 @@ describe('/register too many params does not create new user', () => {
   it('should not create a user successfully, return 404', async () => {
     const res = await request(app).post('/register')
       .send({
-        username: 'suck',
+        username: 'suckdfdklafjdla',
         email: 'suckboot323@gmail.com',
         password: 'abcdefgh1!',
         password_conf: 'abcdefgh1!',
@@ -167,7 +167,7 @@ describe('/register too many params does not create new user', () => {
     expect(res.statusCode).toEqual(404);
     expect(res.redirect).toEqual(false);
     expect(res.req.finished).toEqual(true);
-    expect(res.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">One or more inputs were incorrectly written. Try again.')).toEqual(true);
+    expect(res.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">Invalid values submitted.')).toEqual(true);
   });
 });
 
@@ -175,7 +175,7 @@ describe('/register too few params does not create new user', () => {
   it('should not create a user successfully, return 404', async () => {
     const res = await testSession.post('/register')
       .send({
-        username: 'suck',
+        username: 'sucdjljdlddljjdk',
         email: 'suckboot323@gmail.com',
         password: 'abcdefgh1!'
       });
@@ -183,7 +183,7 @@ describe('/register too few params does not create new user', () => {
     expect(res.statusCode).toEqual(404);
     expect(res.redirect).toEqual(false);
     expect(res.req.finished).toEqual(true);
-    expect(res.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">One or more inputs were incorrectly written. Try again.')).toEqual(true);
+    expect(res.text.includes('<div class="notification is-danger is-light"><p class="is-medium has-text-centered">Password confirmation does not match.')).toEqual(true);
   });
 });
 
