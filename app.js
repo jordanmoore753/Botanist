@@ -69,7 +69,12 @@ app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     return res.render('error');
   } else {
-    return res.redirect('/login');
+    // production
+    if (req.header('x-forwarded-proto') !== 'https') {
+      return res.redirect(`https://${req.header('host')}${req.url}`);
+    } else {
+      return res.redirect('/login');
+    }
   }
 });
 
